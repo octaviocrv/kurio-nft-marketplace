@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TabsRouteImport } from './routes/_tabs'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as TabsIndexRouteImport } from './routes/_tabs/index'
 import { Route as TabsFavoritosRouteImport } from './routes/_tabs/favoritos'
 import { Route as NftNftIdRouteImport } from './routes/nft/$nftId'
@@ -20,9 +22,19 @@ const TabsRoute = TabsRouteImport.update({
   id: '/_tabs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CarrinhoRoute = CarrinhoRouteImport.update({
   id: '/carrinho',
   path: '/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TabsIndexRoute = TabsIndexRouteImport.update({
@@ -48,13 +60,17 @@ const TabsContaPerfilRoute = TabsContaPerfilRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof TabsIndexRoute
+  '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
+  '/login': typeof LoginRoute
   '/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
   '/conta/perfil': typeof TabsContaPerfilRoute
 }
 export interface FileRoutesByTo {
+  '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
+  '/login': typeof LoginRoute
   '/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
   '/': typeof TabsIndexRoute
@@ -63,7 +79,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_tabs': typeof TabsRouteWithChildren
+  '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
+  '/login': typeof LoginRoute
   '/_tabs/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
   '/_tabs/': typeof TabsIndexRoute
@@ -71,13 +89,29 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/carrinho' | '/favoritos' | '/nft/$nftId' | '/conta/perfil'
+  fullPaths:
+    | '/'
+    | '/cadastro'
+    | '/carrinho'
+    | '/login'
+    | '/favoritos'
+    | '/nft/$nftId'
+    | '/conta/perfil'
   fileRoutesByTo: FileRoutesByTo
-  to: '/carrinho' | '/favoritos' | '/nft/$nftId' | '/' | '/conta/perfil'
+  to:
+    | '/cadastro'
+    | '/carrinho'
+    | '/login'
+    | '/favoritos'
+    | '/nft/$nftId'
+    | '/'
+    | '/conta/perfil'
   id:
     | '__root__'
     | '/_tabs'
+    | '/cadastro'
     | '/carrinho'
+    | '/login'
     | '/_tabs/favoritos'
     | '/nft/$nftId'
     | '/_tabs/'
@@ -86,7 +120,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   TabsRoute: typeof TabsRouteWithChildren
+  CadastroRoute: typeof CadastroRoute
   CarrinhoRoute: typeof CarrinhoRoute
+  LoginRoute: typeof LoginRoute
   NftNftIdRoute: typeof NftNftIdRoute
 }
 
@@ -99,11 +135,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TabsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/carrinho': {
       id: '/carrinho'
       path: '/carrinho'
       fullPath: '/carrinho'
       preLoaderRoute: typeof CarrinhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_tabs/': {
@@ -153,7 +203,9 @@ const TabsRouteWithChildren = TabsRoute._addFileChildren(TabsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   TabsRoute: TabsRouteWithChildren,
+  CadastroRoute: CadastroRoute,
   CarrinhoRoute: CarrinhoRoute,
+  LoginRoute: LoginRoute,
   NftNftIdRoute: NftNftIdRoute,
 }
 export const routeTree = rootRouteImport

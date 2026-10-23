@@ -22,6 +22,7 @@ Regras do texto:
 - Começa com o tipo da mudança: **Criação**, **Implementação**, **Refatoração**, **Ajustes**, **Correção**, **Configuração**, **Testes**, **Documentação**.
 - Descreve o resultado ("Implementação do carrinho"), não o processo ("mexi em uns arquivos").
 - Se precisar detalhar, use o corpo do commit (linha em branco + tópicos curtos).
+- **Sem assinatura de IA:** nada de `Co-Authored-By`, `Claude-Session` ou qualquer linha de atribuição a ferramenta no commit. O autor é sempre o Octavio.
 
 ## Quando commitar
 
