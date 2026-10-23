@@ -32,7 +32,7 @@ export const nftSchema = z.object({
   tokenId: z.string().regex(/^\d+$/), // exibido como "#0042"
   name: z.string(),
   description: z.string(),
-  image: z.string(),
+  images: z.array(z.string()).min(1), // galeria do detalhe; a primeira é a capa (card, carrinho, recibo)
   collection: z.string(), // "Kurio Apes"
   category: nftCategorySchema,
   network: networkSchema,

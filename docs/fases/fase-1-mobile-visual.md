@@ -25,10 +25,10 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 - [x] `src/lib/eth.ts`: parse/format/soma/multiplicação com `bigint`
 
 ### 1.4 Fixtures
-- [ ] ~40 NFTs combinando coleções, redes, preços e edições (variedade para filtros e paginação)
-- [ ] 2 usuários com carteiras (principal e secundária)
-- [ ] Cupons: válido, inválido, expirado
-- [ ] IDs e token IDs consistentes (corrigir os erros do Figma)
+- [x] ~40 NFTs combinando coleções, redes, preços e edições (variedade para filtros e paginação)
+- [x] 2 usuários com carteiras (principal e secundária)
+- [x] Cupons: válido, inválido, expirado
+- [x] IDs e token IDs consistentes (corrigir os erros do Figma)
 
 ### 1.5 Imagens
 - [ ] Exportar as imagens dos NFTs do Figma para `public/images/` (em WebP, tamanhos adequados)
@@ -69,3 +69,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 1.1 Setup: Vite 8 + React 19 + TS 6, alias `@/`, Tailwind v4, shadcn (init manual, compatível com o CLI), TanStack Router file-based, ESLint, `.gitattributes` | Configuração do projeto base |
 | 2026-10-23 | 1.2 Tema: tokens do Figma em `--kurio-*` ligados ao shadcn, tema escuro fixo, Roboto Mono local (latin), 10 componentes shadcn adaptados, vitrine temporária na `/` | Implementação do tema e componentes base |
 | 2026-10-23 | 1.3 Contratos: schemas zod + tipos por recurso em `src/api` (pedido como união por status, cotação como fonte dos valores, recibo como snapshot) e `src/lib/eth.ts` com bigint | Implementação dos contratos e utilitário de ETH |
+| 2026-10-23 | 1.4 Fixtures: 40 NFTs (4 coleções, 9 categorias, 3 redes, casos de esgotado/estoque baixo/1-1/promoção), 2 usuários com senha em hash e carteiras, cupons válido/expirado; `Nft.image` → `images[]` (galeria) | Criação das fixtures do catálogo, usuários e cupons |
