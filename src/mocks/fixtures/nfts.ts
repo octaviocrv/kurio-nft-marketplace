@@ -16,7 +16,7 @@ import type { Network } from '@/api/shared'
  *   - preço promocional (preço riscado): Neon Vessel #552, Lilac Drifter #389, Honey Pulse #649
  */
 
-/** As 4 artes do Figma. Cada uma define coleção, atributos base e as imagens da galeria. */
+/** As 4 artes do Figma (exportadas em public/images/nfts). Cada uma define coleção e atributos base. */
 const artworks = {
   'emerald-ape': { collection: 'Kurio Apes', attributes: ['Óculos', 'Jaqueta varsity'] },
   'sage-nomad': { collection: 'Kurio Nomads', attributes: ['Chapéu bucket', 'Moletom'] },
@@ -81,7 +81,8 @@ function buildNft(row: NftRow): Nft {
     tokenId: tokenNumber.padStart(4, '0'), // "042" → "0042"
     name: row.name,
     description: `Um colecionável digital da coleção ${collection}, finalizado à mão e verificado na ${network}.`,
-    images: [`/images/nfts/${row.artwork}.webp`],
+    // Galeria: obra inteira (capa) + close no rosto + detalhe da roupa, recortados da arte original
+    images: [`/images/nfts/${row.artwork}.webp`, `/images/nfts/${row.artwork}-face.webp`, `/images/nfts/${row.artwork}-detail.webp`],
     collection,
     category: row.category,
     network: row.network,
