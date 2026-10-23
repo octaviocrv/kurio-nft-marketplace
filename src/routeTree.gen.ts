@@ -9,50 +9,133 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as TabsRouteImport } from './routes/_tabs'
+import { Route as CarrinhoRouteImport } from './routes/carrinho'
+import { Route as TabsIndexRouteImport } from './routes/_tabs/index'
+import { Route as TabsFavoritosRouteImport } from './routes/_tabs/favoritos'
+import { Route as TabsContaPerfilRouteImport } from './routes/_tabs/conta/perfil'
 
-const IndexRoute = IndexRouteImport.update({
+const TabsRoute = TabsRouteImport.update({
+  id: '/_tabs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarrinhoRoute = CarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TabsIndexRoute = TabsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => TabsRoute,
+} as any)
+const TabsFavoritosRoute = TabsFavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
+  getParentRoute: () => TabsRoute,
+} as any)
+const TabsContaPerfilRoute = TabsContaPerfilRouteImport.update({
+  id: '/conta/perfil',
+  path: '/conta/perfil',
+  getParentRoute: () => TabsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof TabsIndexRoute
+  '/carrinho': typeof CarrinhoRoute
+  '/favoritos': typeof TabsFavoritosRoute
+  '/conta/perfil': typeof TabsContaPerfilRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
+  '/favoritos': typeof TabsFavoritosRoute
+  '/': typeof TabsIndexRoute
+  '/conta/perfil': typeof TabsContaPerfilRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_tabs': typeof TabsRouteWithChildren
+  '/carrinho': typeof CarrinhoRoute
+  '/_tabs/favoritos': typeof TabsFavoritosRoute
+  '/_tabs/': typeof TabsIndexRoute
+  '/_tabs/conta/perfil': typeof TabsContaPerfilRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/carrinho' | '/favoritos' | '/conta/perfil'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/carrinho' | '/favoritos' | '/' | '/conta/perfil'
+  id:
+    | '__root__'
+    | '/_tabs'
+    | '/carrinho'
+    | '/_tabs/favoritos'
+    | '/_tabs/'
+    | '/_tabs/conta/perfil'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  TabsRoute: typeof TabsRouteWithChildren
+  CarrinhoRoute: typeof CarrinhoRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_tabs': {
+      id: '/_tabs'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof TabsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carrinho': {
+      id: '/carrinho'
+      path: '/carrinho'
+      fullPath: '/carrinho'
+      preLoaderRoute: typeof CarrinhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_tabs/': {
+      id: '/_tabs/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof TabsIndexRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/favoritos': {
+      id: '/_tabs/favoritos'
+      path: '/favoritos'
+      fullPath: '/favoritos'
+      preLoaderRoute: typeof TabsFavoritosRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/conta/perfil': {
+      id: '/_tabs/conta/perfil'
+      path: '/conta/perfil'
+      fullPath: '/conta/perfil'
+      preLoaderRoute: typeof TabsContaPerfilRouteImport
+      parentRoute: typeof TabsRoute
     }
   }
 }
 
+interface TabsRouteChildren {
+  TabsFavoritosRoute: typeof TabsFavoritosRoute
+  TabsIndexRoute: typeof TabsIndexRoute
+  TabsContaPerfilRoute: typeof TabsContaPerfilRoute
+}
+
+const TabsRouteChildren: TabsRouteChildren = {
+  TabsFavoritosRoute: TabsFavoritosRoute,
+  TabsIndexRoute: TabsIndexRoute,
+  TabsContaPerfilRoute: TabsContaPerfilRoute,
+}
+
+const TabsRouteWithChildren = TabsRoute._addFileChildren(TabsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  TabsRoute: TabsRouteWithChildren,
+  CarrinhoRoute: CarrinhoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

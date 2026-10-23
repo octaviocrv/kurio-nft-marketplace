@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_tabs/')({
   component: HomePage,
 })
 
@@ -25,7 +25,7 @@ function HomePage() {
         <Button size="lg" className="rounded-full">Comprar NFT</Button>
         <Button>Entrar</Button>
         <Button variant="outline">Continuar com Google</Button>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Button variant="secondary" size="icon" className="rounded-full" aria-label="Favoritar">
             <Heart />
           </Button>
