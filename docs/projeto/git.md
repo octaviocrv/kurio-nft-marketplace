@@ -33,13 +33,14 @@ Commits **medianos**: um commit por bloco significativo, que dá pra descrever n
 
 ## Antes de commitar (obrigatório)
 
-1. `npm run typecheck`, `npm run lint` e `npm run build` passam.
+0. A tarefa foi **aprovada pelo Octavio** na homologação (`homologacao.md`). Sem aprovação, sem commit.
+1. Verificações de fim de tarefa (`docs/projeto/verificacoes.md`): typecheck, lint e build passam.
 2. Nada de arquivo indesejado: `node_modules`, `dist`, `.env`, `EscopoDesafioVaga.md`.
 3. Marcar o checkbox da tarefa e adicionar a linha no **Registro** da fase, no mesmo commit.
 
 ## Push
 
-- Depois de cada commit significativo: `git push`.
+- **A IA nunca faz push.** O push é sempre feito pelo Octavio.
+- Depois do commit, a IA avisa: "Commit feito: `<mensagem>`. Pronto pra push."
 - Branch única: `main`.
-- **Nunca** `git push --force`, `git reset --hard` ou reescrever histórico já enviado.
-- Se o push falhar, parar e avisar. Não tentar contornar.
+- **Nunca** `git push --force`, `git reset --hard`, `git commit --amend` em commit já enviado, ou qualquer reescrita de histórico.

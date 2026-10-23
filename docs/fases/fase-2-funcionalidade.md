@@ -23,6 +23,13 @@
 
 A definir.
 
+## Homologação
+
+Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
+
+| Tarefa | Problema reportado | Status |
+| --- | --- | --- |
+
 ## Registro
 
 | Data | O que foi feito | Commit |

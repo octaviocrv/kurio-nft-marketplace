@@ -12,11 +12,20 @@
 - [ ] Acessibilidade: teclado, foco em diálogos, labels, feedback de mutations e tempo real
 - [ ] Playwright completo + regressão visual (início, detalhe, carrinho, pagamento)
 - [ ] Lighthouse: 3 medições por página/perfil, mediana, LCP/CLS/TBT
+- [ ] Relatório final do Playwright (HTML + traces) copiado para `reports/playwright/`
+- [ ] Relatórios do Lighthouse (HTML/JSON) em `lighthouse/reports/` + versões das ferramentas e ambiente
 - [ ] `README.md` e `docs/ARCHITECTURE.md`
 
 ## Critério de pronto
 
 A definir.
+
+## Homologação
+
+Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
+
+| Tarefa | Problema reportado | Status |
+| --- | --- | --- |
 
 ## Registro
 

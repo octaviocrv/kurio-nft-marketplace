@@ -13,7 +13,7 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 - [ ] Tailwind + shadcn/ui inicializados
 - [ ] TanStack Router (file-based, plugin do Vite) com rota `/` funcionando
 - [ ] ESLint + scripts: `dev`, `build`, `preview`, `typecheck`, `lint`
-- [ ] `.gitignore` e primeiro commit
+- [ ] `.gitattributes` com `* text=auto eol=lf` (padroniza quebra de linha no Windows)
 
 ### 1.2 Tema
 - [ ] Tokens de `tokens.md` como variáveis CSS, ligados ao tema do shadcn
@@ -22,7 +22,7 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 
 ### 1.3 Contratos e utilitários
 - [ ] Tipos + schemas zod em `src/api`: Nft, Edition, User, Session, Wallet, Cart, CartItem, Quote, Coupon, Order
-- [ ] `src/lib/eth.ts`: parse/format/soma/multiplicação com `bigint` + testes rápidos dos casos de borda
+- [ ] `src/lib/eth.ts`: parse/format/soma/multiplicação com `bigint`
 
 ### 1.4 Fixtures
 - [ ] ~40 NFTs combinando coleções, redes, preços e edições (variedade para filtros e paginação)
@@ -54,6 +54,13 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 - Todas as telas acima abrem em 390px parecidas com o Figma e navegam entre si.
 - Nenhum componente importa de `src/mocks` (só arquivos de rota).
 - `npm run typecheck`, `lint` e `build` passam.
+
+## Homologação
+
+Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
+
+| Tarefa | Problema reportado | Status |
+| --- | --- | --- |
 
 ## Registro
 

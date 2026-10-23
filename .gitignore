@@ -2,16 +2,28 @@
 node_modules/
 dist/
 *.local
+*.tsbuildinfo
+.eslintcache
 
-# Ambiente
+# Ambiente (o .env.example vai pro repo, com valores fictícios)
 .env
 .env.*
 !.env.example
 
-# Testes (relatórios gerados; baselines de regressão visual ficam versionadas)
+# Deploy
+.vercel/
+
+# Playwright: saídas de cada execução (regeneradas a cada rodada).
+# O relatório final entregue fica em reports/playwright/ e as baselines de regressão visual (*-snapshots/) são versionadas.
 playwright-report/
 test-results/
 blob-report/
+
+# Lighthouse: execuções locais temporárias (os relatórios finais ficam em lighthouse/reports/)
+.lighthouseci/
+
+# Claude Code: configurações locais da máquina (o CLAUDE.md e docs/ vão pro repo)
+.claude/settings.local.json
 
 # Editor / SO
 .vscode/*
