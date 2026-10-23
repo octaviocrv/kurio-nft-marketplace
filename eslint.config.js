@@ -27,4 +27,9 @@ export default defineConfig([
     files: ['src/routes/**/*.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
+  {
+    // Componentes do shadcn exportam também as variantes (ex.: buttonVariants), padrão da lib
+    files: ['src/components/ui/**/*.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
 ])

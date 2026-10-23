@@ -1,38 +1,69 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* O app só tem tema escuro: <html class="dark"> fixo. Assim os ajustes `dark:` do shadcn
+   valem sempre, em vez de depender do tema do sistema operacional de quem abre. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
- * Tema base do shadcn/ui (paleta neutral).
- * Os valores são provisórios: na tarefa 1.2 viram os tokens do Figma (docs/figma/tokens.md).
+ * 1) Tokens do Figma (docs/figma/tokens.md), com os nomes do Figma.
+ *    É o único lugar com hex de cor no projeto.
  */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --kurio-ink: #140d0a;
+  --kurio-surface-card: #241612;
+  --kurio-surface-dark: #38220f;
+  --kurio-border: #3f2319;
+  --kurio-border-soft: #55321f;
+  --kurio-primary: #d28a4c;
+  --kurio-secondary: #b39463;
+  --kurio-text-primary: #f7f3ec;
+  --kurio-text-secondary: #cfb28c;
+  --kurio-text-accent: #e89b55;
+  /* Não está no Figma: vermelho para erro de formulário, no mesmo tom quente da paleta */
+  --kurio-danger: #e5604d;
 }
 
-/* Expõe as variáveis como utilitários do Tailwind (bg-primary, text-muted-foreground, rounded-lg...) */
+/*
+ * 2) Tema do shadcn apontando para os tokens. Os componentes de ui/ só usam estes nomes.
+ */
+:root {
+  color-scheme: dark;
+  --radius: 0.625rem;
+
+  --background: var(--kurio-ink);
+  --foreground: var(--kurio-text-primary);
+  --card: var(--kurio-surface-card);
+  --card-foreground: var(--kurio-text-primary);
+  --popover: var(--kurio-surface-card);
+  --popover-foreground: var(--kurio-text-primary);
+  /* No Figma o texto dos botões laranja é escuro (ink), não claro */
+  --primary: var(--kurio-primary);
+  --primary-foreground: var(--kurio-ink);
+  --secondary: var(--kurio-surface-dark);
+  --secondary-foreground: var(--kurio-text-primary);
+  --muted: var(--kurio-surface-card);
+  --muted-foreground: var(--kurio-text-secondary);
+  --accent: var(--kurio-surface-dark);
+  --accent-foreground: var(--kurio-text-primary);
+  --destructive: var(--kurio-danger);
+  --border: var(--kurio-border);
+  --input: var(--kurio-border);
+  --ring: var(--kurio-primary);
+
+  /* Extras do Figma que o shadcn não tem */
+  --highlight: var(--kurio-text-accent); /* preço, link, aba ativa */
+  --border-soft: var(--kurio-border-soft);
+}
+
 @theme inline {
+  --font-sans: "Roboto Mono", ui-monospace, monospace;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -51,6 +82,16 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-highlight: var(--highlight);
+  --color-border-soft: var(--border-soft);
+
+  /* Brilho que atravessa o Skeleton */
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }
 
 @layer base {
@@ -58,6 +99,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
   }
 }

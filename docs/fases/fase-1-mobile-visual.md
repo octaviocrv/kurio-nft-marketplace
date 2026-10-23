@@ -16,9 +16,9 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 - [x] `.gitattributes` com `* text=auto eol=lf` (padroniza quebra de linha no Windows)
 
 ### 1.2 Tema
-- [ ] Tokens de `tokens.md` como variáveis CSS, ligados ao tema do shadcn
-- [ ] Roboto Mono local via `@fontsource/roboto-mono` (400, 500, 700)
-- [ ] Componentes shadcn base adaptados: Button, Input, Label, Badge, Tabs, Dialog, Sheet, Select, RadioGroup, Skeleton
+- [x] Tokens de `tokens.md` como variáveis CSS, ligados ao tema do shadcn
+- [x] Roboto Mono local via `@fontsource/roboto-mono` (400, 500, 700)
+- [x] Componentes shadcn base adaptados: Button, Input, Label, Badge, Tabs, Dialog, Sheet, Select, RadioGroup, Skeleton
 
 ### 1.3 Contratos e utilitários
 - [ ] Tipos + schemas zod em `src/api`: Nft, Edition, User, Session, Wallet, Cart, CartItem, Quote, Coupon, Order
@@ -67,3 +67,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | Data | O que foi feito | Commit |
 | --- | --- | --- |
 | 2026-10-23 | 1.1 Setup: Vite 8 + React 19 + TS 6, alias `@/`, Tailwind v4, shadcn (init manual, compatível com o CLI), TanStack Router file-based, ESLint, `.gitattributes` | Configuração do projeto base |
+| 2026-10-23 | 1.2 Tema: tokens do Figma em `--kurio-*` ligados ao shadcn, tema escuro fixo, Roboto Mono local (latin), 10 componentes shadcn adaptados, vitrine temporária na `/` | Implementação do tema e componentes base |
