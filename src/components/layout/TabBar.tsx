@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import { Heart, House, ScanLine, ShoppingCart, User, type LucideIcon } from 'lucide-react'
 import type { ComponentProps } from 'react'
 
@@ -7,6 +7,7 @@ interface Tab {
   label: string
   icon: LucideIcon
   filled: boolean // ícones sólidos como no Figma; o carrinho fica vazado porque preenchido vira um borrão
+  section?: string // aba fica ativa em todo esse trecho de URL (ex.: Perfil em /conta/perfil e /conta/carteiras)
 }
 
 const leftTabs: Tab[] = [
@@ -15,16 +16,21 @@ const leftTabs: Tab[] = [
 ]
 const rightTabs: Tab[] = [
   { to: '/carrinho', label: 'Carrinho', icon: ShoppingCart, filled: false },
-  { to: '/conta/perfil', label: 'Perfil', icon: User, filled: true },
+  { to: '/conta/perfil', label: 'Perfil', icon: User, filled: true, section: '/conta' },
 ]
 
-function TabLink({ to, label, icon: Icon, filled }: Tab) {
+function TabLink({ to, label, icon: Icon, filled, section }: Tab) {
+  const pathname = useLocation({ select: (location) => location.pathname })
+  const inSection = section !== undefined && pathname.startsWith(section)
+
   return (
     <Link
       to={to}
       // Só o Início precisa de match exato; senão "/" ficaria ativo em todas as rotas
       activeOptions={{ exact: to === '/' }}
       aria-label={label}
+      // Fora da URL exata o Link não se marca ativo; aqui forçamos o mesmo visual e o aria-current
+      {...(inSection && { 'data-status': 'active', 'aria-current': 'page' as const })}
       className="flex size-12 items-center justify-center rounded-full text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[status=active]:text-primary"
     >
       <Icon className={filled ? 'size-5 fill-current' : 'size-5'} />

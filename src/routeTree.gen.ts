@@ -15,6 +15,7 @@ import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as TabsIndexRouteImport } from './routes/_tabs/index'
+import { Route as TabsContaRouteImport } from './routes/_tabs/conta'
 import { Route as TabsFavoritosRouteImport } from './routes/_tabs/favoritos'
 import { Route as NftNftIdRouteImport } from './routes/nft/$nftId'
 import { Route as PedidoOrderIdRouteImport } from './routes/pedido/$orderId'
@@ -50,6 +51,11 @@ const TabsIndexRoute = TabsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => TabsRoute,
 } as any)
+const TabsContaRoute = TabsContaRouteImport.update({
+  id: '/conta',
+  path: '/conta',
+  getParentRoute: () => TabsRoute,
+} as any)
 const TabsFavoritosRoute = TabsFavoritosRouteImport.update({
   id: '/favoritos',
   path: '/favoritos',
@@ -66,14 +72,14 @@ const PedidoOrderIdRoute = PedidoOrderIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const TabsContaCarteirasRoute = TabsContaCarteirasRouteImport.update({
-  id: '/conta/carteiras',
-  path: '/conta/carteiras',
-  getParentRoute: () => TabsRoute,
+  id: '/carteiras',
+  path: '/carteiras',
+  getParentRoute: () => TabsContaRoute,
 } as any)
 const TabsContaPerfilRoute = TabsContaPerfilRouteImport.update({
-  id: '/conta/perfil',
-  path: '/conta/perfil',
-  getParentRoute: () => TabsRoute,
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => TabsContaRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/carrinho': typeof CarrinhoRoute
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
+  '/conta': typeof TabsContaRouteWithChildren
   '/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
   '/pedido/$orderId': typeof PedidoOrderIdRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/carrinho': typeof CarrinhoRoute
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
+  '/conta': typeof TabsContaRouteWithChildren
   '/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
   '/pedido/$orderId': typeof PedidoOrderIdRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/carrinho': typeof CarrinhoRoute
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
+  '/_tabs/conta': typeof TabsContaRouteWithChildren
   '/_tabs/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
   '/pedido/$orderId': typeof PedidoOrderIdRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
     | '/carrinho'
     | '/checkout'
     | '/login'
+    | '/conta'
     | '/favoritos'
     | '/nft/$nftId'
     | '/pedido/$orderId'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/carrinho'
     | '/checkout'
     | '/login'
+    | '/conta'
     | '/favoritos'
     | '/nft/$nftId'
     | '/pedido/$orderId'
@@ -146,6 +157,7 @@ export interface FileRouteTypes {
     | '/carrinho'
     | '/checkout'
     | '/login'
+    | '/_tabs/conta'
     | '/_tabs/favoritos'
     | '/nft/$nftId'
     | '/pedido/$orderId'
@@ -208,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TabsIndexRouteImport
       parentRoute: typeof TabsRoute
     }
+    '/_tabs/conta': {
+      id: '/_tabs/conta'
+      path: '/conta'
+      fullPath: '/conta'
+      preLoaderRoute: typeof TabsContaRouteImport
+      parentRoute: typeof TabsRoute
+    }
     '/_tabs/favoritos': {
       id: '/_tabs/favoritos'
       path: '/favoritos'
@@ -231,33 +250,45 @@ declare module '@tanstack/react-router' {
     }
     '/_tabs/conta/carteiras': {
       id: '/_tabs/conta/carteiras'
-      path: '/conta/carteiras'
+      path: '/carteiras'
       fullPath: '/conta/carteiras'
       preLoaderRoute: typeof TabsContaCarteirasRouteImport
-      parentRoute: typeof TabsRoute
+      parentRoute: typeof TabsContaRoute
     }
     '/_tabs/conta/perfil': {
       id: '/_tabs/conta/perfil'
-      path: '/conta/perfil'
+      path: '/perfil'
       fullPath: '/conta/perfil'
       preLoaderRoute: typeof TabsContaPerfilRouteImport
-      parentRoute: typeof TabsRoute
+      parentRoute: typeof TabsContaRoute
     }
   }
 }
 
-interface TabsRouteChildren {
-  TabsFavoritosRoute: typeof TabsFavoritosRoute
-  TabsIndexRoute: typeof TabsIndexRoute
+interface TabsContaRouteChildren {
   TabsContaCarteirasRoute: typeof TabsContaCarteirasRoute
   TabsContaPerfilRoute: typeof TabsContaPerfilRoute
 }
 
-const TabsRouteChildren: TabsRouteChildren = {
-  TabsFavoritosRoute: TabsFavoritosRoute,
-  TabsIndexRoute: TabsIndexRoute,
+const TabsContaRouteChildren: TabsContaRouteChildren = {
   TabsContaCarteirasRoute: TabsContaCarteirasRoute,
   TabsContaPerfilRoute: TabsContaPerfilRoute,
+}
+
+const TabsContaRouteWithChildren = TabsContaRoute._addFileChildren(
+  TabsContaRouteChildren,
+)
+
+interface TabsRouteChildren {
+  TabsContaRoute: typeof TabsContaRouteWithChildren
+  TabsFavoritosRoute: typeof TabsFavoritosRoute
+  TabsIndexRoute: typeof TabsIndexRoute
+}
+
+const TabsRouteChildren: TabsRouteChildren = {
+  TabsContaRoute: TabsContaRouteWithChildren,
+  TabsFavoritosRoute: TabsFavoritosRoute,
+  TabsIndexRoute: TabsIndexRoute,
 }
 
 const TabsRouteWithChildren = TabsRoute._addFileChildren(TabsRouteChildren)
