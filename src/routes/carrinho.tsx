@@ -1,8 +1,8 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ShoppingCart } from 'lucide-react'
 import { useState } from 'react'
+import { EmptyState } from '@/components/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Button } from '@/components/ui/button'
 import { CartItemCard } from '@/features/cart/CartItemCard'
 import { CartSummary } from '@/features/cart/CartSummary'
 import { multiplyWei, parseEth, sumWei, toEthString } from '@/lib/eth'
@@ -55,21 +55,18 @@ function CartPage() {
   )
 }
 
-// Estado vazio não desenhado no Figma: segue o padrão visual das outras telas
 function EmptyCart() {
   return (
-    <>
+    <div className="flex min-h-dvh flex-col">
       <PageHeader title="Carrinho de NFTs" />
-      <main className="mx-auto flex max-w-md flex-col items-center gap-4 px-6 pt-16 text-center">
-        <div className="flex size-16 items-center justify-center rounded-full bg-card text-muted-foreground">
-          <ShoppingCart className="size-7" />
-        </div>
-        <h2 className="text-lg font-bold">Seu carrinho está vazio</h2>
-        <p className="text-sm text-muted-foreground">Explore o catálogo e adicione os NFTs que quiser colecionar.</p>
-        <Button asChild>
-          <Link to="/">Explorar NFTs</Link>
-        </Button>
+      <main className="flex flex-1 flex-col">
+        <EmptyState
+          icon={<ShoppingCart />}
+          title="Seu carrinho está vazio"
+          description="Explore o catálogo e adicione os NFTs que quiser colecionar."
+          action={{ label: 'Explorar NFTs', to: '/' }}
+        />
       </main>
-    </>
+    </div>
   )
 }

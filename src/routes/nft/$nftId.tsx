@@ -1,6 +1,7 @@
-import { createFileRoute, Link, notFound, useNavigate } from '@tanstack/react-router'
-import { Heart, Star } from 'lucide-react'
+import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
+import { Heart, SearchX, Star } from 'lucide-react'
 import { useState } from 'react'
+import { EmptyState } from '@/components/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { BuyBar } from '@/features/nft/BuyBar'
@@ -121,15 +122,16 @@ function NftDetailPage() {
 
 function NftNotFound() {
   return (
-    <>
+    <div className="flex min-h-dvh flex-col">
       <PageHeader />
-      <main className="mx-auto flex max-w-md flex-col items-center gap-4 px-6 pt-16 text-center">
-        <h1 className="text-xl font-bold">NFT não encontrado</h1>
-        <p className="text-sm text-muted-foreground">Ele pode ter sido removido ou o link está incorreto.</p>
-        <Button asChild>
-          <Link to="/">Voltar ao catálogo</Link>
-        </Button>
+      <main className="flex flex-1 flex-col">
+        <EmptyState
+          icon={<SearchX />}
+          title="NFT não encontrado"
+          description="Ele pode ter sido removido ou o link está incorreto."
+          action={{ label: 'Voltar ao catálogo', to: '/' }}
+        />
       </main>
-    </>
+    </div>
   )
 }

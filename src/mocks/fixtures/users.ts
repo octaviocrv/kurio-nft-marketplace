@@ -22,7 +22,7 @@ export const users: UserRecord[] = [
     displayName: 'Nova Sato',
     email: 'nova@kurio.dev',
     ensName: 'nova.kurio.eth',
-    avatarUrl: null,
+    avatarUrl: '/images/avatars/nova.webp',
     passwordSalt: 'b7e1c94a2f6d3058',
     passwordHash: '0d6b5ba9756e94a0a318ccecd73a33f0821da78eff8d1a518038c022857e20f6',
   },

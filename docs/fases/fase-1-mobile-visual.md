@@ -46,8 +46,8 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 - [x] Revisão (etapa do `/checkout`) — sem frame, seguir o padrão
 - [x] Confirmação `/pedido/$orderId` — sem frame mobile, adaptar o modal desktop
 - [x] Perfil `/conta/perfil` e Carteiras `/conta/carteiras` — sem frame mobile, adaptar o desktop
-- [ ] Favoritos `/favoritos` — reaproveita o grid do início
-- [ ] 404 para rota inexistente
+- [x] Favoritos `/favoritos` — reaproveita o grid do início
+- [x] 404 para rota inexistente
 
 ## Critério de pronto
 
@@ -79,3 +79,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 1.7 Pagamento e Revisão: carteiras e provedores como radio cards, seletor de rede, dados do colecionador, etapa de revisão via `?etapa=revisao`; carrinho de demonstração movido para fixtures | Implementação do pagamento e da revisão do pedido |
 | 2026-10-23 | 1.7 Confirmação: modal desktop adaptado para tela cheia, recibo do snapshot (`OrderReceipt`), estados pendente/confirmado/recusado com fixtures `ord-1001..1003`, link de explorador simulado por rede | Criação da tela de confirmação do pedido |
 | 2026-10-23 | 1.7 Perfil e Carteiras (sem frame mobile, adaptados do desktop): layout `/conta` com AccountNav, ProfileForm, WalletSection com card + edição inline, FormField; aba Perfil ativa em toda `/conta` | Criação das telas de perfil e carteiras |
+| 2026-10-23 | 1.7 Favoritos e 404: grid reaproveitado, `EmptyState` único (centralizado) para vazio/não encontrado/404, fixture de favoritos; avatar real da Nova, botão Sair, gaveta de filtros reorganizada | Criação de favoritos, 404 e estados vazios |

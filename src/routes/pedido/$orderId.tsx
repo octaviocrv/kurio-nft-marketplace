@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
-import { Clock, X, XCircle } from 'lucide-react'
+import { Clock, SearchX, X, XCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Order } from '@/api/order'
+import { EmptyState } from '@/components/EmptyState'
 import { EthAmount } from '@/components/EthAmount'
 import { Button } from '@/components/ui/button'
 import { networkLabels } from '@/features/catalog/labels'
@@ -131,12 +132,13 @@ function MetaItem({ label, value }: { label: string; value: ReactNode }) {
 
 function OrderNotFound() {
   return (
-    <main className="mx-auto flex max-w-md flex-col items-center gap-4 px-6 pt-24 text-center">
-      <h1 className="text-xl font-bold">Pedido não encontrado</h1>
-      <p className="text-sm text-muted-foreground">Confira o link ou acompanhe seus pedidos pelo perfil.</p>
-      <Button asChild>
-        <Link to="/">Voltar ao início</Link>
-      </Button>
+    <main className="flex min-h-dvh flex-col">
+      <EmptyState
+        icon={<SearchX />}
+        title="Pedido não encontrado"
+        description="Confira o link ou acompanhe seus pedidos pelo perfil."
+        action={{ label: 'Voltar ao início', to: '/' }}
+      />
     </main>
   )
 }

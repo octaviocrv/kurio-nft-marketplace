@@ -17,9 +17,9 @@ function AccountLayout() {
       </div>
       <Outlet />
       {/* Fase 1: só volta ao início. Na fase 2: logout real (limpa cache e desconecta o socket). */}
-      <Button variant="ghost" asChild className="self-start text-highlight">
+      <Button variant="outline" size="lg" asChild className="rounded-xl border-destructive/60 text-destructive hover:bg-destructive/10 hover:text-destructive">
         <Link to="/">
-          <LogOut className="size-5" /> Sair
+          <LogOut className="size-5" /> Sair da conta
         </Link>
       </Button>
     </main>
