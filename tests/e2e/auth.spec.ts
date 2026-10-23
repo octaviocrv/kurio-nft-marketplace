@@ -7,7 +7,7 @@ async function login(page: Page, email = 'nova@kurio.dev', password = 'kurio123'
   await page.getByLabel('Senha', { exact: true }).press('Enter')
 }
 
-test('rota privada leva ao login e retorna ao checkout completo após autenticar e recarregar', async ({ page }) => {
+test('rota privada leva ao login e retorna ao mesmo checkout após autenticar e recarregar', async ({ page }) => {
   await page.goto('/checkout?etapa=revisao')
 
   await expect(page).toHaveURL(/\/login/)
@@ -15,10 +15,10 @@ test('rota privada leva ao login e retorna ao checkout completo após autenticar
 
   await login(page)
   await expect(page).toHaveURL(/\/checkout\?etapa=revisao$/)
-  await expect(page.getByRole('heading', { name: 'Revisão do pedido' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Seu carrinho está vazio' })).toBeVisible()
 
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Revisão do pedido' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Seu carrinho está vazio' })).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem('kurio:session-token'))).toMatch(/^session-/)
 })
 
@@ -71,7 +71,7 @@ test('sessão expirada no checkout preserva o contexto e permite retomar após n
   await login(page)
   await expect(page).toHaveURL(/\/checkout\?etapa=revisao$/)
   // A URL muda antes de a transição do Router terminar; recarregar nesse intervalo cancela o checkout.
-  await expect(page.getByRole('heading', { name: 'Revisão do pedido' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Seu carrinho está vazio' })).toBeVisible()
 
   await page.evaluate(() => window.__kurioMock!.setScenario('session-expired'))
   await page.reload()
@@ -83,6 +83,7 @@ test('sessão expirada no checkout preserva o contexto e permite retomar após n
   await page.evaluate(() => window.__kurioMock!.setScenario('default'))
   await login(page)
   await expect(page).toHaveURL(/\/checkout\?etapa=revisao$/)
+  await expect(page.getByRole('heading', { name: 'Seu carrinho está vazio' })).toBeVisible()
 })
 
 test('logout invalida o token, desconecta o socket e a troca de usuário não reaproveita a sessão anterior', async ({ page }) => {

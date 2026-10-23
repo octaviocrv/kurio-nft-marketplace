@@ -52,10 +52,10 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [x] Testes: quantidades, remoção, cupom, persistência após refresh e login
 
 ### 2.7 Checkout e pedido
-- [ ] Revalidação antes de confirmar: mudança de preço/estoque/cupom/taxa exige nova confirmação
-- [ ] `POST /orders` com `Idempotency-Key` (mesma chave + mesmo payload = mesmo pedido; payload diferente = 409); chave guardada até estado terminal
-- [ ] Pendente → confirmado/recusado; recuperação após refresh; confirmação só para pedido confirmado; remove do carrinho só o que foi comprado
-- [ ] Testes: compra completa; pagamento recusado; clique repetido; timeout com recuperação do mesmo pedido
+- [x] Revalidação antes de confirmar: mudança de preço/estoque/cupom/taxa exige nova confirmação
+- [x] `POST /orders` com `Idempotency-Key` (mesma chave + mesmo payload = mesmo pedido; payload diferente = 409); chave guardada até estado terminal
+- [x] Pendente → confirmado/recusado; recuperação após refresh; confirmação só para pedido confirmado; remove do carrinho só o que foi comprado
+- [x] Testes: compra completa; pagamento recusado; clique repetido; timeout com recuperação do mesmo pedido
 
 ### 2.8 Perfil e carteiras
 - [ ] `GET/PATCH /profile`, avatar (imagem → data URL, com limite de tamanho), `POST /profile/password`
@@ -99,3 +99,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 2.4 Sessão e conta: cadastro/login/logout pela API, sessão persistida, formulários com schemas compartilhados, rotas privadas com retorno ao fluxo, expiração, limpeza de cache/socket e testes E2E mobile/desktop | Implementação da sessão e autenticação |
 | 2026-10-23 | 2.5 Favoritos: API isolada por usuário, integração no catálogo/detalhe/lista, login com retorno ao fluxo, atualização otimista com rollback acessível, persistência e testes E2E mobile/desktop | Implementação dos favoritos com atualização otimista |
 | 2026-10-23 | 2.6 Carrinho e cotação: identidade persistente do visitante, merge no login com limite de estoque, operações REST do carrinho, cotação autoritativa em bigint, cupons válidos/inválidos/expirados, skeleton e recuperação de falhas; 16 testes do bloco e 52 testes da suíte completa passando em mobile/desktop | Implementação do carrinho, cotação e cupons |
+| 2026-10-23 | 2.7 Checkout e pedido: sessão, carrinho, cotação e carteiras pela API; revalidação de preço, estoque, cupom e taxa com nova confirmação explícita; `POST /orders` idempotente (mesma chave e payload = mesmo pedido, payload diferente = 409); pedido pendente que termina confirmado ou recusado, recuperável por ID após refresh; recusa preserva o carrinho e confirmação remove só o comprado; recuperação após timeout reenvia o payload salvo e funciona mesmo com o carrinho já esvaziado; isolamento de pedido por usuário; testes E2E mobile/desktop | Implementação do checkout e pedido |

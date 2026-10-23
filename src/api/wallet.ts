@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { apiClient, parseResponse } from './client'
 import { ensNameSchema, idSchema, networkSchema, walletAddressSchema, walletProviderSchema } from './shared'
 
 /** O enunciado prevê exatamente duas carteiras por usuário: principal e secundária. */
@@ -15,3 +16,11 @@ export const walletSchema = z.object({
   provider: walletProviderSchema, // "Tipo de carteira" no Figma
 })
 export type Wallet = z.infer<typeof walletSchema>
+
+export const walletListSchema = z.object({ items: z.array(walletSchema) })
+export type WalletList = z.infer<typeof walletListSchema>
+
+export async function fetchWallets(signal?: AbortSignal): Promise<WalletList> {
+  const { data } = await apiClient.get('/wallets', { signal })
+  return parseResponse(walletListSchema, data)
+}

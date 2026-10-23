@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { apiClient, parseResponse } from './client'
 import {
   dateTimeSchema,
   ethAmountSchema,
@@ -60,3 +61,25 @@ export const orderSchema = z.discriminatedUnion('status', [
 ])
 export type Order = z.infer<typeof orderSchema>
 export type OrderStatus = Order['status']
+
+export const checkoutInputSchema = z.object({
+  buyerName: z.string().trim().min(1, 'Informe seu nome'),
+  buyerEmail: z.email('Informe um e-mail válido'),
+  walletId: idSchema,
+  walletProvider: walletProviderSchema,
+  network: networkSchema,
+})
+export type CheckoutInput = z.infer<typeof checkoutInputSchema>
+
+export const createOrderInputSchema = checkoutInputSchema.extend({ quoteId: idSchema })
+export type CreateOrderInput = z.infer<typeof createOrderInputSchema>
+
+export async function createOrder(input: CreateOrderInput, idempotencyKey: string): Promise<Order> {
+  const { data } = await apiClient.post('/orders', input, { headers: { 'Idempotency-Key': idempotencyKey } })
+  return parseResponse(orderSchema, data)
+}
+
+export async function fetchOrder(orderId: string, signal?: AbortSignal): Promise<Order> {
+  const { data } = await apiClient.get(`/orders/${orderId}`, { signal })
+  return parseResponse(orderSchema, data)
+}

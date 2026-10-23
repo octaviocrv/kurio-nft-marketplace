@@ -1,5 +1,6 @@
 import type { Nft } from '@/api/nft'
-import type { Coupon } from '@/api/quote'
+import type { Order } from '@/api/order'
+import type { Coupon, Quote } from '@/api/quote'
 import type { Wallet } from '@/api/wallet'
 import { coupons } from './fixtures/coupons'
 import { favoriteIdsByUserId } from './fixtures/favorites'
@@ -23,6 +24,10 @@ export interface MockDb {
   sessions: Record<string, { userId: string; expiresAt: string }>
   cartItemsByOwnerId: Record<string, StoredCartItem[]>
   cartCouponByOwnerId: Record<string, string | null>
+  quotesById: Record<string, StoredQuote>
+  ordersById: Record<string, Order>
+  orderMetaById: Record<string, StoredOrderMeta>
+  idempotencyByUserId: Record<string, Record<string, StoredIdempotency>>
 }
 
 export interface StoredCartItem {
@@ -33,9 +38,36 @@ export interface StoredCartItem {
   unitPriceAtAdd: string
 }
 
+export interface StoredQuote {
+  ownerId: string
+  quote: Quote
+  cartSnapshot: StoredQuotedItem[]
+}
+
+export interface StoredQuotedItem {
+  cartItemId: string
+  nftId: string
+  editionId: string
+  quantity: number
+  quotedQuantity: number
+  unitPrice: string
+}
+
+export interface StoredOrderMeta {
+  userId: string
+  resolveAt: string
+  outcome: 'confirmed' | 'rejected'
+  purchasedItems: { cartItemId: string; nftId: string; editionId: string; quantity: number }[]
+}
+
+export interface StoredIdempotency {
+  payloadHash: string
+  orderId: string
+}
+
 const STORAGE_KEY = 'mock-db'
 // Sobe quando o formato do banco muda: um banco salvo no formato antigo é descartado e o seed volta
-const DB_FORMAT = 3
+const DB_FORMAT = 4
 
 function createSeed(): MockDb {
   // Cópia profunda: o seed (fixtures) nunca é alterado, por isso o reset sempre volta ao mesmo estado
@@ -49,6 +81,10 @@ function createSeed(): MockDb {
     sessions: {},
     cartItemsByOwnerId: {},
     cartCouponByOwnerId: {},
+    quotesById: {},
+    ordersById: {},
+    orderMetaById: {},
+    idempotencyByUserId: {},
   })
 }
 

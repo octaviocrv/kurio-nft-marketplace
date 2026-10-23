@@ -1,4 +1,5 @@
 import type { CartItem } from '@/api/cart'
+import type { Quote } from '@/api/quote'
 import type { Network, WalletProvider } from '@/api/shared'
 import type { Wallet } from '@/api/wallet'
 import { EthAmount } from '@/components/EthAmount'
@@ -14,28 +15,34 @@ interface CheckoutReviewProps {
   wallet: Wallet
   provider: WalletProvider
   network: Network
-  totals: { subtotal: string; discount: string; networkFee: string; total: string }
+  totals: Pick<Quote, 'subtotal' | 'discount' | 'networkFee' | 'total' | 'issues'>
 }
 
 /** Etapa de revisão (não existe no Figma): tudo o que vai ser enviado, antes do clique final. */
 export function CheckoutReview({ items, buyer, wallet, provider, network, totals }: CheckoutReviewProps) {
+  const issueTypes = new Map(totals.issues.map((issue) => [issue.cartItemId, issue.type]))
+
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
         <h2 className="font-bold">Itens</h2>
         <ul className="flex flex-col gap-3">
-          {items.map((item) => (
-            <li key={item.id} className="flex items-center gap-3 text-sm">
-              <img src={item.image} alt="" width={48} height={48} loading="lazy" className="size-12 shrink-0 rounded-lg object-cover" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-bold">{item.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  Edição {item.editionLabel} · {item.quantity}×
-                </p>
-              </div>
-              <EthAmount value={toEthString(multiplyWei(parseEth(item.unitPrice), item.quantity))} className="font-bold text-highlight" />
-            </li>
-          ))}
+          {items.map((item) => {
+            const issue = issueTypes.get(item.id)
+            const quantity = issue === 'sold_out' ? 0 : Math.min(item.quantity, item.available)
+            return (
+              <li key={item.id} className="flex items-center gap-3 text-sm">
+                <img src={item.image} alt="" width={48} height={48} loading="lazy" className="size-12 shrink-0 rounded-lg object-cover" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-bold">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Edição {item.editionLabel} · {quantity}×{quantity !== item.quantity ? ` (de ${item.quantity})` : ''}
+                  </p>
+                </div>
+                <EthAmount value={toEthString(multiplyWei(parseEth(item.unitPrice), quantity))} className="font-bold text-highlight" />
+              </li>
+            )
+          })}
         </ul>
       </section>
 

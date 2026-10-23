@@ -7,7 +7,18 @@ import { readStorage, writeStorage } from './storage'
  * em toda execução. Os cenários de um recurso específico (vazio, sessão expirada, pagamento recusado,
  * timeout do pedido, mudança de preço) entram junto com o handler do recurso.
  */
-export const scenarioSchema = z.enum(['default', 'slow', 'flaky', 'offline', 'error-5xx', 'empty', 'session-expired', 'favorite-error'])
+export const scenarioSchema = z.enum([
+  'default',
+  'slow',
+  'flaky',
+  'offline',
+  'error-5xx',
+  'empty',
+  'session-expired',
+  'favorite-error',
+  'payment-rejected',
+  'order-timeout',
+])
 export type Scenario = z.infer<typeof scenarioSchema>
 
 export const scenarioLabels: Record<Scenario, { title: string; description: string }> = {
@@ -19,6 +30,8 @@ export const scenarioLabels: Record<Scenario, { title: string; description: stri
   empty: { title: 'Catálogo vazio', description: 'A listagem de NFTs responde sem nenhum item.' },
   'session-expired': { title: 'Sessão expirada', description: 'A consulta da sessão responde como expirada.' },
   'favorite-error': { title: 'Erro ao favoritar', description: 'Adicionar ou remover favorito responde com erro.' },
+  'payment-rejected': { title: 'Pagamento recusado', description: 'O novo pedido termina recusado e preserva o carrinho.' },
+  'order-timeout': { title: 'Timeout do pedido', description: 'O pedido é criado, mas a primeira resposta demora além do limite.' },
 }
 
 const STORAGE_KEY = 'mock-scenario'

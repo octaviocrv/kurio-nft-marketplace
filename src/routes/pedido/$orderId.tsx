@@ -1,38 +1,52 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { Clock, SearchX, X, XCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Order } from '@/api/order'
 import { EmptyState } from '@/components/EmptyState'
+import { ErrorState } from '@/components/ErrorState'
 import { EthAmount } from '@/components/EthAmount'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { requireSession, useSession } from '@/features/auth/queries'
 import { networkLabels } from '@/features/catalog/labels'
 import { walletProviderLabels } from '@/features/checkout/labels'
 import { OrderReceipt } from '@/features/checkout/OrderReceipt'
 import { ThankYouIllustration } from '@/features/checkout/ThankYouIllustration'
-import { requireSession } from '@/features/auth/queries'
+import { useOrder } from '@/features/order/queries'
 import { formatDate } from '@/lib/date'
 import { getExplorer, shortenAddress } from '@/lib/wallet'
-import { demoOrders } from '@/mocks/fixtures/orders' // fase 1: vira hook de Query (com polling do status) na fase 2
 
 export const Route = createFileRoute('/pedido/$orderId')({
   beforeLoad: ({ context, location }) => requireSession(context.queryClient, location.href),
-  loader: ({ params }) => {
-    const order = demoOrders.find((item) => item.id === params.orderId)
-    if (!order) throw notFound()
-    return order
-  },
   component: OrderPage,
-  notFoundComponent: OrderNotFound,
 })
 
-// Sem frame mobile no Figma: adapta o modal desktop de confirmação para tela cheia
 function OrderPage() {
-  const order = Route.useLoaderData()
+  const { orderId } = Route.useParams()
+  const session = useSession()
+  const order = useOrder(orderId, session.data?.user.id)
+
+  if (session.isPending || order.isPending) return <OrderSkeleton />
+  if (order.error?.code === 'not_found') return <OrderNotFound />
+  if (session.error || order.error) {
+    const error = session.error ?? order.error
+    return (
+      <main className="flex min-h-dvh flex-col">
+        <ErrorState
+          title="Não foi possível acompanhar o pedido"
+          description={error?.message ?? 'Tente novamente.'}
+          onRetry={() => void Promise.all([session.refetch(), order.refetch()])}
+          isRetrying={session.isFetching || order.isFetching}
+        />
+      </main>
+    )
+  }
+  if (!order.data) return null
 
   return (
     <>
       <header className="flex justify-end px-6 pt-6">
-        {/* Fechar, não "voltar": depois de pagar, voltar ao checkout não faz sentido */}
+        {/* Fechar, não "voltar": depois de pagar, voltar ao checkout não faz sentido. */}
         <Button variant="secondary" size="icon" className="rounded-full text-muted-foreground" asChild>
           <Link to="/" aria-label="Fechar e voltar ao início">
             <X className="size-5" />
@@ -41,15 +55,14 @@ function OrderPage() {
       </header>
 
       <main className="mx-auto flex max-w-md flex-col gap-6 px-6 pb-10">
-        {order.status === 'confirmed' && <ConfirmedOrder order={order} />}
-        {order.status === 'pending' && <PendingOrder order={order} />}
-        {order.status === 'rejected' && <RejectedOrder order={order} />}
+        {order.data.status === 'confirmed' && <ConfirmedOrder order={order.data} />}
+        {order.data.status === 'pending' && <PendingOrder order={order.data} />}
+        {order.data.status === 'rejected' && <RejectedOrder order={order.data} />}
       </main>
     </>
   )
 }
 
-// O tipo Order é uma união por status: aqui o TypeScript garante que hash e data de confirmação existem
 function ConfirmedOrder({ order }: { order: Extract<Order, { status: 'confirmed' }> }) {
   const explorer = getExplorer(order.network, order.transactionHash)
 
@@ -83,7 +96,7 @@ function ConfirmedOrder({ order }: { order: Extract<Order, { status: 'confirmed'
   )
 }
 
-function PendingOrder({ order }: { order: Order }) {
+function PendingOrder({ order }: { order: Extract<Order, { status: 'pending' }> }) {
   return (
     <>
       <StatusHeader
@@ -114,7 +127,6 @@ function RejectedOrder({ order }: { order: Extract<Order, { status: 'rejected' }
 
 function StatusHeader({ icon, title, description }: { icon: ReactNode; title: string; description: string }) {
   return (
-    // role="status": leitor de tela anuncia quando o pedido muda de estado (polling na fase 2)
     <div role="status" className="flex flex-col items-center gap-3 rounded-xl bg-card p-6 text-center">
       <span className="text-highlight">{icon}</span>
       <h1 className="text-lg font-bold">{title}</h1>
@@ -129,6 +141,16 @@ function MetaItem({ label, value }: { label: string; value: ReactNode }) {
       <dt className="text-muted-foreground">{label}</dt>
       <dd>{value}</dd>
     </div>
+  )
+}
+
+function OrderSkeleton() {
+  return (
+    <main aria-busy="true" aria-label="Carregando pedido" className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-6 py-20">
+      <Skeleton className="mx-auto size-20 rounded-full" />
+      <Skeleton className="h-28" />
+      <Skeleton className="h-48" />
+    </main>
   )
 }
 
