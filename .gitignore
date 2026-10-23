@@ -38,3 +38,6 @@ Thumbs.db
 # Material de trabalho que não vai para o repositório público
 EscopoDesafioVaga.md
 docs/figma/canvas-full.png
+
+# Cache temporário do plugin do TanStack Router (gerado pelo dev server)
+.tanstack/
