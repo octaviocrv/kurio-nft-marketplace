@@ -41,3 +41,6 @@ docs/figma/canvas-full.png
 
 # Cache temporário do plugin do TanStack Router (gerado pelo dev server)
 .tanstack/
+
+# Arquivos que o app Claude salva localmente (não fazem parte do projeto)
+Claude outputs/

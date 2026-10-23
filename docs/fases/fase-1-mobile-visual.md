@@ -39,7 +39,7 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 
 ### 1.7 Telas
 - [x] Início `/` — busca, hero, abas (Todos / Novos / Em alta), grid de `NftCard`, botão de filtros (abre Sheet)
-- [ ] Detalhe `/nft/$nftId` — imagem, info, `EditionPicker`, `QuantityStepper`, favoritar, barra de compra
+- [x] Detalhe `/nft/$nftId` — imagem, info, `EditionPicker`, `QuantityStepper`, favoritar, barra de compra
 - [ ] Login `/login` e Cadastro `/cadastro`
 - [ ] Carrinho `/carrinho` — itens, cupom, `SummaryRow`s, total
 - [ ] Pagamento `/checkout` — carteiras cadastradas, provedor, total
@@ -73,3 +73,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 1.5 Imagens: 4 artes originais do Figma em WebP (máx. 800px), 3 vistas por arte para a galeria (capa, rosto, detalhe), 476KB no total | Criação das imagens dos NFTs |
 | 2026-10-23 | 1.6 Layout mobile: rota de layout `_tabs` com AppShell + TabBar (botão central desabilitado), PageHeader com voltar seguro (fallback sem histórico), placeholders de favoritos/carrinho/perfil | Implementação do layout mobile e da navegação |
 | 2026-10-23 | 1.7 Início: busca + gaveta de filtros, hero de destaques (carrossel com scroll-snap), abas com sublinhado animado, grid de `NftCard` alinhado; tab bar com recorte real (máscara CSS) | Criação da página inicial e do catálogo mobile |
+| 2026-10-23 | 1.7 Detalhe: galeria (SnapCarousel compartilhado com o hero), EditionPicker como radiogroup, QuantityStepper limitado ao estoque, barra de compra com total em bigint, tela de NFT inexistente | Criação da página de detalhes do NFT |
