@@ -46,10 +46,10 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [x] Teste: favoritar com falha de mutation e recuperação
 
 ### 2.6 Carrinho, cotação e cupom
-- [ ] Carrinho do visitante por `guestId`; merge no login; persistência após refresh
-- [ ] `GET/POST/PATCH/DELETE /cart/items` respeitando estoque por edição
-- [ ] `POST /quote` (cupom válido/inválido/expirado, desconto, taxa, total) — a cotação é a fonte dos valores
-- [ ] Testes: quantidades, remoção, cupom, persistência após refresh e login
+- [x] Carrinho do visitante por `guestId`; merge no login; persistência após refresh
+- [x] `GET/POST/PATCH/DELETE /cart/items` respeitando estoque por edição
+- [x] `POST /quote` (cupom válido/inválido/expirado, desconto, taxa, total) — a cotação é a fonte dos valores
+- [x] Testes: quantidades, remoção, cupom, persistência após refresh e login
 
 ### 2.7 Checkout e pedido
 - [ ] Revalidação antes de confirmar: mudança de preço/estoque/cupom/taxa exige nova confirmação
@@ -98,3 +98,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 2.3 Catálogo e detalhe: API simulada com busca, filtros combinados, ordenação e paginação na URL; cache no detalhe, cancelamento de consultas obsoletas, skeletons, estados de erro/vazio e testes E2E mobile/desktop | Implementação do catálogo e detalhe de NFTs |
 | 2026-10-23 | 2.4 Sessão e conta: cadastro/login/logout pela API, sessão persistida, formulários com schemas compartilhados, rotas privadas com retorno ao fluxo, expiração, limpeza de cache/socket e testes E2E mobile/desktop | Implementação da sessão e autenticação |
 | 2026-10-23 | 2.5 Favoritos: API isolada por usuário, integração no catálogo/detalhe/lista, login com retorno ao fluxo, atualização otimista com rollback acessível, persistência e testes E2E mobile/desktop | Implementação dos favoritos com atualização otimista |
+| 2026-10-23 | 2.6 Carrinho e cotação: identidade persistente do visitante, merge no login com limite de estoque, operações REST do carrinho, cotação autoritativa em bigint, cupons válidos/inválidos/expirados, skeleton e recuperação de falhas; 16 testes do bloco e 52 testes da suíte completa passando em mobile/desktop | Implementação do carrinho, cotação e cupons |

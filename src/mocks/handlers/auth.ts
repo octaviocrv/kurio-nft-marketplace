@@ -3,6 +3,7 @@ import { loginInputSchema, registerInputSchema } from '@/api/auth'
 import type { ApiErrorBody } from '@/api/error'
 import { sessionSchema, userSchema, type Session, type User } from '@/api/user'
 import { db, saveDb } from '../db'
+import { mergeGuestCart } from '../cartStore'
 import { errorResponse } from '../http'
 import { getScenario } from '../scenarios'
 
@@ -94,6 +95,7 @@ export const authHandlers = [
     })
     db.walletsByUserId[id] = []
     db.favoriteIdsByUserId[id] = []
+    mergeGuestCart(request.headers.get('X-Guest-Id'), id)
     saveDb()
     return HttpResponse.json(createSession(id), { status: 201 })
   }),
@@ -109,6 +111,7 @@ export const authHandlers = [
     if (!user || !passwordMatches) {
       return errorResponse(401, { code: 'invalid_credentials', message: 'E-mail ou senha incorretos.' })
     }
+    mergeGuestCart(request.headers.get('X-Guest-Id'), user.id)
     return HttpResponse.json(createSession(user.id))
   }),
 

@@ -1,6 +1,7 @@
 import axios, { isAxiosError, isCancel } from 'axios'
 import type { z } from 'zod'
 import { getSessionToken } from '@/features/auth/sessionStorage'
+import { getGuestId } from '@/features/cart/guestIdentity'
 import { ApiError, apiErrorBodySchema, type ApiErrorCode } from './error'
 
 /**
@@ -26,6 +27,7 @@ export function setUnauthorizedHandler(handler: (() => void) | null) {
 apiClient.interceptors.request.use((config) => {
   const token = getSessionToken()
   if (token) config.headers.Authorization = `Bearer ${token}`
+  config.headers['X-Guest-Id'] = getGuestId()
   return config
 })
 

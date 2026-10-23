@@ -8,6 +8,9 @@ import { ErrorState } from '@/components/ErrorState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { useOptionalSession } from '@/features/auth/queries'
+import { getSessionToken } from '@/features/auth/sessionStorage'
+import { cartOwnerId } from '@/features/cart/guestIdentity'
+import { useAddCartItem } from '@/features/cart/queries'
 import { FavoriteFeedback } from '@/features/favorite/FavoriteFeedback'
 import { useFavorites, useToggleFavorite } from '@/features/favorite/queries'
 import { BuyBar } from '@/features/nft/BuyBar'
@@ -55,6 +58,10 @@ function NftDetail({ nft }: { nft: Nft }) {
   const soldOut = isSoldOut(nft)
   const session = useOptionalSession()
   const userId = session.data?.user.id
+  const hasStoredSession = getSessionToken() !== null
+  const ownerId = userId ? cartOwnerId(userId) : hasStoredSession && session.isPending ? undefined : cartOwnerId()
+  const addToCart = useAddCartItem(ownerId)
+  const [cartMessage, setCartMessage] = useState<string | null>(null)
   const favorites = useFavorites(userId)
   const toggleFavorite = useToggleFavorite(userId)
   const isFavorite = toFavoriteIds(favorites.data).has(nft.id)
@@ -80,6 +87,20 @@ function NftDetail({ nft }: { nft: Nft }) {
     toggleFavorite.mutate({ nft, isFavorite })
   }
 
+  function addSelectedToCart(goToCart: boolean) {
+    if (!editionId) return
+    setCartMessage(null)
+    addToCart.mutate(
+      { nftId: nft.id, editionId, quantity },
+      {
+        onSuccess: () => {
+          if (goToCart) void navigate({ to: '/carrinho' })
+          else setCartMessage(`${quantity} ${quantity === 1 ? 'item adicionado' : 'itens adicionados'} ao carrinho.`)
+        },
+      },
+    )
+  }
+
   return (
     <>
       <PageHeader
@@ -102,6 +123,8 @@ function NftDetail({ nft }: { nft: Nft }) {
       <main className="mx-auto max-w-md pb-[calc(10rem+env(safe-area-inset-bottom))]">
         <div className="px-6 pb-3">
           <FavoriteFeedback error={toggleFavorite.error} />
+          {addToCart.error && <p role="alert" className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{addToCart.error.message}</p>}
+          {cartMessage && <p role="status" className="rounded-lg bg-highlight/10 px-4 py-3 text-sm text-highlight">{cartMessage}</p>}
         </div>
         <div className="px-6">
           <NftGallery name={nft.name} images={nft.images} />
@@ -151,10 +174,10 @@ function NftDetail({ nft }: { nft: Nft }) {
         quantity={quantity}
         maxQuantity={available}
         onQuantityChange={setQuantity}
-        // Fase 1: só navega. Na fase 2 adiciona ao carrinho de verdade antes.
-        onBuy={() => navigate({ to: '/carrinho' })}
-        onAddToCart={() => {}}
+        onBuy={() => addSelectedToCart(true)}
+        onAddToCart={() => addSelectedToCart(false)}
         soldOut={soldOut}
+        isPending={addToCart.isPending || ownerId === undefined}
       />
     </>
   )

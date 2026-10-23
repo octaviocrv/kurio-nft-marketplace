@@ -8,9 +8,10 @@ interface CartItemCardProps {
   item: CartItem
   onQuantityChange: (itemId: string, quantity: number) => void
   onRemove: (itemId: string) => void
+  disabled?: boolean
 }
 
-export function CartItemCard({ item, onQuantityChange, onRemove }: CartItemCardProps) {
+export function CartItemCard({ item, onQuantityChange, onRemove, disabled = false }: CartItemCardProps) {
   const lineTotal = toEthString(multiplyWei(parseEth(item.unitPrice), item.quantity))
 
   return (
@@ -26,6 +27,7 @@ export function CartItemCard({ item, onQuantityChange, onRemove }: CartItemCardP
           <button
             type="button"
             onClick={() => onRemove(item.id)}
+            disabled={disabled}
             aria-label={`Remover ${item.name} do carrinho`}
             className="-mt-1 -mr-1 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:text-destructive focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
@@ -41,6 +43,7 @@ export function CartItemCard({ item, onQuantityChange, onRemove }: CartItemCardP
             max={item.available}
             onChange={(quantity) => onQuantityChange(item.id, quantity)}
             label={`Quantidade de ${item.name}`}
+            disabled={disabled}
           />
         </div>
       </div>

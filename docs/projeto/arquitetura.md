@@ -61,7 +61,7 @@ rota  →  componente  →  hook da feature  →  função da api  →  Axios  �
 | Sessão | Query (`/session`) + token no localStorage |
 
 - O carrinho do visitante também vive no "servidor" (MSW, por `guestId`). No login, o servidor faz o merge.
-- **Query keys:** uma factory por feature (`cartKeys.all(userId)`). Dados privados **sempre** incluem `userId`.
+- **Query keys:** uma factory por feature. Dados privados **sempre** incluem `userId`; o carrinho usa o dono explícito (`user:<userId>` ou `guest:<guestId>`), pois também existe antes do login.
 
 ## Lógica separada do layout
 

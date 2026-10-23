@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { apiClient, parseResponse } from './client'
 import { dateTimeSchema, ethAmountSchema, idSchema } from './shared'
 
 export const couponSchema = z.object({
@@ -31,3 +32,13 @@ export const quoteSchema = z.object({
   expiresAt: dateTimeSchema,
 })
 export type Quote = z.infer<typeof quoteSchema>
+
+export const quoteInputSchema = z.object({
+  couponCode: z.string().trim().min(1).max(32).nullable().optional(),
+})
+export type QuoteInput = z.infer<typeof quoteInputSchema>
+
+export async function createQuote(input: QuoteInput = {}, signal?: AbortSignal): Promise<Quote> {
+  const { data } = await apiClient.post('/quote', input, { signal })
+  return parseResponse(quoteSchema, data)
+}

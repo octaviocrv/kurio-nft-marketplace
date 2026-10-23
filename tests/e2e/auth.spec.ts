@@ -70,13 +70,15 @@ test('sessão expirada no checkout preserva o contexto e permite retomar após n
   await page.goto('/login?redirect=/checkout?etapa=revisao')
   await login(page)
   await expect(page).toHaveURL(/\/checkout\?etapa=revisao$/)
+  // A URL muda antes de a transição do Router terminar; recarregar nesse intervalo cancela o checkout.
+  await expect(page.getByRole('heading', { name: 'Revisão do pedido' })).toBeVisible()
 
   await page.evaluate(() => window.__kurioMock!.setScenario('session-expired'))
   await page.reload()
 
   await expect(page).toHaveURL(/\/login/)
   expect(new URL(page.url()).searchParams.get('redirect')).toBe('/checkout?etapa=revisao')
-  expect(await page.evaluate(() => localStorage.getItem('kurio:session-token'))).toBeNull()
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('kurio:session-token'))).toBeNull()
 
   await page.evaluate(() => window.__kurioMock!.setScenario('default'))
   await login(page)
