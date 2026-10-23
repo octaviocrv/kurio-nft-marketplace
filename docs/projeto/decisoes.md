@@ -35,4 +35,5 @@
 - **Fora do escopo visível no Figma** (social login, esqueceu a senha, newsletter, blog, Criadores/Aprenda, Atividade/Ofertas/Downloads/Suporte, botão central da tab bar): aparece desabilitado com aviso "indisponível na demo". Nunca simula sucesso.
 - **Header logado**, perfil/carteiras/confirmação mobile, vazio, erro e skeletons: criados seguindo o padrão.
 - **Cor de erro** (`--kurio-danger: #E5604D`) não existe no Figma: criada no tom quente da paleta para validação de formulário.
+- **Formulários de Perfil e Carteiras:** no Figma os dois repetem campos um do outro (carteira pede nome de exibição, e-mail e ENS do perfil; perfil pede apelido da carteira). Cada contrato fica só com o que é dele: `User` (nome, usuário, e-mail, ENS, avatar) e `Wallet` (apelido, endereço, ENS opcional, rede, tipo). "Código de indicação" fica fora (sem regra no enunciado).
 - Inconsistências de dado do Figma (token IDs diferentes, edição duplicada) são corrigidas nas fixtures.
