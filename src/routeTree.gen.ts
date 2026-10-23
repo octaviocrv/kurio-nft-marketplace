@@ -17,6 +17,8 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as TabsIndexRouteImport } from './routes/_tabs/index'
 import { Route as TabsFavoritosRouteImport } from './routes/_tabs/favoritos'
 import { Route as NftNftIdRouteImport } from './routes/nft/$nftId'
+import { Route as PedidoOrderIdRouteImport } from './routes/pedido/$orderId'
+import { Route as TabsContaCarteirasRouteImport } from './routes/_tabs/conta/carteiras'
 import { Route as TabsContaPerfilRouteImport } from './routes/_tabs/conta/perfil'
 
 const TabsRoute = TabsRouteImport.update({
@@ -58,6 +60,16 @@ const NftNftIdRoute = NftNftIdRouteImport.update({
   path: '/nft/$nftId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PedidoOrderIdRoute = PedidoOrderIdRouteImport.update({
+  id: '/pedido/$orderId',
+  path: '/pedido/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TabsContaCarteirasRoute = TabsContaCarteirasRouteImport.update({
+  id: '/conta/carteiras',
+  path: '/conta/carteiras',
+  getParentRoute: () => TabsRoute,
+} as any)
 const TabsContaPerfilRoute = TabsContaPerfilRouteImport.update({
   id: '/conta/perfil',
   path: '/conta/perfil',
@@ -72,6 +84,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
+  '/pedido/$orderId': typeof PedidoOrderIdRoute
+  '/conta/carteiras': typeof TabsContaCarteirasRoute
   '/conta/perfil': typeof TabsContaPerfilRoute
 }
 export interface FileRoutesByTo {
@@ -81,7 +95,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
+  '/pedido/$orderId': typeof PedidoOrderIdRoute
   '/': typeof TabsIndexRoute
+  '/conta/carteiras': typeof TabsContaCarteirasRoute
   '/conta/perfil': typeof TabsContaPerfilRoute
 }
 export interface FileRoutesById {
@@ -93,7 +109,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_tabs/favoritos': typeof TabsFavoritosRoute
   '/nft/$nftId': typeof NftNftIdRoute
+  '/pedido/$orderId': typeof PedidoOrderIdRoute
   '/_tabs/': typeof TabsIndexRoute
+  '/_tabs/conta/carteiras': typeof TabsContaCarteirasRoute
   '/_tabs/conta/perfil': typeof TabsContaPerfilRoute
 }
 export interface FileRouteTypes {
@@ -106,6 +124,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/favoritos'
     | '/nft/$nftId'
+    | '/pedido/$orderId'
+    | '/conta/carteiras'
     | '/conta/perfil'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -115,7 +135,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/favoritos'
     | '/nft/$nftId'
+    | '/pedido/$orderId'
     | '/'
+    | '/conta/carteiras'
     | '/conta/perfil'
   id:
     | '__root__'
@@ -126,7 +148,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/_tabs/favoritos'
     | '/nft/$nftId'
+    | '/pedido/$orderId'
     | '/_tabs/'
+    | '/_tabs/conta/carteiras'
     | '/_tabs/conta/perfil'
   fileRoutesById: FileRoutesById
 }
@@ -137,6 +161,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   LoginRoute: typeof LoginRoute
   NftNftIdRoute: typeof NftNftIdRoute
+  PedidoOrderIdRoute: typeof PedidoOrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -197,6 +222,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NftNftIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pedido/$orderId': {
+      id: '/pedido/$orderId'
+      path: '/pedido/$orderId'
+      fullPath: '/pedido/$orderId'
+      preLoaderRoute: typeof PedidoOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_tabs/conta/carteiras': {
+      id: '/_tabs/conta/carteiras'
+      path: '/conta/carteiras'
+      fullPath: '/conta/carteiras'
+      preLoaderRoute: typeof TabsContaCarteirasRouteImport
+      parentRoute: typeof TabsRoute
+    }
     '/_tabs/conta/perfil': {
       id: '/_tabs/conta/perfil'
       path: '/conta/perfil'
@@ -210,12 +249,14 @@ declare module '@tanstack/react-router' {
 interface TabsRouteChildren {
   TabsFavoritosRoute: typeof TabsFavoritosRoute
   TabsIndexRoute: typeof TabsIndexRoute
+  TabsContaCarteirasRoute: typeof TabsContaCarteirasRoute
   TabsContaPerfilRoute: typeof TabsContaPerfilRoute
 }
 
 const TabsRouteChildren: TabsRouteChildren = {
   TabsFavoritosRoute: TabsFavoritosRoute,
   TabsIndexRoute: TabsIndexRoute,
+  TabsContaCarteirasRoute: TabsContaCarteirasRoute,
   TabsContaPerfilRoute: TabsContaPerfilRoute,
 }
 
@@ -228,6 +269,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   LoginRoute: LoginRoute,
   NftNftIdRoute: NftNftIdRoute,
+  PedidoOrderIdRoute: PedidoOrderIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

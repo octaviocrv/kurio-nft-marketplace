@@ -42,8 +42,8 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 - [x] Detalhe `/nft/$nftId` — imagem, info, `EditionPicker`, `QuantityStepper`, favoritar, barra de compra
 - [x] Login `/login` e Cadastro `/cadastro`
 - [x] Carrinho `/carrinho` — itens, cupom, `SummaryRow`s, total
-- [ ] Pagamento `/checkout` — carteiras cadastradas, provedor, total
-- [ ] Revisão (etapa do `/checkout`) — sem frame, seguir o padrão
+- [x] Pagamento `/checkout` — carteiras cadastradas, provedor, total
+- [x] Revisão (etapa do `/checkout`) — sem frame, seguir o padrão
 - [ ] Confirmação `/pedido/$orderId` — sem frame mobile, adaptar o modal desktop
 - [ ] Perfil `/conta/perfil` e Carteiras `/conta/carteiras` — sem frame mobile, adaptar o desktop
 - [ ] Favoritos `/favoritos` — reaproveita o grid do início
@@ -76,3 +76,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 1.7 Detalhe: galeria (SnapCarousel compartilhado com o hero), EditionPicker como radiogroup, QuantityStepper limitado ao estoque, barra de compra com total em bigint, tela de NFT inexistente | Criação da página de detalhes do NFT |
 | 2026-10-23 | 1.7 Login e Cadastro: AuthLayout, PasswordInput com mostrar/ocultar, login social desabilitado, `?redirect=` validado contra open redirect; regra de commit sem assinatura de IA | Criação das telas de login e cadastro |
 | 2026-10-23 | 1.7 Carrinho: CartItemCard com stepper e remoção, resumo fixo com cupom e `SummaryRow`, totais em bigint, estado vazio; ícones sociais via import (`src/assets/icons`) | Implementação do carrinho e resumo da compra |
+| 2026-10-23 | 1.7 Pagamento e Revisão: carteiras e provedores como radio cards, seletor de rede, dados do colecionador, etapa de revisão via `?etapa=revisao`; carrinho de demonstração movido para fixtures | Implementação do pagamento e da revisão do pedido |
