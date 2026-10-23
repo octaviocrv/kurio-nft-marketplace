@@ -1,8 +1,13 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import { Compass } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 
-export const Route = createRootRoute({
+interface RouterContext {
+  queryClient: QueryClient
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
   // Qualquer URL que não bate com nenhuma rota cai aqui (requisito: tratar rotas inexistentes)
   notFoundComponent: PageNotFound,

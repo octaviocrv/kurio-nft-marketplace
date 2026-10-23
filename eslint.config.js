@@ -6,8 +6,9 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig([
-  // routeTree.gen.ts é gerado pelo plugin do TanStack Router
-  globalIgnores(['dist', 'src/routeTree.gen.ts']),
+  // Arquivos gerados: routeTree.gen.ts (plugin do TanStack Router) e mockServiceWorker.js (`npx msw init`).
+  // Relatórios do Playwright também ficam fora.
+  globalIgnores(['dist', 'src/routeTree.gen.ts', 'public/mockServiceWorker.js', 'playwright-report', 'test-results']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

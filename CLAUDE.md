@@ -21,7 +21,7 @@ Este arquivo é só o **índice**. O conteúdo fica em `docs/`.
 
 **Antes de qualquer tarefa, leia o arquivo da fase atual.** Toda tarefa segue o ciclo de `homologacao.md`: implementar → verificar → "pronto pra homologar" → correções → aprovação do Octavio → commit (checkbox + Registro no mesmo commit).
 
-**Fase atual: 1 — Mobile visual**
+**Fase atual: 2 — Funcionalidade**
 
 ## Regras de trabalho
 

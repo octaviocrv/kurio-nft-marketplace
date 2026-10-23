@@ -10,7 +10,7 @@
 - [ ] Desktop: início (sidebar de filtros, paginação, promos, blog estático), detalhe (galeria, abas), carrinho (tabela), pagamento, modais de login/cadastro/confirmação, perfil, carteiras
 - [ ] Tablet (768) em todas as telas
 - [ ] Acessibilidade: teclado, foco em diálogos, labels, feedback de mutations e tempo real
-- [ ] Playwright completo + regressão visual (início, detalhe, carrinho, pagamento)
+- [ ] Playwright completo + regressão visual **desktop** (início, detalhe, carrinho, pagamento); as baselines mobile já vêm da fase 2
 - [ ] Lighthouse: 3 medições por página/perfil, mediana, LCP/CLS/TBT
 - [ ] Relatório final do Playwright (HTML + traces) copiado para `reports/playwright/`
 - [ ] Relatórios do Lighthouse (HTML/JSON) em `lighthouse/reports/` + versões das ferramentas e ambiente
