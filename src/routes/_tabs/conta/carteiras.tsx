@@ -18,7 +18,7 @@ function WalletsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <p className="text-sm text-muted-foreground">Estas carteiras ficam disponíveis no pagamento e para receber NFTs comprados.</p>
+      <p className="text-center text-sm text-muted-foreground">Estas carteiras ficam disponíveis no pagamento e para receber NFTs comprados.</p>
       {/* key: trocar de usuário remonta as seções e fecha formulários abertos */}
       <WalletSection key={`${user.id}-primary`} slot="primary" wallet={wallets.find((wallet) => wallet.slot === 'primary')} />
       <WalletSection key={`${user.id}-secondary`} slot="secondary" wallet={wallets.find((wallet) => wallet.slot === 'secondary')} />

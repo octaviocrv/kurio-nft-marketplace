@@ -19,7 +19,7 @@ export function WalletForm({ slot, wallet, onCancel }: WalletFormProps) {
   const id = (field: string) => `${slot}-${field}`
 
   return (
-    <form className="flex flex-col gap-4 rounded-xl bg-card p-4" onSubmit={(event) => event.preventDefault()} noValidate>
+    <form className="flex flex-col gap-4" onSubmit={(event) => event.preventDefault()} noValidate>
       <FormField id={id('nickname')} label="Apelido da carteira" required>
         <Input id={id('nickname')} defaultValue={wallet?.nickname} placeholder="Ex.: Principal" />
       </FormField>
