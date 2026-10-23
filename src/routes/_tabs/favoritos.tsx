@@ -1,12 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Heart } from 'lucide-react'
-import { useState } from 'react'
+import { favoriteIds as toFavoriteIds } from '@/api/favorite'
+import type { Nft } from '@/api/nft'
 import { EmptyState } from '@/components/EmptyState'
+import { ErrorState } from '@/components/ErrorState'
+import { useSession } from '@/features/auth/queries'
+import { NftGridSkeleton } from '@/features/catalog/CatalogSkeletons'
 import { NftGrid } from '@/features/catalog/NftGrid'
+import { FavoriteFeedback } from '@/features/favorite/FavoriteFeedback'
+import { useFavorites, useToggleFavorite } from '@/features/favorite/queries'
 import { requireSession } from '@/features/auth/queries'
-// fase 1: viram hook de Query (favoritos do usuário logado) na fase 2
-import { favoriteIdsByUserId } from '@/mocks/fixtures/favorites'
-import { nfts } from '@/mocks/fixtures/nfts'
 
 export const Route = createFileRoute('/_tabs/favoritos')({
   beforeLoad: ({ context, location }) => requireSession(context.queryClient, location.href),
@@ -14,25 +17,38 @@ export const Route = createFileRoute('/_tabs/favoritos')({
 })
 
 function FavoritesPage() {
-  const [favoriteIds, setFavoriteIds] = useState(() => new Set(favoriteIdsByUserId['user-nova']))
-  const favoriteNfts = nfts.filter((nft) => favoriteIds.has(nft.id))
+  const session = useSession()
+  const userId = session.data?.user.id
+  const favorites = useFavorites(userId)
+  const toggleFavorite = useToggleFavorite(userId)
+  const ids = toFavoriteIds(favorites.data)
 
-  // Aqui o coração só remove: desfavoritar tira o card da lista na hora
-  function removeFavorite(nftId: string) {
-    setFavoriteIds((current) => {
-      const next = new Set(current)
-      next.delete(nftId)
-      return next
-    })
+  function removeFavorite(nft: Nft) {
+    toggleFavorite.mutate({ nft, isFavorite: true })
   }
 
   return (
     // Altura da tela menos a tab bar: o estado vazio centraliza no espaço que sobra
     <main className="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-md flex-col gap-6 px-6 pt-8">
       <h1 className="text-xl font-bold">Favoritos</h1>
-      {favoriteNfts.length > 0 ? (
+      <FavoriteFeedback error={toggleFavorite.error} />
+      {favorites.isPending ? (
+        <NftGridSkeleton count={4} />
+      ) : favorites.isError ? (
+        <ErrorState
+          title="Não foi possível carregar seus favoritos"
+          description={favorites.error.message}
+          onRetry={() => favorites.refetch()}
+          isRetrying={favorites.isFetching}
+        />
+      ) : favorites.data.items.length > 0 ? (
         // Mesmo grid do Início (o plano da fase 1 pede reaproveitar)
-        <NftGrid nfts={favoriteNfts} favoriteIds={favoriteIds} onFavoriteToggle={removeFavorite} />
+        <NftGrid
+          nfts={favorites.data.items}
+          favoriteIds={ids}
+          favoriteDisabled={toggleFavorite.isPending}
+          onFavoriteToggle={removeFavorite}
+        />
       ) : (
         <EmptyState
           icon={<Heart />}

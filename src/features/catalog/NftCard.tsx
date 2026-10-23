@@ -8,10 +8,11 @@ import { cn } from '@/lib/utils'
 interface NftCardProps {
   nft: Nft
   isFavorite: boolean
-  onFavoriteToggle: (nftId: string) => void
+  favoriteDisabled?: boolean
+  onFavoriteToggle: (nft: Nft) => void
 }
 
-export function NftCard({ nft, isFavorite, onFavoriteToggle }: NftCardProps) {
+export function NftCard({ nft, isFavorite, favoriteDisabled, onFavoriteToggle }: NftCardProps) {
   const soldOut = isSoldOut(nft)
 
   return (
@@ -52,10 +53,11 @@ export function NftCard({ nft, isFavorite, onFavoriteToggle }: NftCardProps) {
 
       <button
         type="button"
-        onClick={() => onFavoriteToggle(nft.id)}
+        onClick={() => onFavoriteToggle(nft)}
+        disabled={favoriteDisabled}
         aria-pressed={isFavorite}
         aria-label={isFavorite ? `Remover ${nft.name} dos favoritos` : `Favoritar ${nft.name}`}
-        className="absolute top-3 right-3 flex size-8 cursor-pointer items-center justify-center rounded-lg border border-border-soft bg-background/70 text-muted-foreground backdrop-blur-sm transition-colors outline-none hover:text-highlight focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-pressed:text-highlight"
+        className="absolute top-3 right-3 flex size-8 cursor-pointer items-center justify-center rounded-lg border border-border-soft bg-background/70 text-muted-foreground backdrop-blur-sm transition-colors outline-none hover:text-highlight focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-wait disabled:opacity-60 aria-pressed:text-highlight"
       >
         <Heart className={cn('size-4', isFavorite && 'fill-current')} />
       </button>

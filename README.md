@@ -53,6 +53,7 @@ O MSW intercepta as chamadas REST (`/api/*`) e a conexão Socket.IO. O estado da
 | `error-5xx` | Toda requisição responde 503 |
 | `empty` | O catálogo responde sem nenhum NFT |
 | `session-expired` | A consulta da sessão responde como expirada e o app volta ao login preservando a rota |
+| `favorite-error` | Adicionar ou remover favorito falha depois da atualização otimista, demonstrando o rollback |
 
 **Restaurar o estado inicial:** botão "Restaurar dados iniciais" no painel. Apaga banco, cenário e sessão salvos e recarrega com os dados de seed.
 

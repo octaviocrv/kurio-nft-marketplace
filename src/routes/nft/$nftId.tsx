@@ -1,11 +1,15 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-router'
 import { Heart, SearchX, Star } from 'lucide-react'
 import { useState } from 'react'
+import { favoriteIds as toFavoriteIds } from '@/api/favorite'
 import type { Nft } from '@/api/nft'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
+import { useOptionalSession } from '@/features/auth/queries'
+import { FavoriteFeedback } from '@/features/favorite/FavoriteFeedback'
+import { useFavorites, useToggleFavorite } from '@/features/favorite/queries'
 import { BuyBar } from '@/features/nft/BuyBar'
 import { EditionPicker } from '@/features/nft/EditionPicker'
 import { NftDetailSkeleton } from '@/features/nft/NftDetailSkeleton'
@@ -47,12 +51,17 @@ function NftDetailPage() {
 // Separado da página: a edição e a quantidade só começam a existir quando o NFT já chegou
 function NftDetail({ nft }: { nft: Nft }) {
   const navigate = useNavigate()
+  const currentHref = useLocation({ select: (location) => location.href })
   const soldOut = isSoldOut(nft)
+  const session = useOptionalSession()
+  const userId = session.data?.user.id
+  const favorites = useFavorites(userId)
+  const toggleFavorite = useToggleFavorite(userId)
+  const isFavorite = toFavoriteIds(favorites.data).has(nft.id)
 
   // Começa na primeira edição com estoque (a primeira pode estar esgotada)
   const [editionId, setEditionId] = useState(() => nft.editions.find((edition) => edition.available > 0)?.id)
   const [quantity, setQuantity] = useState(1)
-  const [isFavorite, setIsFavorite] = useState(false)
 
   const edition = nft.editions.find((item) => item.id === editionId)
   const available = edition?.available ?? 0
@@ -63,6 +72,14 @@ function NftDetail({ nft }: { nft: Nft }) {
     setQuantity(1) // cada edição tem seu estoque: a quantidade anterior pode não caber na nova
   }
 
+  function handleFavorite() {
+    if (!userId) {
+      void navigate({ to: '/login', search: { redirect: currentHref } })
+      return
+    }
+    toggleFavorite.mutate({ nft, isFavorite })
+  }
+
   return (
     <>
       <PageHeader
@@ -71,7 +88,8 @@ function NftDetail({ nft }: { nft: Nft }) {
             variant="outline"
             size="icon"
             className={cn('rounded-full', isFavorite && 'text-highlight')}
-            onClick={() => setIsFavorite(!isFavorite)}
+            onClick={handleFavorite}
+            disabled={session.fetchStatus === 'fetching' || favorites.isFetching || toggleFavorite.isPending}
             aria-pressed={isFavorite}
             aria-label={isFavorite ? 'Remover dos favoritos' : 'Favoritar'}
           >
@@ -82,6 +100,9 @@ function NftDetail({ nft }: { nft: Nft }) {
 
       {/* Espaço no fim para a barra de compra fixa não cobrir o conteúdo */}
       <main className="mx-auto max-w-md pb-[calc(10rem+env(safe-area-inset-bottom))]">
+        <div className="px-6 pb-3">
+          <FavoriteFeedback error={toggleFavorite.error} />
+        </div>
         <div className="px-6">
           <NftGallery name={nft.name} images={nft.images} />
         </div>

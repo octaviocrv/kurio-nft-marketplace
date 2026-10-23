@@ -42,6 +42,8 @@
 - **Rotas privadas:** checkout, pedido, favoritos e toda `/conta` verificam `GET /session` no `beforeLoad`. Sem sessão, vão para `/login?redirect=<caminho completo>`; login e cadastro usam `href` interno validado para retomar inclusive search params.
 - **Expiração e troca de identidade:** qualquer `unauthorized` remove o token, limpa todo o Query Client, desconecta o Socket.IO e manda para o login com o contexto atual. Login/cadastro também limpam o cache antes de ativar a nova identidade; logout local acontece mesmo se a chamada REST falhar.
 - **Senhas no mock:** fixtures e cadastros guardam somente `SHA-256(salt + senha)` em hexadecimal. SHA-256 não seria adequado para produção (seria Argon2/bcrypt), mas evita senha legível na simulação inteiramente local.
+- **Favoritos por usuário:** `GET /favorites` devolve os NFTs da sessão e a query key inclui `userId`. Catálogo e detalhe continuam públicos; tocar no coração sem sessão leva ao login com `redirect` para a mesma página.
+- **Favorito otimista:** adicionar/remover altera imediatamente o cache de favoritos; falha restaura o snapshot anterior e mostra um `role="alert"`. Ao terminar, favoritos e NFTs são reconciliados pela API porque `favoriteCount` também muda no servidor. O cenário `favorite-error` atrasa a falha em 600 ms para o rollback ser observável e determinístico.
 
 ## Rotas
 

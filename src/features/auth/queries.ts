@@ -3,7 +3,7 @@ import { redirect } from '@tanstack/react-router'
 import { fetchSession, login, logout, register, type LoginInput, type RegisterInput } from '@/api/auth'
 import { socket } from '@/api/socket'
 import type { Session } from '@/api/user'
-import { removeSessionToken, saveSessionToken } from './sessionStorage'
+import { getSessionToken, removeSessionToken, saveSessionToken } from './sessionStorage'
 
 export const sessionKeys = {
   current: ['session'] as const,
@@ -19,6 +19,11 @@ export function sessionQueryOptions() {
 
 export function useSession() {
   return useQuery(sessionQueryOptions())
+}
+
+/** Sessão opcional para telas públicas: sem token, não faz uma requisição que só responderia 401. */
+export function useOptionalSession() {
+  return useQuery({ ...sessionQueryOptions(), enabled: getSessionToken() !== null })
 }
 
 /** Guard compartilhado pelas rotas privadas. O caminho completo volta no redirect após autenticar. */

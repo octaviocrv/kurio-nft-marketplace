@@ -1,10 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useLocation } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 import { useState } from 'react'
+import { favoriteIds as toFavoriteIds } from '@/api/favorite'
+import type { Nft } from '@/api/nft'
 import type { NftSort } from '@/api/nft'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useOptionalSession } from '@/features/auth/queries'
 import { catalogSearchSchema, countActiveFilters, filtersFromSearch, searchFromFilters, toNftListParams, type CatalogFilters } from '@/features/catalog/catalogSearch'
 import { HeroSkeleton, NftGridSkeleton } from '@/features/catalog/CatalogSkeletons'
 import { FiltersSheet } from '@/features/catalog/FiltersSheet'
@@ -12,6 +15,8 @@ import { HeroCarousel } from '@/features/catalog/HeroCarousel'
 import { NftGrid } from '@/features/catalog/NftGrid'
 import { Pagination } from '@/features/catalog/Pagination'
 import { SearchBar } from '@/features/catalog/SearchBar'
+import { FavoriteFeedback } from '@/features/favorite/FavoriteFeedback'
+import { useFavorites, useToggleFavorite } from '@/features/favorite/queries'
 import { useNftList } from '@/features/nft/queries'
 import { cn } from '@/lib/utils'
 
@@ -32,9 +37,13 @@ const FEATURED_PARAMS = { sort: 'populares', page: 1, pageSize: 3 } as const
 function HomePage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const currentHref = useLocation({ select: (location) => location.href })
   const [filtersOpen, setFiltersOpen] = useState(false)
-  // Fase 2.5: favoritos passam a vir da API (por usuário)
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
+  const session = useOptionalSession()
+  const userId = session.data?.user.id
+  const favorites = useFavorites(userId)
+  const toggleFavorite = useToggleFavorite(userId)
+  const favoriteIds = toFavoriteIds(favorites.data)
 
   const filters = filtersFromSearch(search)
   const catalog = useNftList(toNftListParams(search))
@@ -44,13 +53,12 @@ function HomePage() {
     navigate({ search: (previous) => ({ ...previous, ...searchFromFilters(nextFilters) }) })
   }
 
-  function toggleFavorite(nftId: string) {
-    setFavoriteIds((current) => {
-      const next = new Set(current)
-      if (next.has(nftId)) next.delete(nftId)
-      else next.add(nftId)
-      return next
-    })
+  function handleFavoriteToggle(nft: Nft) {
+    if (!userId) {
+      void navigate({ to: '/login', search: { redirect: currentHref } })
+      return
+    }
+    toggleFavorite.mutate({ nft, isFavorite: favoriteIds.has(nft.id) })
   }
 
   const activeTab = tabSorts.some((tab) => tab.sort === filters.sort) ? filters.sort : ''
@@ -86,7 +94,13 @@ function HomePage() {
           {catalog.data && `${catalog.data.total} ${catalog.data.total === 1 ? 'NFT encontrado' : 'NFTs encontrados'}`}
         </p>
 
-        <CatalogResults catalog={catalog} favoriteIds={favoriteIds} onFavoriteToggle={toggleFavorite} />
+        <FavoriteFeedback error={toggleFavorite.error} />
+        <CatalogResults
+          catalog={catalog}
+          favoriteIds={favoriteIds}
+          favoriteDisabled={session.fetchStatus === 'fetching' || favorites.isFetching || toggleFavorite.isPending}
+          onFavoriteToggle={handleFavoriteToggle}
+        />
       </section>
 
       <FiltersSheet open={filtersOpen} onOpenChange={setFiltersOpen} filters={filters} onApply={applyFilters} />
@@ -97,11 +111,12 @@ function HomePage() {
 interface CatalogResultsProps {
   catalog: ReturnType<typeof useNftList>
   favoriteIds: Set<string>
-  onFavoriteToggle: (nftId: string) => void
+  favoriteDisabled: boolean
+  onFavoriteToggle: (nft: Nft) => void
 }
 
 /** Os estados da lista, um por vez: carregando, erro, vazio, sucesso (e atualizando por trás). */
-function CatalogResults({ catalog, favoriteIds, onFavoriteToggle }: CatalogResultsProps) {
+function CatalogResults({ catalog, favoriteIds, favoriteDisabled, onFavoriteToggle }: CatalogResultsProps) {
   if (catalog.isPending) return <NftGridSkeleton count={6} />
 
   if (catalog.isError && !catalog.data) {
@@ -147,7 +162,7 @@ function CatalogResults({ catalog, favoriteIds, onFavoriteToggle }: CatalogResul
       )}
       {/* Esmaecida enquanto a próxima página/filtro carrega: a anterior fica no lugar, sem pular layout */}
       <div className={cn('transition-opacity', catalog.isPlaceholderData && 'opacity-50')}>
-        <NftGrid nfts={items} favoriteIds={favoriteIds} onFavoriteToggle={onFavoriteToggle} />
+        <NftGrid nfts={items} favoriteIds={favoriteIds} favoriteDisabled={favoriteDisabled} onFavoriteToggle={onFavoriteToggle} />
       </div>
       <Pagination page={page} totalPages={Math.ceil(total / pageSize)} />
     </>
