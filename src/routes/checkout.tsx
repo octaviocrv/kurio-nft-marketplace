@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { z } from 'zod'
 import { networkSchema, type Network, type WalletProvider } from '@/api/shared'
 import { EthAmount } from '@/components/EthAmount'
@@ -68,7 +68,7 @@ function CheckoutPage() {
         </main>
         <BottomActions>
           {/* Fase 1: só navega. Na fase 2: cria o pedido com chave de idempotência e acompanha o status. */}
-          <Button size="lg" className="rounded-full" onClick={() => navigate({ to: '/pedido/$orderId', params: { orderId: 'demo-order' } })}>
+          <Button size="lg" className="rounded-full" onClick={() => navigate({ to: '/pedido/$orderId', params: { orderId: 'ord-1001' } })}>
             Confirmar compra
           </Button>
           <Button variant="link" asChild>
@@ -133,7 +133,7 @@ function CheckoutPage() {
   )
 }
 
-function BottomActions({ children }: { children: React.ReactNode }) {
+function BottomActions({ children }: { children: ReactNode }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 bg-linear-to-t from-background via-background to-transparent pt-6 pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto flex max-w-md flex-col gap-1 px-6 pb-5">{children}</div>

@@ -44,7 +44,7 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 - [x] Carrinho `/carrinho` — itens, cupom, `SummaryRow`s, total
 - [x] Pagamento `/checkout` — carteiras cadastradas, provedor, total
 - [x] Revisão (etapa do `/checkout`) — sem frame, seguir o padrão
-- [ ] Confirmação `/pedido/$orderId` — sem frame mobile, adaptar o modal desktop
+- [x] Confirmação `/pedido/$orderId` — sem frame mobile, adaptar o modal desktop
 - [ ] Perfil `/conta/perfil` e Carteiras `/conta/carteiras` — sem frame mobile, adaptar o desktop
 - [ ] Favoritos `/favoritos` — reaproveita o grid do início
 - [ ] 404 para rota inexistente
@@ -77,3 +77,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 1.7 Login e Cadastro: AuthLayout, PasswordInput com mostrar/ocultar, login social desabilitado, `?redirect=` validado contra open redirect; regra de commit sem assinatura de IA | Criação das telas de login e cadastro |
 | 2026-10-23 | 1.7 Carrinho: CartItemCard com stepper e remoção, resumo fixo com cupom e `SummaryRow`, totais em bigint, estado vazio; ícones sociais via import (`src/assets/icons`) | Implementação do carrinho e resumo da compra |
 | 2026-10-23 | 1.7 Pagamento e Revisão: carteiras e provedores como radio cards, seletor de rede, dados do colecionador, etapa de revisão via `?etapa=revisao`; carrinho de demonstração movido para fixtures | Implementação do pagamento e da revisão do pedido |
+| 2026-10-23 | 1.7 Confirmação: modal desktop adaptado para tela cheia, recibo do snapshot (`OrderReceipt`), estados pendente/confirmado/recusado com fixtures `ord-1001..1003`, link de explorador simulado por rede | Criação da tela de confirmação do pedido |
