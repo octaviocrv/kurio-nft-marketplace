@@ -1,3 +1,5 @@
+import facebookIcon from '@/assets/icons/facebook.webp'
+import googleIcon from '@/assets/icons/google.webp'
 import { Button } from '@/components/ui/button'
 
 // Login social está fora do escopo: os botões aparecem (fidelidade ao Figma),
@@ -12,11 +14,11 @@ export function SocialLogin() {
       </div>
       <Button variant="outline" disabled title="Indisponível na demo" className="h-10 rounded-sm">
         {/* alt vazio: o texto do botão já diz qual é o serviço */}
-        <img src="/icons/google.webp" alt="" width={20} height={20} /> Continuar com Google
+        <img src={googleIcon} alt="" width={20} height={20} /> Continuar com Google
         <span className="sr-only">(indisponível na demo)</span>
       </Button>
       <Button variant="outline" disabled title="Indisponível na demo" className="h-10 rounded-sm">
-        <img src="/icons/facebook.webp" alt="" width={20} height={20} /> Continuar com Facebook
+        <img src={facebookIcon} alt="" width={20} height={20} /> Continuar com Facebook
         <span className="sr-only">(indisponível na demo)</span>
       </Button>
     </div>

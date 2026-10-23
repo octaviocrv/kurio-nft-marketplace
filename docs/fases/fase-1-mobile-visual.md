@@ -41,7 +41,7 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 - [x] Início `/` — busca, hero, abas (Todos / Novos / Em alta), grid de `NftCard`, botão de filtros (abre Sheet)
 - [x] Detalhe `/nft/$nftId` — imagem, info, `EditionPicker`, `QuantityStepper`, favoritar, barra de compra
 - [x] Login `/login` e Cadastro `/cadastro`
-- [ ] Carrinho `/carrinho` — itens, cupom, `SummaryRow`s, total
+- [x] Carrinho `/carrinho` — itens, cupom, `SummaryRow`s, total
 - [ ] Pagamento `/checkout` — carteiras cadastradas, provedor, total
 - [ ] Revisão (etapa do `/checkout`) — sem frame, seguir o padrão
 - [ ] Confirmação `/pedido/$orderId` — sem frame mobile, adaptar o modal desktop
@@ -75,3 +75,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 1.7 Início: busca + gaveta de filtros, hero de destaques (carrossel com scroll-snap), abas com sublinhado animado, grid de `NftCard` alinhado; tab bar com recorte real (máscara CSS) | Criação da página inicial e do catálogo mobile |
 | 2026-10-23 | 1.7 Detalhe: galeria (SnapCarousel compartilhado com o hero), EditionPicker como radiogroup, QuantityStepper limitado ao estoque, barra de compra com total em bigint, tela de NFT inexistente | Criação da página de detalhes do NFT |
 | 2026-10-23 | 1.7 Login e Cadastro: AuthLayout, PasswordInput com mostrar/ocultar, login social desabilitado, `?redirect=` validado contra open redirect; regra de commit sem assinatura de IA | Criação das telas de login e cadastro |
+| 2026-10-23 | 1.7 Carrinho: CartItemCard com stepper e remoção, resumo fixo com cupom e `SummaryRow`, totais em bigint, estado vazio; ícones sociais via import (`src/assets/icons`) | Implementação do carrinho e resumo da compra |
