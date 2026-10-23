@@ -13,10 +13,17 @@ Proibido: Redux, Zustand, lib de decimais, Storybook, CSS-in-JS.
 ```
 src/
   api/              # cliente Axios + funções por recurso + tipos/schemas de contrato (fonte única da verdade)
+  main.tsx          # liga o MSW (se ativo) e só então carrega o App
+  App.tsx           # QueryClient + Router
   mocks/
+    browser.ts      # worker do MSW, controles de teste e painel de cenários
+    db.ts           # banco em memória (seed das fixtures, salvo no localStorage)
+    scenarios.ts    # cenários (?scenario=)
+    control.ts      # mudanças "de fora" (painel/testes): mudam o banco e emitem o evento
     fixtures/       # dados seed: NFTs, usuários, carteiras, cupons
-    handlers/       # handlers REST do MSW, um arquivo por recurso
-    socket/         # eventos Socket.IO via @mswjs/socket.io-binding
+    handlers/       # handlers REST do MSW, um arquivo por recurso (network.ts aplica o cenário de rede)
+    socket/         # servidor Socket.IO simulado via @mswjs/socket.io-binding
+    panel/          # painel de cenários (só com mocks ligados)
   features/         # catalog, nft, cart, checkout, auth, account — hooks de Query + componentes da feature
   components/
     ui/             # shadcn adaptado ao Figma

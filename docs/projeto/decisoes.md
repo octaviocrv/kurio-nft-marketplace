@@ -19,7 +19,16 @@
 - **MSW fixado na v2** (`^2.15`): a v3 já saiu, mas o `@mswjs/socket.io-binding` (indicado no enunciado) só aceita `msw ^2.10`.
 - **`@hookform/resolvers` na v5:** a v6 tem conflito de peer dependency no npm; a v5 já suporta zod 4.
 - **Playwright fixado em versão exata** (`1.63.0`): a imagem Docker das baselines de regressão visual precisa ter a mesma versão do pacote.
-- **Cenários MSW:** selecionados por `?scenario=` (persistido em localStorage), com reset que restaura o seed.
+- **Cenários MSW:** selecionados por `?scenario=` ou pelo painel, persistidos em localStorage. O parâmetro sai da URL assim que é lido (senão venceria o painel e o reset no próximo reload). Cenários de rede (`slow`, `flaky`, `offline`, `error-5xx`) valem para toda chamada `/api` num handler único que roda antes dos recursos; os de um recurso (`empty`, `session-expired`, `payment-rejected`, `order-timeout`, `price-change`) entram com o handler dele. Todos determinísticos: o `flaky` usa um ciclo fixo de latências, não aleatório.
+- **Banco do mock (`src/mocks/db.ts`):** um objeto em memória semeado pelas fixtures (cópia profunda: o seed nunca muda) e salvo no localStorage a cada escrita. Tem um número de formato: banco salvo num formato antigo é descartado e volta o seed. Reset = apagar todas as chaves `kurio:*` e recarregar.
+- **Convenção de storage:** toda chave do app e dos mocks começa com `kurio:` (é o que permite o reset limpar tudo, inclusive a sessão).
+- **Controles do mock para testes (`window.__kurioMock`):** `updateNft`, `setScenario`, `resetMocks`, `replayEvent`, `disconnectAll`. Mudam o dado NO MOCK, que responde no REST e emite pelo Socket.IO. Existe só com os mocks ligados; o painel usa as mesmas funções.
+- **Painel de cenários:** montado numa raiz React separada pelo `src/mocks/browser.ts` (o app não sabe que ele existe). Botão discreto na borda esquerda, destacado quando o cenário não é o padrão.
+- **App carregado só depois do MSW (`main.tsx` → `import('./App')`):** o `socket.io-client` guarda a referência do `WebSocket` quando o módulo é carregado. Se o app carregasse junto com o `main`, o Socket.IO ficaria com o `WebSocket` nativo e escaparia do mock.
+- **Transporte Socket.IO (documentar no ARCHITECTURE.md):** só `websocket` (o MSW não intercepta o long-polling HTTP que o Socket.IO tenta primeiro). Limitações do `@mswjs/socket.io-binding`, resolvidas no mock: (1) não manda o ping do Engine.IO, e sem ele o cliente cai a cada ~30 s, então o mock envia o ping a cada 25 s; (2) o MSW tira o `/socket.io/` da URL antes de comparar, então o link é a raiz da origem, e o WebSocket do HMR do Vite, que cai no mesmo link, é repassado ao servidor real; (3) não tem salas nem namespaces e ignora o `auth` do handshake, então o isolamento por usuário é feito no mock (bloco 2.4/2.9).
+- **Eventos:** `eventId` derivado do recurso e da versão (`nft:<id>:v<versão>`). A mesma mudança reenviada tem o mesmo id, então duplicata e evento antigo caem na mesma regra. `Order` ganhou `version` (sobe a cada mudança de status).
+- **Socket conectado pelo layout raiz** (`__root.tsx`): tempo real vale para o app inteiro; desconecta ao desmontar.
+- **Vercel (`vercel.json`):** rewrite de tudo para `index.html` (arquivos estáticos têm prioridade, então o `mockServiceWorker.js` é servido) e `no-cache` no worker, para não ficar preso a uma versão velha do MSW.
 
 ## Rotas
 

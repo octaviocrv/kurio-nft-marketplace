@@ -42,6 +42,7 @@ const base = {
   walletAddress: wallet.address,
   walletProvider: wallet.provider,
   network: wallet.network,
+  version: 1,
 }
 
 export const demoOrders: Order[] = [

@@ -14,6 +14,8 @@
 4. **IA corrige** e devolve só o que mudou. Repete até aprovar.
 5. Octavio diz **"aprovado"** → **IA faz o commit** → **Octavio faz o push**.
 
+Bloco **só de lógica/infra** (sem mudança na tela): a IA testa tudo (inclusive com scripts descartáveis contra o MSW) e reporta o resultado; o Octavio só aprova.
+
 A IA **não commita antes da aprovação** e **não faz verificação visual** (abrir navegador, screenshot, checar layout). Isso é papel do Octavio.
 
 ## Como reportar um problema

@@ -18,11 +18,11 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [x] Playwright configurado (Chromium, mobile 390 e desktop 1440, trace nas falhas) + teste de infra
 
 ### 2.2 Banco do mock e cenários
-- [ ] Banco em memória semeado pelas fixtures, persistido em localStorage, com reset que restaura o seed
-- [ ] Cenários por `?scenario=` (persistidos): `slow`, `flaky` (latência variável/fora de ordem), `offline`, `error-5xx`, `empty`, `session-expired`, `payment-rejected`, `order-timeout`, `price-change`
-- [ ] Painel de cenários discreto (só com mocks ligados) para trocar cenário e resetar — documentado no README
-- [ ] Socket.IO desde já: `socket.io-client` + `@mswjs/socket.io-binding`; o banco do mock emite `nft.updated`/`order.updated` sempre que o dado muda (carrinho e pedido dependem disso nos blocos 2.6 e 2.7)
-- [ ] Deploy inicial na Vercel (SPA com refresh em qualquer rota, service worker do MSW servido): validar cedo o que só quebra em produção
+- [x] Banco em memória semeado pelas fixtures, persistido em localStorage, com reset que restaura o seed
+- [x] Cenários de rede por `?scenario=` (persistidos): `slow`, `flaky` (latência variável/fora de ordem), `offline`, `error-5xx`. Os de recurso entram com o handler: `empty` (2.3), `session-expired` (2.4), `price-change` (2.6/2.9), `payment-rejected` e `order-timeout` (2.7)
+- [x] Painel de cenários discreto (só com mocks ligados) para trocar cenário e resetar — documentado no README; controles para testes em `window.__kurioMock`
+- [x] Socket.IO desde já: `socket.io-client` + `@mswjs/socket.io-binding`; o banco do mock emite `nft.updated`/`order.updated` sempre que o dado muda (carrinho e pedido dependem disso nos blocos 2.6 e 2.7)
+- [x] `vercel.json` pronto (refresh em qualquer rota, worker do MSW sem cache) e build de produção conferido localmente com mocks e socket; o deploy em si fica no 2.10
 
 ### 2.3 Catálogo e detalhe
 - [ ] `GET /nfts` (busca, filtros combinados, ordenação, paginação) e `GET /nfts/:id`
@@ -70,7 +70,7 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [ ] Playwright em Chromium, viewports mobile e desktop, estado isolado por teste, relógio controlado nos cenários de tempo
 - [ ] Regressão visual de início, detalhe, carrinho e pagamento **no mobile** (baselines versionadas, dados estáveis), geradas e comparadas no Docker oficial do Playwright. As do desktop entram na fase 3, quando as telas desktop existirem
 - [ ] Relatório HTML + traces de falha
-- [ ] Deploy na Vercel atualizado e conferido: mocks ativos, acesso direto e refresh em qualquer rota
+- [ ] Deploy na Vercel: mocks ativos, acesso direto e refresh em qualquer rota
 
 ## Critério de pronto
 
@@ -90,4 +90,5 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 
 | Data | O que foi feito | Commit |
 | --- | --- | --- |
-| 2026-10-23 | 2.1 Infra: MSW no navegador (ligado por padrão, chunk separado, render só após o worker), Axios com `ApiError` tipado e handler de 401, QueryClient com retry só em falha transitória, router com `queryClient` no contexto, Playwright mobile/desktop + teste de infra; plano ajustado (socket e deploy no 2.2, baselines desktop na fase 3) | Configuração da infra de dados e dos mocks |
+| 2026-10-23 | 2.1 Infra: MSW no navegador (ligado por padrão, chunk separado, render só após o worker), Axios com `ApiError` tipado e handler de 401, QueryClient com retry só em falha transitória, router com `queryClient` no contexto, Playwright mobile/desktop + teste de infra; plano ajustado (socket no 2.2, baselines desktop na fase 3) | Configuração da infra de dados e dos mocks |
+| 2026-10-23 | 2.2 Mock: banco em memória semeado pelas fixtures e salvo no localStorage (reset restaura o seed), cenários de rede `slow`/`flaky`/`offline`/`error-5xx` por URL ou painel, painel em raiz React separada, `window.__kurioMock` para testes, Socket.IO via `@mswjs/socket.io-binding` (ping do Engine.IO e HMR do Vite tratados no mock), app carregado só depois do MSW, contrato dos eventos com `eventId` por versão, `vercel.json`, README inicial | Implementação do banco simulado, cenários e Socket.IO |

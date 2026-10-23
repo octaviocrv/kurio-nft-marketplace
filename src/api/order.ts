@@ -38,6 +38,8 @@ const orderBaseSchema = z.object({
   walletAddress: walletAddressSchema,
   walletProvider: walletProviderSchema,
   network: networkSchema,
+  // Incrementa a cada mudança de status. Evento order.updated com versão menor ou igual é ignorado.
+  version: z.number().int().positive(),
 })
 
 /**

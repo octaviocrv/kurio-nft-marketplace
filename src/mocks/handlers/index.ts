@@ -1,4 +1,8 @@
 import type { RequestHandler } from 'msw'
+import { networkConditionsHandler } from './network'
 
-/** Handlers REST de todos os recursos. Cada recurso ganha seu arquivo nesta pasta e entra aqui. */
-export const handlers: RequestHandler[] = []
+/**
+ * Handlers REST de todos os recursos, um arquivo por recurso nesta pasta.
+ * A condição de rede vem primeiro: atrasa ou derruba a requisição antes de qualquer recurso.
+ */
+export const handlers: RequestHandler[] = [networkConditionsHandler]
