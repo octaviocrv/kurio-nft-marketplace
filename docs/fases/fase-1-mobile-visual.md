@@ -9,11 +9,11 @@ Referência visual: `docs/figma/mobile-*.png` e `docs/figma/tokens.md`.
 ## Tarefas
 
 ### 1.1 Setup do projeto
-- [ ] Vite + React + TypeScript na raiz, alias `@/` → `src/`
-- [ ] Tailwind + shadcn/ui inicializados
-- [ ] TanStack Router (file-based, plugin do Vite) com rota `/` funcionando
-- [ ] ESLint + scripts: `dev`, `build`, `preview`, `typecheck`, `lint`
-- [ ] `.gitattributes` com `* text=auto eol=lf` (padroniza quebra de linha no Windows)
+- [x] Vite + React + TypeScript na raiz, alias `@/` → `src/`
+- [x] Tailwind + shadcn/ui inicializados
+- [x] TanStack Router (file-based, plugin do Vite) com rota `/` funcionando
+- [x] ESLint + scripts: `dev`, `build`, `preview`, `typecheck`, `lint`
+- [x] `.gitattributes` com `* text=auto eol=lf` (padroniza quebra de linha no Windows)
 
 ### 1.2 Tema
 - [ ] Tokens de `tokens.md` como variáveis CSS, ligados ao tema do shadcn
@@ -66,3 +66,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 
 | Data | O que foi feito | Commit |
 | --- | --- | --- |
+| 2026-10-23 | 1.1 Setup: Vite 8 + React 19 + TS 6, alias `@/`, Tailwind v4, shadcn (init manual, compatível com o CLI), TanStack Router file-based, ESLint, `.gitattributes` | Configuração do projeto base |
