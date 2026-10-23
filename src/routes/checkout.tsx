@@ -12,6 +12,7 @@ import { networkLabels } from '@/features/catalog/labels'
 import { CheckoutReview } from '@/features/checkout/CheckoutReview'
 import { ProviderOptions } from '@/features/checkout/ProviderOptions'
 import { WalletOptions } from '@/features/checkout/WalletOptions'
+import { requireSession } from '@/features/auth/queries'
 import { multiplyWei, parseEth, sumWei, toEthString } from '@/lib/eth'
 // fase 1: viram hooks de Query (sessão, carteiras, carrinho/cotação) na fase 2
 import { DEMO_NETWORK_FEE, demoCartItems } from '@/mocks/fixtures/carts'
@@ -25,6 +26,7 @@ const checkoutSearchSchema = z.object({
 
 export const Route = createFileRoute('/checkout')({
   validateSearch: checkoutSearchSchema,
+  beforeLoad: ({ context, location }) => requireSession(context.queryClient, location.href),
   component: CheckoutPage,
 })
 

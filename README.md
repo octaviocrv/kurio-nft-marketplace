@@ -31,6 +31,13 @@ npm run dev        # http://localhost:5173, com a API simulada ligada
 | --- | --- | --- |
 | `VITE_ENABLE_MOCKS` | ligado | `false` desliga o MSW (o app passa a chamar um `/api` real). Sem backend real na entrega, o build de demonstração usa os mocks. |
 
+## Credenciais de demonstração
+
+| Usuário | Senha | Estado inicial |
+| --- | --- | --- |
+| `nova@kurio.dev` | `kurio123` | Carteira principal e secundária |
+| `theo@kurio.dev` | `kurio123` | Somente carteira principal |
+
 ## API simulada e cenários
 
 O MSW intercepta as chamadas REST (`/api/*`) e a conexão Socket.IO. O estado da API (catálogo, favoritos, carrinho, carteiras, pedidos) fica num banco em memória salvo no `localStorage`, então sobrevive ao refresh.
@@ -45,6 +52,7 @@ O MSW intercepta as chamadas REST (`/api/*`) e a conexão Socket.IO. O estado da
 | `offline` | Nenhuma requisição chega e o socket cai até o cenário mudar |
 | `error-5xx` | Toda requisição responde 503 |
 | `empty` | O catálogo responde sem nenhum NFT |
+| `session-expired` | A consulta da sessão responde como expirada e o app volta ao login preservando a rota |
 
 **Restaurar o estado inicial:** botão "Restaurar dados iniciais" no painel. Apaga banco, cenário e sessão salvos e recarrega com os dados de seed.
 

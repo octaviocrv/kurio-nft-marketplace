@@ -38,6 +38,10 @@
 - **Resposta fora do contrato vira `ApiError`** (`parseResponse` em `src/api/client.ts`): toda resposta é validada com o schema zod do contrato, e o app continua lidando com um único tipo de erro.
 - **Paginação com links de verdade** (`?pagina=2`) e `scrollRestoration` do router: voltar do detalhe devolve a rolagem do catálogo.
 - **Página além do fim** responde vazia com o total certo, e a tela oferece ir para a primeira página.
+- **Sessão:** o token opaco fica em `kurio:session-token` no `localStorage` e segue como Bearer pelo interceptor do Axios. O mock guarda apenas token, `userId` e expiração de 8 horas no banco persistido; `GET /session` devolve o usuário público, nunca salt/hash. Cadastro autentica imediatamente.
+- **Rotas privadas:** checkout, pedido, favoritos e toda `/conta` verificam `GET /session` no `beforeLoad`. Sem sessão, vão para `/login?redirect=<caminho completo>`; login e cadastro usam `href` interno validado para retomar inclusive search params.
+- **Expiração e troca de identidade:** qualquer `unauthorized` remove o token, limpa todo o Query Client, desconecta o Socket.IO e manda para o login com o contexto atual. Login/cadastro também limpam o cache antes de ativar a nova identidade; logout local acontece mesmo se a chamada REST falhar.
+- **Senhas no mock:** fixtures e cadastros guardam somente `SHA-256(salt + senha)` em hexadecimal. SHA-256 não seria adequado para produção (seria Argon2/bcrypt), mas evita senha legível na simulação inteiramente local.
 
 ## Rotas
 

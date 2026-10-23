@@ -4,6 +4,7 @@ import { Compass } from 'lucide-react'
 import { useEffect } from 'react'
 import { socket } from '@/api/socket'
 import { EmptyState } from '@/components/EmptyState'
+import { getSessionToken } from '@/features/auth/sessionStorage'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -18,6 +19,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootLayout() {
   // Tempo real vale para o app inteiro (catálogo, carrinho, pedido): conecta com o app e libera ao desmontar
   useEffect(() => {
+    const token = getSessionToken()
+    socket.auth = token ? { token } : {}
     socket.connect()
     return () => {
       socket.disconnect()

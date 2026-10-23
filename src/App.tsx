@@ -1,5 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { setUnauthorizedHandler } from './api/client'
+import { clearSession } from './features/auth/queries'
 import { createQueryClient } from './lib/queryClient'
 import { routeTree } from './routeTree.gen'
 
@@ -30,6 +32,15 @@ const router = createRouter({
   context: { queryClient },
   // Quem guarda dado em cache é o TanStack Query; o router sempre chama o loader e deixa o Query decidir
   defaultPreloadStaleTime: 0,
+})
+
+setUnauthorizedHandler(() => {
+  const redirectTo = router.state.location.href
+  const hadSession = clearSession(queryClient)
+  // Sem token, o beforeLoad da rota privada cuida do redirect. Com token, é expiração no meio do uso.
+  if (hadSession && router.state.location.pathname !== '/login') {
+    void router.navigate({ to: '/login', search: { redirect: redirectTo }, replace: true })
+  }
 })
 
 // Registra o router no TypeScript: links e params passam a ser tipados em todo o app

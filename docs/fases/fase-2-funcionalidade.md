@@ -35,11 +35,11 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [x] Testes: busca/filtros/paginação/histórico; acesso direto e NFT inexistente; skeleton com `slow`
 
 ### 2.4 Sessão e conta
-- [ ] `POST /auth/register` (conflito de e-mail/usuário), `POST /auth/login`, `GET /session`, `POST /auth/logout`, expiração
-- [ ] Formulários com react-hook-form + os **mesmos schemas zod** do handler; erros da API nos campos
-- [ ] Rotas privadas (`beforeLoad`) com `?redirect=`; expiração no meio da navegação/checkout preserva o contexto
-- [ ] Logout/troca de usuário: `queryClient.clear()` + desconectar socket
-- [ ] Testes: cadastro, login, expiração, logout, troca de usuário, teclado/foco/validação
+- [x] `POST /auth/register` (conflito de e-mail/usuário), `POST /auth/login`, `GET /session`, `POST /auth/logout`, expiração
+- [x] Formulários com react-hook-form + os **mesmos schemas zod** do handler; erros da API nos campos
+- [x] Rotas privadas (`beforeLoad`) com `?redirect=`; expiração no meio da navegação/checkout preserva o contexto
+- [x] Logout/troca de usuário: `queryClient.clear()` + desconectar socket
+- [x] Testes: cadastro, login, expiração, logout, troca de usuário, teclado/foco/validação
 
 ### 2.5 Favoritos
 - [ ] `GET/POST/DELETE /favorites` (exige login), atualização **otimista com rollback** e aviso acessível
@@ -96,3 +96,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 2.1 Infra: MSW no navegador (ligado por padrão, chunk separado, render só após o worker), Axios com `ApiError` tipado e handler de 401, QueryClient com retry só em falha transitória, router com `queryClient` no contexto, Playwright mobile/desktop + teste de infra; plano ajustado (socket no 2.2, baselines desktop na fase 3) | Configuração da infra de dados e dos mocks |
 | 2026-10-23 | 2.2 Mock: banco em memória semeado pelas fixtures e salvo no localStorage (reset restaura o seed), cenários de rede `slow`/`flaky`/`offline`/`error-5xx` por URL ou painel, painel em raiz React separada, `window.__kurioMock` para testes, Socket.IO via `@mswjs/socket.io-binding` (ping do Engine.IO e HMR do Vite tratados no mock), app carregado só depois do MSW, contrato dos eventos com `eventId` por versão, `vercel.json`, README inicial | Implementação do banco simulado, cenários e Socket.IO |
 | 2026-10-23 | 2.3 Catálogo e detalhe: API simulada com busca, filtros combinados, ordenação e paginação na URL; cache no detalhe, cancelamento de consultas obsoletas, skeletons, estados de erro/vazio e testes E2E mobile/desktop | Implementação do catálogo e detalhe de NFTs |
+| 2026-10-23 | 2.4 Sessão e conta: cadastro/login/logout pela API, sessão persistida, formulários com schemas compartilhados, rotas privadas com retorno ao fluxo, expiração, limpeza de cache/socket e testes E2E mobile/desktop | Implementação da sessão e autenticação |

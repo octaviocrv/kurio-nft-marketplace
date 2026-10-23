@@ -1,5 +1,6 @@
 import axios, { isAxiosError, isCancel } from 'axios'
 import type { z } from 'zod'
+import { getSessionToken } from '@/features/auth/sessionStorage'
 import { ApiError, apiErrorBodySchema, type ApiErrorCode } from './error'
 
 /**
@@ -21,6 +22,12 @@ let unauthorizedHandler: (() => void) | null = null
 export function setUnauthorizedHandler(handler: (() => void) | null) {
   unauthorizedHandler = handler
 }
+
+apiClient.interceptors.request.use((config) => {
+  const token = getSessionToken()
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
 apiClient.interceptors.response.use(undefined, (error: unknown) => {
   // Cancelamento não é erro: o TanStack Query cancela consultas obsoletas e precisa ver o erro original

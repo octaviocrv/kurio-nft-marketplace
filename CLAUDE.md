@@ -10,6 +10,7 @@ Este arquivo é só o **índice**. O conteúdo fica em `docs/`.
 - Regras de Git (formato do commit, quando commitar): @docs/projeto/git.md
 - Verificações (o que rodar e quando): @docs/projeto/verificacoes.md
 - Homologação (ciclo de cada tarefa, quem valida o quê): @docs/projeto/homologacao.md
+- Credenciais dos usuários de teste: @docs/projeto/credenciais-teste.md
 
 ## Consultar quando precisar
 

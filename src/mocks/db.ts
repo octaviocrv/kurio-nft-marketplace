@@ -20,15 +20,16 @@ export interface MockDb {
   walletsByUserId: Record<string, Wallet[]>
   favoriteIdsByUserId: Record<string, string[]>
   coupons: Coupon[]
+  sessions: Record<string, { userId: string; expiresAt: string }>
 }
 
 const STORAGE_KEY = 'mock-db'
 // Sobe quando o formato do banco muda: um banco salvo no formato antigo é descartado e o seed volta
-const DB_FORMAT = 1
+const DB_FORMAT = 2
 
 function createSeed(): MockDb {
   // Cópia profunda: o seed (fixtures) nunca é alterado, por isso o reset sempre volta ao mesmo estado
-  return structuredClone({ format: DB_FORMAT, nfts, users, walletsByUserId, favoriteIdsByUserId, coupons })
+  return structuredClone({ format: DB_FORMAT, nfts, users, walletsByUserId, favoriteIdsByUserId, coupons, sessions: {} })
 }
 
 function loadDb(): MockDb {

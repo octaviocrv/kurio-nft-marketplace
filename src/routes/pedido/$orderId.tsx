@@ -9,11 +9,13 @@ import { networkLabels } from '@/features/catalog/labels'
 import { walletProviderLabels } from '@/features/checkout/labels'
 import { OrderReceipt } from '@/features/checkout/OrderReceipt'
 import { ThankYouIllustration } from '@/features/checkout/ThankYouIllustration'
+import { requireSession } from '@/features/auth/queries'
 import { formatDate } from '@/lib/date'
 import { getExplorer, shortenAddress } from '@/lib/wallet'
 import { demoOrders } from '@/mocks/fixtures/orders' // fase 1: vira hook de Query (com polling do status) na fase 2
 
 export const Route = createFileRoute('/pedido/$orderId')({
+  beforeLoad: ({ context, location }) => requireSession(context.queryClient, location.href),
   loader: ({ params }) => {
     const order = demoOrders.find((item) => item.id === params.orderId)
     if (!order) throw notFound()

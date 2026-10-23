@@ -3,11 +3,13 @@ import { Heart } from 'lucide-react'
 import { useState } from 'react'
 import { EmptyState } from '@/components/EmptyState'
 import { NftGrid } from '@/features/catalog/NftGrid'
+import { requireSession } from '@/features/auth/queries'
 // fase 1: viram hook de Query (favoritos do usuário logado) na fase 2
 import { favoriteIdsByUserId } from '@/mocks/fixtures/favorites'
 import { nfts } from '@/mocks/fixtures/nfts'
 
 export const Route = createFileRoute('/_tabs/favoritos')({
+  beforeLoad: ({ context, location }) => requireSession(context.queryClient, location.href),
   component: FavoritesPage,
 })
 
