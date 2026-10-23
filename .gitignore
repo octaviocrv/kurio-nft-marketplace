@@ -1,0 +1,28 @@
+# Dependências e build
+node_modules/
+dist/
+*.local
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Testes (relatórios gerados; baselines de regressão visual ficam versionadas)
+playwright-report/
+test-results/
+blob-report/
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Material de trabalho que não vai para o repositório público
+EscopoDesafioVaga.md
+docs/figma/canvas-full.png
