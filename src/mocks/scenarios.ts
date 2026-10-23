@@ -7,7 +7,7 @@ import { readStorage, writeStorage } from './storage'
  * em toda execução. Os cenários de um recurso específico (vazio, sessão expirada, pagamento recusado,
  * timeout do pedido, mudança de preço) entram junto com o handler do recurso.
  */
-export const scenarioSchema = z.enum(['default', 'slow', 'flaky', 'offline', 'error-5xx'])
+export const scenarioSchema = z.enum(['default', 'slow', 'flaky', 'offline', 'error-5xx', 'empty'])
 export type Scenario = z.infer<typeof scenarioSchema>
 
 export const scenarioLabels: Record<Scenario, { title: string; description: string }> = {
@@ -16,6 +16,7 @@ export const scenarioLabels: Record<Scenario, { title: string; description: stri
   flaky: { title: 'Instável', description: 'Latência variável: respostas chegam fora de ordem.' },
   offline: { title: 'Sem conexão', description: 'Nenhuma requisição chega e o socket cai.' },
   'error-5xx': { title: 'Erro no servidor', description: 'Toda requisição responde 503.' },
+  empty: { title: 'Catálogo vazio', description: 'A listagem de NFTs responde sem nenhum item.' },
 }
 
 const STORAGE_KEY = 'mock-scenario'

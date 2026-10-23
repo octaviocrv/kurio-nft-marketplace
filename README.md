@@ -44,6 +44,7 @@ O MSW intercepta as chamadas REST (`/api/*`) e a conexão Socket.IO. O estado da
 | `flaky` | Latência variável em ciclo fixo: respostas chegam fora de ordem, sempre igual |
 | `offline` | Nenhuma requisição chega e o socket cai até o cenário mudar |
 | `error-5xx` | Toda requisição responde 503 |
+| `empty` | O catálogo responde sem nenhum NFT |
 
 **Restaurar o estado inicial:** botão "Restaurar dados iniciais" no painel. Apaga banco, cenário e sessão salvos e recarrega com os dados de seed.
 

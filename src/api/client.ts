@@ -1,4 +1,5 @@
 import axios, { isAxiosError, isCancel } from 'axios'
+import type { z } from 'zod'
 import { ApiError, apiErrorBodySchema, type ApiErrorCode } from './error'
 
 /**
@@ -56,4 +57,16 @@ function codeFromStatus(status: number): ApiErrorCode {
   if (status === 409) return 'conflict'
   if (status === 422 || status === 400) return 'validation_error'
   return 'server_error'
+}
+
+/**
+ * Valida a resposta contra o schema do contrato. Resposta fora do contrato vira ApiError
+ * (e não um erro do zod): hooks e telas continuam lidando com um único tipo de erro.
+ */
+export function parseResponse<Schema extends z.ZodType>(schema: Schema, data: unknown): z.infer<Schema> {
+  const result = schema.safeParse(data)
+  if (!result.success) {
+    throw new ApiError(200, { code: 'server_error', message: 'Resposta inesperada do servidor.' })
+  }
+  return result.data
 }

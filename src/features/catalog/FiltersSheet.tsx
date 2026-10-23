@@ -1,82 +1,154 @@
 import { Check } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
-import { nftCategorySchema } from '@/api/nft'
-import { networkSchema } from '@/api/shared'
+import { isValidPriceRange, nftCategorySchema, nftSortSchema, PRICE_RANGE_MESSAGE, type NftSort } from '@/api/nft'
+import { ethAmountSchema, networkSchema } from '@/api/shared'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
-import { categoryLabels, networkLabels, sortOptions } from './labels'
+import type { CatalogFilters } from './catalogSearch'
+import { categoryLabels, networkLabels, sortLabels } from './labels'
 
 interface FiltersSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  filters: CatalogFilters // o que está aplicado agora (vem da URL)
+  onApply: (filters: CatalogFilters) => void
 }
 
+const emptyFilters: CatalogFilters = { categories: [], networks: [], sort: 'padrao' }
+
 // Sem frame mobile no Figma: mesmo conteúdo da sidebar desktop (coleções, preço, rede) + ordenação,
-// em ordem de uso. Fase 1 é só visual; na fase 2 os valores passam a viver na URL.
-export function FiltersSheet({ open, onOpenChange }: FiltersSheetProps) {
+// em ordem de uso. Nada muda na lista até "Aplicar": combinar vários filtros faz uma consulta só.
+export function FiltersSheet({ open, onOpenChange, filters, onApply }: FiltersSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" showCloseButton={false} className="gap-0">
-        {/* Alça: indica que a gaveta pode ser arrastada/fechada para baixo */}
-        <div aria-hidden className="mx-auto mt-3 h-1 w-10 rounded-full bg-border-soft" />
-
-        <SheetHeader className="flex-row items-center justify-between px-6 pt-4 pb-2">
-          <SheetTitle className="text-lg">Filtros</SheetTitle>
-          <SheetDescription className="sr-only">Combine ordenação, rede, coleção e faixa de preço.</SheetDescription>
-          <Button variant="link" className="h-auto p-0">
-            Limpar
-          </Button>
-        </SheetHeader>
-
-        <div className="flex flex-col divide-y divide-border overflow-y-auto px-6">
-          <FilterSection title="Ordenar por">
-            <Select defaultValue="recentes">
-              <SelectTrigger aria-label="Ordenar por" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {sortOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FilterSection>
-
-          <FilterSection title="Rede">
-            <div className="grid grid-cols-3 gap-2">
-              {networkSchema.options.map((network) => (
-                <FilterOption key={network} label={networkLabels[network]} />
-              ))}
-            </div>
-          </FilterSection>
-
-          <FilterSection title="Coleções">
-            <div className="grid grid-cols-2 gap-2">
-              {nftCategorySchema.options.map((category) => (
-                <FilterOption key={category} label={categoryLabels[category]} />
-              ))}
-            </div>
-          </FilterSection>
-
-          <FilterSection title="Faixa de preço">
-            <div className="flex items-center gap-3">
-              <PriceInput label="Preço mínimo" placeholder="Mín." />
-              <span className="text-sm text-muted-foreground">até</span>
-              <PriceInput label="Preço máximo" placeholder="Máx." />
-            </div>
-          </FilterSection>
-        </div>
-
-        <SheetFooter className="border-t border-border px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <Button size="lg" className="rounded-xl" onClick={() => onOpenChange(false)}>
-            Aplicar filtros
-          </Button>
-        </SheetFooter>
+        {/* O conteúdo desmonta ao fechar: cada abertura começa do que está aplicado na URL */}
+        <FiltersForm
+          initialFilters={filters}
+          onApply={(nextFilters) => {
+            onApply(nextFilters)
+            onOpenChange(false)
+          }}
+        />
       </SheetContent>
     </Sheet>
+  )
+}
+
+/** Valor digitado → ETH do contrato ("0,5" vira "0.5"; o teclado decimal do celular usa vírgula). */
+function normalizePrice(value: string): string {
+  return value.trim().replace(',', '.')
+}
+
+function FiltersForm({ initialFilters, onApply }: { initialFilters: CatalogFilters; onApply: (filters: CatalogFilters) => void }) {
+  const [draft, setDraft] = useState(initialFilters)
+  const [minPrice, setMinPrice] = useState(initialFilters.minPrice ?? '')
+  const [maxPrice, setMaxPrice] = useState(initialFilters.maxPrice ?? '')
+  const [priceError, setPriceError] = useState<string | null>(null)
+  const priceErrorId = useId()
+
+  function toggle<Value extends string>(list: Value[], value: Value): Value[] {
+    return list.includes(value) ? list.filter((item) => item !== value) : [...list, value]
+  }
+
+  function clearAll() {
+    setDraft(emptyFilters)
+    setMinPrice('')
+    setMaxPrice('')
+    setPriceError(null)
+  }
+
+  function apply() {
+    const min = normalizePrice(minPrice) || undefined
+    const max = normalizePrice(maxPrice) || undefined
+    // Mesmas regras do contrato (ethAmountSchema e faixa) que o handler da API valida
+    if ((min && !ethAmountSchema.safeParse(min).success) || (max && !ethAmountSchema.safeParse(max).success)) {
+      setPriceError('Use um valor em ETH, por exemplo 0.5')
+      return
+    }
+    if (!isValidPriceRange({ minPrice: min, maxPrice: max })) {
+      setPriceError(PRICE_RANGE_MESSAGE)
+      return
+    }
+    onApply({ ...draft, minPrice: min, maxPrice: max })
+  }
+
+  return (
+    <>
+      {/* Alça: indica que a gaveta pode ser arrastada/fechada para baixo */}
+      <div aria-hidden className="mx-auto mt-3 h-1 w-10 rounded-full bg-border-soft" />
+
+      <SheetHeader className="flex-row items-center justify-between px-6 pt-4 pb-2">
+        <SheetTitle className="text-lg">Filtros</SheetTitle>
+        <SheetDescription className="sr-only">Combine ordenação, rede, coleção e faixa de preço.</SheetDescription>
+        <Button variant="link" className="h-auto p-0" onClick={clearAll}>
+          Limpar
+        </Button>
+      </SheetHeader>
+
+      <div className="flex flex-col divide-y divide-border overflow-y-auto px-6">
+        <FilterSection title="Ordenar por">
+          <Select value={draft.sort} onValueChange={(value) => setDraft({ ...draft, sort: value as NftSort })}>
+            <SelectTrigger aria-label="Ordenar por" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {nftSortSchema.options.map((sort) => (
+                <SelectItem key={sort} value={sort}>{sortLabels[sort]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterSection>
+
+        <FilterSection title="Rede">
+          <div className="grid grid-cols-3 gap-2">
+            {networkSchema.options.map((network) => (
+              <FilterOption
+                key={network}
+                label={networkLabels[network]}
+                pressed={draft.networks.includes(network)}
+                onToggle={() => setDraft({ ...draft, networks: toggle(draft.networks, network) })}
+              />
+            ))}
+          </div>
+        </FilterSection>
+
+        <FilterSection title="Coleções">
+          <div className="grid grid-cols-2 gap-2">
+            {nftCategorySchema.options.map((category) => (
+              <FilterOption
+                key={category}
+                label={categoryLabels[category]}
+                pressed={draft.categories.includes(category)}
+                onToggle={() => setDraft({ ...draft, categories: toggle(draft.categories, category) })}
+              />
+            ))}
+          </div>
+        </FilterSection>
+
+        <FilterSection title="Faixa de preço">
+          <div className="flex items-center gap-3">
+            <PriceInput label="Preço mínimo" placeholder="Mín." value={minPrice} onChange={setMinPrice} errorId={priceError ? priceErrorId : undefined} />
+            <span className="text-sm text-muted-foreground">até</span>
+            <PriceInput label="Preço máximo" placeholder="Máx." value={maxPrice} onChange={setMaxPrice} errorId={priceError ? priceErrorId : undefined} />
+          </div>
+          {priceError && (
+            <p id={priceErrorId} role="alert" className="text-sm text-destructive">
+              {priceError}
+            </p>
+          )}
+        </FilterSection>
+      </div>
+
+      <SheetFooter className="border-t border-border px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <Button size="lg" className="rounded-xl" onClick={apply}>
+          Aplicar filtros
+        </Button>
+      </SheetFooter>
+    </>
   )
 }
 
@@ -94,13 +166,12 @@ function FilterSection({ title, children }: { title: string; children: ReactNode
 }
 
 /** Opção liga/desliga (aria-pressed): filtros são combináveis, então cada uma é independente. */
-function FilterOption({ label }: { label: string }) {
-  const [pressed, setPressed] = useState(false)
+function FilterOption({ label, pressed, onToggle }: { label: string; pressed: boolean; onToggle: () => void }) {
   return (
     <button
       type="button"
       aria-pressed={pressed}
-      onClick={() => setPressed(!pressed)}
+      onClick={onToggle}
       className={cn(
         'flex h-10 cursor-pointer items-center justify-between gap-2 rounded-lg border border-border px-3 text-sm text-muted-foreground transition-colors outline-none',
         'hover:border-border-soft hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50',
@@ -113,10 +184,27 @@ function FilterOption({ label }: { label: string }) {
   )
 }
 
-function PriceInput({ label, placeholder }: { label: string; placeholder: string }) {
+interface PriceInputProps {
+  label: string
+  placeholder: string
+  value: string
+  onChange: (value: string) => void
+  errorId?: string
+}
+
+function PriceInput({ label, placeholder, value, onChange, errorId }: PriceInputProps) {
   return (
     <div className="relative flex-1">
-      <Input aria-label={label} inputMode="decimal" placeholder={placeholder} className="pr-12" />
+      <Input
+        aria-label={label}
+        inputMode="decimal"
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        aria-invalid={errorId ? true : undefined}
+        aria-describedby={errorId}
+        className="pr-12"
+      />
       <span aria-hidden className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-xs text-muted-foreground">
         ETH
       </span>

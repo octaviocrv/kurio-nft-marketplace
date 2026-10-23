@@ -1,32 +1,51 @@
-import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Heart, SearchX, Star } from 'lucide-react'
 import { useState } from 'react'
+import type { Nft } from '@/api/nft'
 import { EmptyState } from '@/components/EmptyState'
+import { ErrorState } from '@/components/ErrorState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { BuyBar } from '@/features/nft/BuyBar'
 import { EditionPicker } from '@/features/nft/EditionPicker'
+import { NftDetailSkeleton } from '@/features/nft/NftDetailSkeleton'
 import { NftGallery } from '@/features/nft/NftGallery'
+import { useNftDetail } from '@/features/nft/queries'
 import { multiplyWei, parseEth, toEthString } from '@/lib/eth'
 import { isSoldOut } from '@/lib/nft'
 import { cn } from '@/lib/utils'
-import { nfts } from '@/mocks/fixtures/nfts' // fase 1: vira hook de Query na fase 2
 
 export const Route = createFileRoute('/nft/$nftId')({
-  // Acesso direto a um id que não existe cai no notFoundComponent (requisito do enunciado)
-  loader: ({ params }) => {
-    const nft = nfts.find((item) => item.id === params.nftId)
-    if (!nft) throw notFound()
-    return nft
-  },
   // Trocar de NFT remonta a página: edição/quantidade escolhidas no anterior não vazam para o próximo
   remountDeps: ({ params }) => params.nftId,
   component: NftDetailPage,
-  notFoundComponent: NftNotFound,
 })
 
 function NftDetailPage() {
-  const nft = Route.useLoaderData()
+  const { nftId } = Route.useParams()
+  const detail = useNftDetail(nftId)
+
+  if (detail.isPending) return <NftDetailSkeleton />
+
+  if (detail.isError && !detail.data) {
+    // Acesso direto a um id que não existe: a API responde 404 (requisito do enunciado)
+    if (detail.error.code === 'not_found') return <NftNotFound />
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <PageHeader />
+        <main className="flex flex-1 flex-col">
+          <ErrorState title="Não foi possível carregar o NFT" description={detail.error.message} onRetry={() => detail.refetch()} isRetrying={detail.isFetching} />
+        </main>
+      </div>
+    )
+  }
+
+  if (!detail.data) return null
+  return <NftDetail nft={detail.data} />
+}
+
+// Separado da página: a edição e a quantidade só começam a existir quando o NFT já chegou
+function NftDetail({ nft }: { nft: Nft }) {
   const navigate = useNavigate()
   const soldOut = isSoldOut(nft)
 

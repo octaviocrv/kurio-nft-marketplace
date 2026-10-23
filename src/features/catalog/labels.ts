@@ -1,4 +1,4 @@
-import type { NftCategory } from '@/api/nft'
+import type { NftCategory, NftSort } from '@/api/nft'
 import type { Network } from '@/api/shared'
 
 // Textos da interface para os valores do contrato (que ficam em slug na API e na URL).
@@ -21,9 +21,10 @@ export const networkLabels: Record<Network, string> = {
   solana: 'Solana',
 }
 
-export const sortOptions = [
-  { value: 'recentes', label: 'Listados recentemente' },
-  { value: 'menor-preco', label: 'Menor preço' },
-  { value: 'maior-preco', label: 'Maior preço' },
-  { value: 'populares', label: 'Mais favoritados' },
-] as const
+export const sortLabels: Record<NftSort, string> = {
+  padrao: 'Padrão',
+  recentes: 'Novos lançamentos',
+  populares: 'Mais favoritados',
+  'menor-preco': 'Menor preço',
+  'maior-preco': 'Maior preço',
+}

@@ -29,6 +29,15 @@
 - **Eventos:** `eventId` derivado do recurso e da versão (`nft:<id>:v<versão>`). A mesma mudança reenviada tem o mesmo id, então duplicata e evento antigo caem na mesma regra. `Order` ganhou `version` (sobe a cada mudança de status).
 - **Socket conectado pelo layout raiz** (`__root.tsx`): tempo real vale para o app inteiro; desconecta ao desmontar.
 - **Vercel (`vercel.json`):** rewrite de tudo para `index.html` (arquivos estáticos têm prioridade, então o `mockServiceWorker.js` é servido) e `no-cache` no worker, para não ficar preso a uma versão velha do MSW.
+- **URL do catálogo legível:** o router usa `parseSearch`/`stringifySearch` próprios (texto puro via `URLSearchParams`), e cada rota converte com zod. O padrão do TanStack Router serializa em JSON e deixaria `?min=%220.5%22`. Listas vão separadas por vírgula (`?rede=ethereum,polygon`), e valor inválido na URL é descartado (`.catch`).
+- **Busca ao enviar, não a cada tecla:** cada busca vira um passo do histórico e o voltar desfaz uma por vez. Filtros só mudam a lista ao "Aplicar" (uma consulta por combinação, não uma por clique). Busca e filtro novos voltam para a página 1.
+- **Abas do Início = atalhos de ordenação** (Todos = padrão, Novos lançamentos = mais recentes, Em alta = mais favoritados), no mesmo parâmetro `ordem` da gaveta. Ordenar por preço deixa nenhuma aba marcada.
+- **Respostas obsoletas:** a query key inclui todos os parâmetros, e o `AbortSignal` do Query vai até o Axios. Na troca rápida de página o Query cancela a requisição anterior; e mesmo que uma resposta velha chegasse, ela cairia em outra chave e nunca na tela atual (teste `catalog.spec.ts`).
+- **Lista anterior na tela ao trocar filtro/página** (`keepPreviousData`, esmaecida): sem voltar ao skeleton nem deslocar o layout a cada clique. Skeleton só na primeira carga. Falha numa atualização por trás mantém a lista e mostra um aviso com "Tentar de novo".
+- **Detalhe abre na hora vindo do catálogo:** `placeholderData` procura o NFT nas páginas em cache e a consulta do detalhe atualiza por trás. Acesso direto mostra o skeleton. 404 da API vira a tela "NFT não encontrado".
+- **Resposta fora do contrato vira `ApiError`** (`parseResponse` em `src/api/client.ts`): toda resposta é validada com o schema zod do contrato, e o app continua lidando com um único tipo de erro.
+- **Paginação com links de verdade** (`?pagina=2`) e `scrollRestoration` do router: voltar do detalhe devolve a rolagem do catálogo.
+- **Página além do fim** responde vazia com o total certo, e a tela oferece ir para a primeira página.
 
 ## Rotas
 

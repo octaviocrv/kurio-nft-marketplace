@@ -21,15 +21,18 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [x] Banco em memória semeado pelas fixtures, persistido em localStorage, com reset que restaura o seed
 - [x] Cenários de rede por `?scenario=` (persistidos): `slow`, `flaky` (latência variável/fora de ordem), `offline`, `error-5xx`. Os de recurso entram com o handler: `empty` (2.3), `session-expired` (2.4), `price-change` (2.6/2.9), `payment-rejected` e `order-timeout` (2.7)
 - [x] Painel de cenários discreto (só com mocks ligados) para trocar cenário e resetar — documentado no README; controles para testes em `window.__kurioMock`
-- [x] Socket.IO desde já: `socket.io-client` + `@mswjs/socket.io-binding`; o banco do mock emite `nft.updated`/`order.updated` sempre que o dado muda (carrinho e pedido dependem disso nos blocos 2.6 e 2.7)
+- [x] Socket.IO desde já: `socket.io-client` + `@mswjs/socket.io-binding`; mudança de NFT no mock emite `nft.updated` (o `order.updated` passa a ser emitido no 2.7, quando existirem pedidos)
 - [x] `vercel.json` pronto (refresh em qualquer rota, worker do MSW sem cache) e build de produção conferido localmente com mocks e socket; o deploy em si fica no 2.10
 
 ### 2.3 Catálogo e detalhe
-- [ ] `GET /nfts` (busca, filtros combinados, ordenação, paginação) e `GET /nfts/:id`
-- [ ] Busca/filtros/ordem/página na URL (zod), mudança de filtro volta para página 1, histórico restaura
-- [ ] Respostas fora de ordem descartadas (AbortSignal do Query + query key por parâmetros)
-- [ ] Skeleton com shimmer nas mesmas dimensões, vazio, erro com "tentar de novo"; detalhe com 404 real
-- [ ] Testes: busca/filtros/paginação/histórico; acesso direto e NFT inexistente; skeleton com `slow`
+
+> **OBS:** Feito pelo Codex daqui pra frente.
+
+- [x] `GET /nfts` (busca, filtros combinados, ordenação, paginação) e `GET /nfts/:id`
+- [x] Busca/filtros/ordem/página na URL (zod), mudança de filtro volta para página 1, histórico restaura
+- [x] Respostas fora de ordem descartadas (AbortSignal do Query + query key por parâmetros)
+- [x] Skeleton com shimmer nas mesmas dimensões, vazio, erro com "tentar de novo"; detalhe com 404 real
+- [x] Testes: busca/filtros/paginação/histórico; acesso direto e NFT inexistente; skeleton com `slow`
 
 ### 2.4 Sessão e conta
 - [ ] `POST /auth/register` (conflito de e-mail/usuário), `POST /auth/login`, `GET /session`, `POST /auth/logout`, expiração
@@ -92,3 +95,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | --- | --- | --- |
 | 2026-10-23 | 2.1 Infra: MSW no navegador (ligado por padrão, chunk separado, render só após o worker), Axios com `ApiError` tipado e handler de 401, QueryClient com retry só em falha transitória, router com `queryClient` no contexto, Playwright mobile/desktop + teste de infra; plano ajustado (socket no 2.2, baselines desktop na fase 3) | Configuração da infra de dados e dos mocks |
 | 2026-10-23 | 2.2 Mock: banco em memória semeado pelas fixtures e salvo no localStorage (reset restaura o seed), cenários de rede `slow`/`flaky`/`offline`/`error-5xx` por URL ou painel, painel em raiz React separada, `window.__kurioMock` para testes, Socket.IO via `@mswjs/socket.io-binding` (ping do Engine.IO e HMR do Vite tratados no mock), app carregado só depois do MSW, contrato dos eventos com `eventId` por versão, `vercel.json`, README inicial | Implementação do banco simulado, cenários e Socket.IO |
+| 2026-10-23 | 2.3 Catálogo e detalhe: API simulada com busca, filtros combinados, ordenação e paginação na URL; cache no detalhe, cancelamento de consultas obsoletas, skeletons, estados de erro/vazio e testes E2E mobile/desktop | Implementação do catálogo e detalhe de NFTs |

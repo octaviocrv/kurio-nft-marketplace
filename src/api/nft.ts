@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { parseEth } from '@/lib/eth'
+import { apiClient, parseResponse } from './client'
 import { dateTimeSchema, ethAmountSchema, idSchema, networkSchema } from './shared'
 
 /** Categorias da sidebar do Figma. Valores em português porque vão para a URL (?categoria=). */
@@ -56,3 +58,60 @@ export const nftPageSchema = z.object({
   total: z.number().int().nonnegative(),
 })
 export type NftPage = z.infer<typeof nftPageSchema>
+
+/** Ordenações do catálogo. Valores em português porque vão para a URL (?ordem=). */
+export const nftSortSchema = z.enum(['padrao', 'recentes', 'populares', 'menor-preco', 'maior-preco'])
+export type NftSort = z.infer<typeof nftSortSchema>
+
+export const NFT_PAGE_SIZE = 12
+
+/** Faixa de preço: o formulário de filtros e o handler do mock usam esta mesma regra. */
+export function isValidPriceRange(range: { minPrice?: string; maxPrice?: string }): boolean {
+  if (!range.minPrice || !range.maxPrice) return true
+  return parseEth(range.minPrice) <= parseEth(range.maxPrice)
+}
+export const PRICE_RANGE_MESSAGE = 'O preço máximo precisa ser maior ou igual ao mínimo'
+
+/**
+ * Parâmetros de GET /nfts. Busca, filtros (combináveis: categorias E redes E faixa de preço),
+ * ordenação e paginação. Listas vão na query string separadas por vírgula.
+ */
+export const nftListParamsSchema = z
+  .object({
+    search: z.string().trim().min(1).max(80).optional(),
+    categories: z.array(nftCategorySchema).optional(),
+    networks: z.array(networkSchema).optional(),
+    minPrice: ethAmountSchema.optional(),
+    maxPrice: ethAmountSchema.optional(),
+    sort: nftSortSchema.default('padrao'),
+    page: z.number().int().positive().default(1),
+    pageSize: z.number().int().positive().max(48).default(NFT_PAGE_SIZE),
+  })
+  .refine(isValidPriceRange, { path: ['maxPrice'], message: PRICE_RANGE_MESSAGE })
+export type NftListParams = z.input<typeof nftListParamsSchema>
+
+/** Query string do contrato: listas viram "a,b" e o que está vazio nem vai. */
+function toQueryParams(params: NftListParams) {
+  return {
+    search: params.search,
+    categories: params.categories?.length ? params.categories.join(',') : undefined,
+    networks: params.networks?.length ? params.networks.join(',') : undefined,
+    minPrice: params.minPrice,
+    maxPrice: params.maxPrice,
+    sort: params.sort,
+    page: params.page,
+    pageSize: params.pageSize,
+  }
+}
+
+/** GET /nfts. O signal vem do TanStack Query: consulta que ficou obsoleta é cancelada no meio. */
+export async function fetchNfts(params: NftListParams, signal?: AbortSignal): Promise<NftPage> {
+  const { data } = await apiClient.get('/nfts', { params: toQueryParams(params), signal })
+  return parseResponse(nftPageSchema, data)
+}
+
+/** GET /nfts/:id — 404 (not_found) quando o NFT não existe. */
+export async function fetchNft(nftId: string, signal?: AbortSignal): Promise<Nft> {
+  const { data } = await apiClient.get(`/nfts/${encodeURIComponent(nftId)}`, { signal })
+  return parseResponse(nftSchema, data)
+}
