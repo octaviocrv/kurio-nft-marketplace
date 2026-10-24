@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import type {} from '@/mocks/control' // traz o tipo de window.__kurioMock
+import { flakyLatency } from '../../src/mocks/flakyLatency'
 
 /*
  * Catálogo e detalhe contra a API simulada (handlers REST do MSW).
@@ -120,8 +121,11 @@ test('troca rápida de página: a consulta obsoleta é cancelada e só a última
     if (url.pathname === '/api/nfts') abortedPages.push(url.searchParams.get('page') ?? '')
   })
 
-  // No flaky, a página 2 demoraria mais que a 3. O Query cancela a 2 (AbortSignal) quando a 3 é pedida;
-  // e mesmo sem cancelamento a resposta cairia em outra query key, nunca na tela da página 3.
+  // No flaky, a página 2 demora mais que a 3 (mesma função do mock: se a premissa mudar, o teste avisa).
+  // O Query cancela a 2 (AbortSignal) quando a 3 é pedida; e mesmo sem cancelamento a resposta cairia
+  // em outra query key, nunca na tela da página 3.
+  const pageUrl = (pageNumber: number) => `/api/nfts?sort=padrao&page=${pageNumber}&pageSize=12`
+  expect(flakyLatency(pageUrl(2))).toBeGreaterThan(flakyLatency(pageUrl(3)))
   await page.getByRole('link', { name: 'Página 2' }).click()
   await page.getByRole('link', { name: 'Página 3' }).click()
 

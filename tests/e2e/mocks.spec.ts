@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import type {} from '@/mocks/control' // traz o tipo de window.__kurioMock
+import { flakyLatency } from '../../src/mocks/flakyLatency'
 
 /*
  * Infra da API simulada: cenários, persistência, reset e o caminho mock → Socket.IO.
@@ -72,11 +73,15 @@ test('mudança no mock persiste após refresh e chega ao socket.io-client como n
 test('latência variável entrega respostas fora de ordem (cenário flaky)', async ({ page }) => {
   await openApp(page, '/?scenario=flaky')
 
-  const arrivalOrder = await page.evaluate(async () => {
-    const arrived: string[] = []
-    await Promise.all(['/api/primeira', '/api/segunda'].map((path) => fetch(path).then(() => arrived.push(path))))
-    return arrived
-  })
+  // A mais lenta é pedida primeiro: chegar depois da segunda prova a entrega fora de ordem
+  const [slower, faster] = ['/api/primeira', '/api/segunda'].sort((a, b) => flakyLatency(b) - flakyLatency(a))
+  expect(flakyLatency(slower!)).toBeGreaterThan(flakyLatency(faster!))
 
-  expect(arrivalOrder).toEqual(['/api/segunda', '/api/primeira'])
+  const arrivalOrder = await page.evaluate(async (paths) => {
+    const arrived: string[] = []
+    await Promise.all(paths.map((path) => fetch(path).then(() => arrived.push(path))))
+    return arrived
+  }, [slower!, faster!])
+
+  expect(arrivalOrder).toEqual([faster, slower])
 })

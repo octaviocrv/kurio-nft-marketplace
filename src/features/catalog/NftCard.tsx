@@ -12,9 +12,11 @@ interface NftCardProps {
   onFavoriteToggle: (nft: Nft) => void
   /** Imagem acima da dobra: carrega sem lazy. */
   eager?: boolean
+  /** Candidata a LCP: somente a primeira imagem disputa prioridade alta. */
+  highPriority?: boolean
 }
 
-export function NftCard({ nft, isFavorite, favoriteDisabled, onFavoriteToggle, eager = false }: NftCardProps) {
+export function NftCard({ nft, isFavorite, favoriteDisabled, onFavoriteToggle, eager = false, highPriority = false }: NftCardProps) {
   const soldOut = isSoldOut(nft)
 
   return (
@@ -29,6 +31,7 @@ export function NftCard({ nft, isFavorite, favoriteDisabled, onFavoriteToggle, e
               width={400}
               height={400}
               loading={eager ? 'eager' : 'lazy'}
+              fetchPriority={highPriority ? 'high' : 'auto'}
               decoding="async"
               className={cn('aspect-square w-full object-cover', soldOut && 'opacity-50 grayscale')}
             />

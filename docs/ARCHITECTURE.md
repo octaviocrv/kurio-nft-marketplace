@@ -123,12 +123,16 @@ Mediana de 3 medições, build de produção com os mocks no cenário padrão (d
 
 | Perfil | Página | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| mobile | início | 71 | 100 | 100 | 100 | 4,93 s | 0,021 | 450 ms |
-| mobile | detalhe | 78 | 100 | 100 | 100 | 4,57 s | 0,000 | 284 ms |
-| desktop | início | 91 | 100 | 100 | 100 | 1,97 s | 0,000 | 16 ms |
-| desktop | detalhe | 95 | 100 | 100 | 100 | 1,51 s | 0,032 | 0 ms |
+| mobile | início | 70 | 100 | 100 | 100 | 5,15 s | 0,021 | 443 ms |
+| mobile | detalhe | 73 | 100 | 100 | 100 | 4,89 s | 0,000 | 389 ms |
+| desktop | início | 96 | 100 | 100 | 100 | 1,40 s | 0,000 | 19 ms |
+| desktop | detalhe | 97 | 100 | 100 | 100 | 1,30 s | 0,032 | 3 ms |
 
-**Abaixo da meta: Performance mobile.** A causa é a API simulada rodar no navegador. Antes do primeiro dado, o chunk do MSW com banco, handlers e Socket.IO simulado (~170 KB gzip, ~1,2 s de CPU com a desaceleração de 4x do perfil mobile) precisa carregar, executar e registrar o service worker; só então o app carrega, porque o `socket.io-client` precisa encontrar o WebSocket já interceptado. Isso forma uma cadeia de cerca de seis saltos (HTML → main → MSW → app → rota → API → imagem) no 4G simulado e concentra a maior parte do TBT. Com um backend real esse chunk não existiria. O enunciado pede a auditoria com o cenário padrão dos mocks e sem simplificações exclusivas, então o mock continua no build medido. O que foi otimizado: code splitting por rota, fonte local só com o subset latin e 3 pesos, imagens WebP com dimensões declaradas, primeira linha do grid e imagem principal do detalhe sem `lazy` e com prioridade, skeletons com as mesmas medidas (CLS ≤ 0,032) e a marca já no HTML enquanto o MSW inicia.
+Ambiente da rodada entregue: Linux, Xeon 2,1 GHz × 2 vCPUs, 8 GB, Chrome headless 153, Lighthouse 13.5.0. O throttling do Lighthouse é simulado sobre a CPU real, então a nota varia com a máquina: numa estação Windows mais rápida, a mesma base de código (com o preload descrito abaixo, depois removido) mediu 77 no mobile e 98 no desktop.
+
+**Abaixo da meta: Performance mobile.** A causa dominante é a API simulada rodar no navegador. Antes do primeiro dado, o chunk do MSW com banco, handlers e Socket.IO simulado (~173 KB gzip) precisa carregar, executar e registrar o service worker; só depois a rota consulta a API simulada e descobre a imagem do LCP. No perfil mobile (4G lento e CPU 4x mais lenta) essa cadeia mantém o LCP perto de 5 s e concentra o TBT. Com backend real, esse chunk e a sua inicialização no cliente não existiriam. O enunciado exige a auditoria com os mocks e as funcionalidades reais, então eles não foram desligados nem simplificados para a medição.
+
+O que foi otimizado: o bundle da interface baixa e executa em paralelo à inicialização do MSW, e o `socket.io-client` é importado sob demanda só depois de o WebSocket estar interceptado (a conexão continua 100% pelo cliente Socket.IO); o painel de cenários carrega quando o navegador fica ocioso; code splitting por rota; fonte local só com o subset latin e 3 pesos; WebP com dimensões declaradas; primeira linha do grid sem `lazy` e a primeira imagem com prioridade alta; skeletons com as mesmas medidas (CLS ≤ 0,032); marca já no HTML enquanto o MSW inicia. Um `preload` fixo da imagem do primeiro NFT no `index.html` foi testado e descartado: ela vem da API, então antecipá-la no HTML só serviria às duas páginas auditadas (e o LCP não melhorou). A meta mobile de 90 não foi alcançada sem violar as condições do enunciado.
 
 ## 11. Limitações
 

@@ -11,17 +11,22 @@ import './index.css'
 const mocksEnabled = import.meta.env.VITE_ENABLE_MOCKS !== 'false'
 
 async function bootstrap() {
+  // O bundle da interface pode ser baixado e avaliado enquanto o service worker inicia. O cliente
+  // Socket.IO continua separado e só é inicializado depois da interceptação estar pronta.
+  const appPromise = import('./App')
+
+  let finishMockSetup: (() => void) | undefined
   if (mocksEnabled) {
-    // Import dinâmico: o MSW fica num chunk separado e não pesa no bundle principal
-    const { startMockWorker } = await import('./mocks/browser')
+    // Import dinâmico: o MSW fica num chunk separado e não pesa no bundle principal.
+    const mockEnvironment = await import('./mocks/browser')
+    const { startMockWorker } = mockEnvironment
+    finishMockSetup = mockEnvironment.finishMockSetup
     await startMockWorker()
   }
 
-  // O app só é carregado DEPOIS do MSW, por dois motivos:
-  // - as primeiras requisições escapariam do mock;
-  // - o socket.io-client guarda a referência do WebSocket quando é carregado; se carregar antes,
-  //   fica com o WebSocket nativo e o MSW não consegue interceptar o Socket.IO.
-  const { App } = await import('./App')
+  const [{ App }, { initializeSocket }] = await Promise.all([appPromise, import('./api/socket')])
+  await initializeSocket()
+  finishMockSetup?.()
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>

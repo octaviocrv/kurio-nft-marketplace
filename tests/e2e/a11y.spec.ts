@@ -31,7 +31,11 @@ async function expectFocusTrappedIn(page: Page, presses = 12) {
 
 test('Tab começa pelo "pular para o conteúdo" e todo elemento focado tem foco visível', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 3 }).first()).toBeVisible()
+  // Espera o app pronto pelo mesmo sinal de mocks.spec.ts (MSW e Socket.IO iniciados), não por um card do
+  // catálogo: o teste é de teclado/foco, e o carregamento de dados tem cobertura própria em catalog.spec.ts.
+  // Sem isso, a primeira visita ao servidor de desenvolvimento ainda frio passa dos 5 s padrão do expect.
+  await page.waitForFunction(() => '__kurioMock' in window)
+  await expect(page.getByRole('heading', { level: 1, name: /marketplace de nfts/i })).toBeAttached()
 
   await page.keyboard.press('Tab')
   const skipLink = page.getByRole('link', { name: 'Pular para o conteúdo' })
@@ -123,6 +127,9 @@ test('nenhuma tela pública tem rolagem horizontal em 320, 390, 768 e 1440 px', 
     await page.setViewportSize({ width, height: 900 })
     for (const route of publicRoutes) {
       await page.goto(route)
+      // Na primeira visita o service worker pode assumir o controle da página. Mede somente
+      // depois que o ambiente de mocks concluiu o bootstrap, evitando avaliar durante essa navegação.
+      await page.waitForFunction(() => '__kurioMock' in window)
       // Espera o conteúdo real (não o skeleton) para medir a largura final da página
       await expect(page.locator('[aria-busy="true"]')).toHaveCount(0)
       await page.waitForTimeout(300)
@@ -151,6 +158,7 @@ test('nenhuma tela privada tem rolagem horizontal em 320, 390, 768 e 1440 px', a
     await page.setViewportSize({ width, height: 900 })
     for (const route of privateRoutes) {
       await page.goto(route)
+      await page.waitForFunction(() => '__kurioMock' in window)
       await expect(page.locator('[aria-busy="true"]')).toHaveCount(0)
       await page.waitForTimeout(300)
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)

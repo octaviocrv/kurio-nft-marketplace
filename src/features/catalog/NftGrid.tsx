@@ -15,7 +15,14 @@ export function NftGrid({ nfts, favoriteIds, favoriteDisabled, onFavoriteToggle 
       {nfts.map((nft, index) => (
         <li key={nft.id}>
           {/* Primeira linha acima da dobra (no celular é o maior elemento da tela): carrega sem lazy */}
-          <NftCard nft={nft} eager={index < 3} isFavorite={favoriteIds.has(nft.id)} favoriteDisabled={favoriteDisabled} onFavoriteToggle={onFavoriteToggle} />
+          <NftCard
+            nft={nft}
+            eager={index < 3}
+            highPriority={index === 0}
+            isFavorite={favoriteIds.has(nft.id)}
+            favoriteDisabled={favoriteDisabled}
+            onFavoriteToggle={onFavoriteToggle}
+          />
         </li>
       ))}
     </ul>

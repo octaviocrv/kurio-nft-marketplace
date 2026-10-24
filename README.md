@@ -68,7 +68,7 @@ O MSW intercepta as chamadas REST (`/api/*`) e a conexão Socket.IO. O estado (c
 | --- | --- |
 | `default` | API respondendo normalmente (latência de 150 ms) |
 | `slow` | Toda requisição demora 2,5 s (skeletons com shimmer) |
-| `flaky` | Latência variável em ciclo fixo (1,2 s, 150 ms, 700 ms, 300 ms): respostas chegam fora de ordem, sempre do mesmo jeito |
+| `flaky` | Latência variável e fixa por URL (150 ms a 1,2 s): requisições diferentes chegam fora de ordem, sempre do mesmo jeito |
 | `offline` | Nenhuma requisição chega e o socket cai até o cenário mudar |
 | `error-5xx` | Toda requisição responde 503 |
 | `empty` | O catálogo responde sem nenhum NFT |
@@ -118,7 +118,7 @@ window.__kurioMock.disconnectAll()
 
 ## Lighthouse
 
-`npm run lighthouse` faz o build, sobe o `vite preview` com os mocks no cenário padrão e roda o Lighthouse três vezes por página (início e detalhe) e perfil (mobile e desktop), cada vez com um Chrome de perfil novo. A configuração fica em `lighthouse/lighthouse.config.mjs`. Os relatórios HTML/JSON de cada medição e o resumo com a mediana por categoria, LCP, CLS, TBT, versões das ferramentas, ambiente e condições ficam em `lighthouse/reports/` (veja `summary.md`). A análise dos resultados abaixo da meta está no `docs/ARCHITECTURE.md`.
+`npm run lighthouse` faz o build, sobe o `vite preview` com os mocks no cenário padrão e roda o Lighthouse três vezes por página (início e detalhe) e perfil (mobile e desktop), cada vez com um Chrome de perfil novo. A configuração fica em `lighthouse/lighthouse.config.mjs`. Os relatórios HTML/JSON de cada medição e o resumo com a mediana por categoria, LCP, CLS, TBT, versões das ferramentas, ambiente e condições ficam em `lighthouse/reports/` (veja `summary.md`). Na rodada entregue (Linux, 2 vCPUs), Performance ficou em 70 (início) e 73 (detalhe) no mobile e 96/97 no desktop; Accessibility, Best Practices e SEO em 100 nas quatro auditorias. Em máquinas mais rápidas a Performance mobile sobe (o throttling do Lighthouse é simulado sobre a CPU real). A análise da limitação mobile está no `docs/ARCHITECTURE.md`.
 
 ## Deploy
 
