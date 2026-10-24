@@ -4,18 +4,18 @@ Metas: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95, SEO ≥ 
 
 | Perfil | Página | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| mobile | inicio | **70** ⚠️ | 100 | 100 | 100 | 5.15 s | 0.021 | 443 ms |
-| mobile | detalhe | **73** ⚠️ | 100 | 100 | 100 | 4.89 s | 0.000 | 389 ms |
-| desktop | inicio | 96 | 100 | 100 | 100 | 1.40 s | 0.000 | 19 ms |
-| desktop | detalhe | 97 | 100 | 100 | 100 | 1.30 s | 0.032 | 3 ms |
+| mobile | inicio | **77** ⚠️ | 100 | 100 | 100 | 4.76 s | 0.021 | 148 ms |
+| mobile | detalhe | **75** ⚠️ | 100 | 100 | 100 | 5.02 s | 0.000 | 208 ms |
+| desktop | inicio | 98 | 100 | 100 | 100 | 1.12 s | 0.000 | 0 ms |
+| desktop | detalhe | 97 | 100 | 100 | 100 | 1.24 s | 0.033 | 0 ms |
 
 ## Ambiente e condições
 
-- Data: 2026-10-24T15:04:03.068Z
+- Data: 2026-10-24T18:34:31.815Z
 - Lighthouse 13.5.0
-- Navegador: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36
-- Node v22.23.4 · Linux 6.18.44-fc-v153 (x64)
-- CPU: Intel(R) Xeon(R) Processor @ 2.10GHz × 2 · 8 GB de RAM · benchmarkIndex 2321.5
+- Navegador: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36
+- Node v24.20.0 · Windows_NT 10.0.26200 (x64)
+- CPU: AMD Ryzen 7 5700G with Radeon Graphics          × 16 · 15 GB de RAM · benchmarkIndex 2875
 - Condições: vite preview do build de produção, mocks ligados no cenário padrão, Chrome headless com perfil novo a cada medição
 - Perfis: mobile = padrão do Lighthouse (celular emulado, 4G lento, CPU 4x, throttling simulado); desktop = `--preset=desktop`
 
@@ -23,17 +23,17 @@ Metas: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95, SEO ≥ 
 
 | Perfil | Página | Medição | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| mobile | inicio | 1 | 67 | 100 | 100 | 100 | 5.24 s | 0.021 | 515 ms |
-| mobile | inicio | 2 | 70 | 100 | 100 | 100 | 5.04 s | 0.021 | 443 ms |
-| mobile | inicio | 3 | 70 | 100 | 100 | 100 | 5.15 s | 0.021 | 419 ms |
-| mobile | detalhe | 1 | 68 | 100 | 100 | 100 | 5.02 s | 0.000 | 509 ms |
-| mobile | detalhe | 2 | 73 | 100 | 100 | 100 | 4.88 s | 0.000 | 389 ms |
-| mobile | detalhe | 3 | 75 | 100 | 100 | 100 | 4.89 s | 0.000 | 301 ms |
-| desktop | inicio | 1 | 94 | 100 | 100 | 100 | 1.58 s | 0.000 | 26 ms |
-| desktop | inicio | 2 | 97 | 100 | 100 | 100 | 1.26 s | 0.000 | 13 ms |
-| desktop | inicio | 3 | 96 | 100 | 100 | 100 | 1.40 s | 0.000 | 19 ms |
-| desktop | detalhe | 1 | 96 | 100 | 100 | 100 | 1.45 s | 0.032 | 36 ms |
-| desktop | detalhe | 2 | 97 | 100 | 100 | 100 | 1.30 s | 0.032 | 3 ms |
-| desktop | detalhe | 3 | 97 | 100 | 100 | 100 | 1.30 s | 0.032 | 3 ms |
+| mobile | inicio | 1 | 77 | 100 | 100 | 100 | 4.75 s | 0.021 | 146 ms |
+| mobile | inicio | 2 | 76 | 100 | 100 | 100 | 4.76 s | 0.021 | 150 ms |
+| mobile | inicio | 3 | 77 | 100 | 100 | 100 | 4.77 s | 0.021 | 148 ms |
+| mobile | detalhe | 1 | 75 | 100 | 100 | 100 | 5.02 s | 0.000 | 181 ms |
+| mobile | detalhe | 2 | 75 | 100 | 100 | 100 | 4.82 s | 0.000 | 212 ms |
+| mobile | detalhe | 3 | 74 | 100 | 100 | 100 | 5.06 s | 0.000 | 208 ms |
+| desktop | inicio | 1 | 98 | 100 | 100 | 100 | 1.13 s | 0.000 | 0 ms |
+| desktop | inicio | 2 | 98 | 100 | 100 | 100 | 1.12 s | 0.000 | 0 ms |
+| desktop | inicio | 3 | 98 | 100 | 100 | 100 | 1.08 s | 0.000 | 2 ms |
+| desktop | detalhe | 1 | 97 | 100 | 100 | 100 | 1.24 s | 0.036 | 1 ms |
+| desktop | detalhe | 2 | 96 | 100 | 100 | 100 | 1.31 s | 0.032 | 0 ms |
+| desktop | detalhe | 3 | 97 | 100 | 100 | 100 | 1.17 s | 0.033 | 0 ms |
 
 Relatórios completos: `<perfil>-<página>-<medição>.report.html` e `.report.json` nesta pasta.

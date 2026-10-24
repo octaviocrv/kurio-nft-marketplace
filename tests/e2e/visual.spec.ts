@@ -5,11 +5,17 @@ import { expect, test, type Page } from '@playwright/test'
 // imagens carregadas e das consultas resolvidas (nada de skeleton na imagem).
 // Roda só no Docker oficial do Playwright: `npm run test:visual` (baselines em tests/e2e/__screenshots__).
 
+// Prazo maior por teste: no container o Vite dev sobe frio e o início desktop carrega muitas imagens antes da captura
+test.describe.configure({ timeout: 60_000 })
+
 async function waitUntilSettled(page: Page) {
-  // Rola até o fim e volta: as imagens com loading="lazy" (promos, blog, vitrines do desktop) carregam antes da captura
+  // Rola a página uma tela por vez e volta ao topo: cada imagem com loading="lazy" (grade, destaque, promos, blog)
+  // passa pela viewport e carrega antes da captura. Pular direto para o fim deixaria as do meio sem carregar.
   await page.evaluate(async () => {
-    window.scrollTo(0, document.body.scrollHeight)
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    for (let top = 0; top < document.body.scrollHeight; top += window.innerHeight) {
+      window.scrollTo(0, top)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
     window.scrollTo(0, 0)
   })
   await page.evaluate(() => document.fonts.ready)
@@ -38,14 +44,15 @@ async function addAmberApeToCart(page: Page) {
 
 test('início', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('link', { name: /Amber Ape/ }).first()).toBeVisible()
+  // Primeira visita: o Vite dev do container ainda está otimizando as dependências
+  await expect(page.getByRole('link', { name: /Amber Ape/ }).first()).toBeVisible({ timeout: 30_000 })
   await waitUntilSettled(page)
   await expect(page).toHaveScreenshot('inicio.png', { fullPage: true })
 })
 
 test('detalhe do NFT', async ({ page }) => {
   await page.goto('/nft/amber-ape-117')
-  await expect(page.getByRole('heading', { name: 'Amber Ape #117' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Amber Ape #117' })).toBeVisible({ timeout: 30_000 })
   await waitUntilSettled(page)
   await expect(page).toHaveScreenshot('detalhe.png', { fullPage: true })
 })

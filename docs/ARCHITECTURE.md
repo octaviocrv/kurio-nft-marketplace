@@ -123,12 +123,12 @@ Mediana de 3 medições, build de produção com os mocks no cenário padrão (d
 
 | Perfil | Página | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| mobile | início | 70 | 100 | 100 | 100 | 5,15 s | 0,021 | 443 ms |
-| mobile | detalhe | 73 | 100 | 100 | 100 | 4,89 s | 0,000 | 389 ms |
-| desktop | início | 96 | 100 | 100 | 100 | 1,40 s | 0,000 | 19 ms |
-| desktop | detalhe | 97 | 100 | 100 | 100 | 1,30 s | 0,032 | 3 ms |
+| mobile | início | 77 | 100 | 100 | 100 | 4,76 s | 0,021 | 148 ms |
+| mobile | detalhe | 75 | 100 | 100 | 100 | 5,02 s | 0,000 | 208 ms |
+| desktop | início | 98 | 100 | 100 | 100 | 1,12 s | 0,000 | 0 ms |
+| desktop | detalhe | 97 | 100 | 100 | 100 | 1,24 s | 0,033 | 0 ms |
 
-Ambiente da rodada entregue: Linux, Xeon 2,1 GHz × 2 vCPUs, 8 GB, Chrome headless 153, Lighthouse 13.5.0. O throttling do Lighthouse é simulado sobre a CPU real, então a nota varia com a máquina: numa estação Windows mais rápida, a mesma base de código (com o preload descrito abaixo, depois removido) mediu 77 no mobile e 98 no desktop.
+Ambiente da rodada entregue: Windows 11, AMD Ryzen 7 5700G (16 threads), 15 GB, Chrome headless 153, Lighthouse 13.5.0, Node 24. O throttling do Lighthouse é simulado sobre a CPU real, então a nota varia com a máquina: numa VM Linux com Xeon 2,1 GHz × 2 vCPUs, a mesma base de código mediu 70 (início) e 73 (detalhe) no mobile, com TBT perto de 400 ms.
 
 **Abaixo da meta: Performance mobile.** A causa dominante é a API simulada rodar no navegador. Antes do primeiro dado, o chunk do MSW com banco, handlers e Socket.IO simulado (~173 KB gzip) precisa carregar, executar e registrar o service worker; só depois a rota consulta a API simulada e descobre a imagem do LCP. No perfil mobile (4G lento e CPU 4x mais lenta) essa cadeia mantém o LCP perto de 5 s e concentra o TBT. Com backend real, esse chunk e a sua inicialização no cliente não existiriam. O enunciado exige a auditoria com os mocks e as funcionalidades reais, então eles não foram desligados nem simplificados para a medição.
 
@@ -170,3 +170,4 @@ O que foi otimizado: o bundle da interface baixa e executa em paralelo à inicia
 - **Redes sociais** do rodapé como siglas (o lucide 1.x não tem ícones de marca e os links estão desabilitados).
 - **Cor de erro** (`#E5604D`) criada no tom quente da paleta; não existe no Figma.
 - Números, textos de exemplo e inconsistências de dado do Figma (IDs repetidos, edição duplicada) foram tratados como placeholder e corrigidos nas fixtures.
+- **Assets:** as 4 artes dos NFTs são as originais do Figma, exportadas e convertidas para WebP (máx. 800 px), cada uma com 3 vistas (capa, close no rosto e detalhe) para a galeria. O catálogo seed tem 40 NFTs montados sobre essas 4 artes: nomes, preços, edições e atributos variam nas fixtures, mas as imagens se repetem entre NFTs. A ilustração "Thank you" não foi usada (veja "Confirmação do pedido", acima). A fonte Roboto Mono é a do Figma, servida localmente (`@fontsource/roboto-mono`, subset latin, pesos 400/500/700), sem depender de CDN.

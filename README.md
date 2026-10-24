@@ -118,7 +118,7 @@ window.__kurioMock.disconnectAll()
 
 ## Lighthouse
 
-`npm run lighthouse` faz o build, sobe o `vite preview` com os mocks no cenário padrão e roda o Lighthouse três vezes por página (início e detalhe) e perfil (mobile e desktop), cada vez com um Chrome de perfil novo. A configuração fica em `lighthouse/lighthouse.config.mjs`. Os relatórios HTML/JSON de cada medição e o resumo com a mediana por categoria, LCP, CLS, TBT, versões das ferramentas, ambiente e condições ficam em `lighthouse/reports/` (veja `summary.md`). Na rodada entregue (Linux, 2 vCPUs), Performance ficou em 70 (início) e 73 (detalhe) no mobile e 96/97 no desktop; Accessibility, Best Practices e SEO em 100 nas quatro auditorias. Em máquinas mais rápidas a Performance mobile sobe (o throttling do Lighthouse é simulado sobre a CPU real). A análise da limitação mobile está no `docs/ARCHITECTURE.md`.
+`npm run lighthouse` faz o build, sobe o `vite preview` com os mocks no cenário padrão e roda o Lighthouse três vezes por página (início e detalhe) e perfil (mobile e desktop), cada vez com um Chrome de perfil novo. A configuração fica em `lighthouse/lighthouse.config.mjs`. Os relatórios HTML/JSON de cada medição e o resumo com a mediana por categoria, LCP, CLS, TBT, versões das ferramentas, ambiente e condições ficam em `lighthouse/reports/` (veja `summary.md`). Na rodada entregue (Windows, Ryzen 7 5700G), Performance ficou em 77 (início) e 75 (detalhe) no mobile e 98/97 no desktop; Accessibility, Best Practices e SEO em 100 nas quatro auditorias. A nota de Performance varia com a máquina (o throttling do Lighthouse é simulado sobre a CPU real): numa VM Linux de 2 vCPUs o mobile ficou em 70/73. A análise da limitação mobile está no `docs/ARCHITECTURE.md`.
 
 ## Deploy
 
