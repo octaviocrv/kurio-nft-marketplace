@@ -54,7 +54,7 @@ test('mudança de preço pelo socket avisa, atualiza o resumo e bloqueia a confi
   await expect(confirm).toBeEnabled({ timeout: 15_000 })
   await expect(confirm).toHaveText('Confirmar alterações e comprar')
   await expect(page.getByText('Preço ou disponibilidade mudou. Confira os valores abaixo e confirme novamente.')).toBeVisible()
-  await expect(page.getByText('3.33 ETH').first()).toBeVisible()
+  await expect(page.getByText('3.33 ETH').filter({ visible: true }).first()).toBeVisible()
 
   await page.evaluate(() => window.__kurioMock!.setScenario('default'))
   await confirm.click()
@@ -80,7 +80,7 @@ test('detalhe do NFT ignora evento duplicado e antigo; só o mais novo vence', a
   await expect(page.getByRole('heading', { name: 'Amber Ape #117' })).toBeVisible()
 
   const newer = await changePrice(page, '3.33')
-  await expect(page.getByText('3.33 ETH').first()).toBeVisible()
+  await expect(page.getByText('3.33 ETH').filter({ visible: true }).first()).toBeVisible()
 
   await page.evaluate((event) => {
     window.__kurioMock!.replayEvent('nft.updated', event) // duplicata exata
@@ -88,7 +88,7 @@ test('detalhe do NFT ignora evento duplicado e antigo; só o mais novo vence', a
   }, newer)
   // Eventos chegam em ordem: quando este aparece, os dois reenvios acima já foram processados
   await changePrice(page, '4.44')
-  await expect(page.getByText('4.44 ETH').first()).toBeVisible()
+  await expect(page.getByText('4.44 ETH').filter({ visible: true }).first()).toBeVisible()
   await expect(page.getByText('1.11 ETH')).toHaveCount(0)
   await expect(page.getByText('3.33 ETH')).toHaveCount(0)
 })
@@ -109,7 +109,7 @@ test('evento duplicado ou antigo não dispara nova reconciliação do carrinho',
     window.__kurioMock!.replayEvent('nft.updated', { ...event, eventId: `nft:${event.id}:v${event.version - 1}`, version: event.version - 1 })
   }, first)
   const last = await changePrice(page, '4.44')
-  await expect(page.getByText('4.44 ETH').first()).toBeVisible()
+  await expect(page.getByText('4.44 ETH').filter({ visible: true }).first()).toBeVisible()
   // Uma busca para o primeiro evento e uma para o último; duplicata e antigo não geraram nenhuma
   expect(cartRequests).toBe(2)
   expect(last.version).toBe(first.version + 1)
@@ -124,7 +124,7 @@ test('depois de uma queda, a reconexão reconcilia com a API e recupera a mudan�
   await changePrice(page, '5.55') // ninguém conectado: o evento se perde, só o REST sabe
   await page.evaluate(() => window.__kurioMock!.setScenario('default'))
 
-  await expect(page.getByText('5.55 ETH').first()).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByText('5.55 ETH').filter({ visible: true }).first()).toBeVisible({ timeout: 15_000 })
 })
 
 test('queda de conexão com pedido pendente: a tela recupera o mesmo pedido, sem nova compra', async ({ page }) => {

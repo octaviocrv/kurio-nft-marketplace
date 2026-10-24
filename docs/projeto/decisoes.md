@@ -78,6 +78,8 @@
 - **Início no desktop:** a lista usa o mesmo hook e o mesmo formulário de filtros nos dois layouts (`FiltersForm` com variante gaveta ou sidebar). Na sidebar os filtros também só valem ao "Aplicar" (uma consulta por combinação); o rascunho recomeça quando os filtros aplicados mudam por outro caminho (aba, ordenação, voltar do navegador). "Ordenar por" do desktop fica acima do grid e aplica na hora, como as abas. Sem campo de busca na página, o termo aplicado aparece como "Resultados para …" com "Limpar busca". O tablet mantém a barra de busca e a gaveta (a sidebar só cabe a partir de 1024 px).
 - **Página do catálogo com 12 NFTs:** divide certo em 2 colunas (mobile) e 3 (tablet/desktop), e o tamanho não depende da tela (`?pagina=2` mostra os mesmos NFTs em qualquer aparelho).
 
+- **Detalhe no tablet/desktop:** mesma rota, mesmo estado (edição, quantidade) e mesmos handlers do mobile. A barra de compra é a mesma `BuyBar`, fixa no rodapé no mobile e em linha no painel a partir de 768 px; a galeria troca o carrossel por miniaturas que selecionam a imagem grande (`aria-pressed`). "Mais desta coleção" usa a própria consulta do catálogo (mesma coleção, mais favoritados, sem o NFT atual).
+
 ## Rotas
 
 | Rota | Tela |
@@ -108,4 +110,5 @@
 - **Sidebar de filtros:** sem as contagens por coleção/rede do Figma (a API não devolve facetas e os números do Figma são de exemplo) e com campos mínimo/máximo no lugar do slider de preço (aceita qualquer valor em ETH, funciona por teclado e reaproveita a validação do contrato).
 - **"NFT em destaque" da sidebar:** um dos destaques reais (mais favoritados); "Oferta limitada" só aparece se ele estiver com desconto.
 - **Promos e blog do Início (tablet/desktop):** conteúdo editorial fixo. O "Explorar" das promos leva a um recorte real do catálogo (lançamentos recentes, arte digital); o "Ler mais" do blog aparece desabilitado, porque páginas editoriais estão fora do escopo. No mobile não aparecem (não estão no frame mobile).
+- **Abas do detalhe:** "Detalhes do NFT" mostra só o que o contrato tem (rede, coleção, token, data de listagem, edições e atributos); os textos de contrato inteligente e royalties do Figma não existem na API e não foram inventados. "Avaliações" mostra a nota média e o total reais; os comentários individuais não fazem parte do contrato e a aba diz isso. A lupa de zoom da imagem do Figma ficou de fora (sem comportamento definido no enunciado).
 - Inconsistências de dado do Figma (token IDs diferentes, edição duplicada) são corrigidas nas fixtures.
