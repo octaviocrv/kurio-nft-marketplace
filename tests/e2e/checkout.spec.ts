@@ -121,7 +121,9 @@ test('timeout recupera exatamente o pedido já criado', async ({ page }) => {
   await page.evaluate(() => window.__kurioMock!.setScenario('order-timeout'))
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
 
-  await expect(page.getByRole('alert')).toContainText('demorou para responder', { timeout: 12_000 })
+  // Sem resposta, o botão volta como "Recuperar pedido". Pode ser pelo alerta de timeout ou, quando o socket avisa
+  // antes que o pedido foi confirmado, pela tela de recuperação (o carrinho já esvaziou): o botão é o mesmo.
+  await expect(page.getByRole('button', { name: 'Recuperar pedido' })).toBeEnabled({ timeout: 12_000 })
   const beforeRecovery = await orderIdsInMock(page)
   expect(beforeRecovery).toHaveLength(1)
 
@@ -136,7 +138,9 @@ test('recuperação após refresh funciona com o carrinho já esvaziado pelo ped
   await prepareReview(page)
   await page.evaluate(() => window.__kurioMock!.setScenario('order-timeout'))
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
-  await expect(page.getByRole('alert')).toContainText('demorou para responder', { timeout: 12_000 })
+  // Sem resposta, o botão volta como "Recuperar pedido". Pode ser pelo alerta de timeout ou, quando o socket avisa
+  // antes que o pedido foi confirmado, pela tela de recuperação (o carrinho já esvaziou): o botão é o mesmo.
+  await expect(page.getByRole('button', { name: 'Recuperar pedido' })).toBeEnabled({ timeout: 12_000 })
   const createdOrders = await orderIdsInMock(page)
   expect(createdOrders).toHaveLength(1)
 
@@ -153,6 +157,9 @@ test('recuperação após refresh funciona com o carrinho já esvaziado pelo ped
 
 test('mudança de preço e estoque exige nova confirmação e remove somente a quantidade comprada', async ({ page }) => {
   await prepareReview(page, 'ivory-baron-088', 2)
+  // Sem socket o cliente não fica sabendo da mudança: o servidor precisa recusar a cotação velha.
+  // (Com o socket ligado a tela já se atualizaria sozinha; isso é coberto em realtime.spec.ts.)
+  await page.evaluate(() => window.__kurioMock!.setScenario('offline'))
   await page.evaluate(() => {
     const database = JSON.parse(localStorage.getItem('kurio:mock-db')!) as {
       nfts: Array<{ id: string; editions: Array<{ id: string; label: string; supply: number | null; available: number }> }>
@@ -161,6 +168,8 @@ test('mudança de preço e estoque exige nova confirmação e remove somente a q
     const editions = nft.editions.map((edition) => edition.id === 'ivory-baron-088-1-10' ? { ...edition, available: 1 } : edition)
     window.__kurioMock!.updateNft('ivory-baron-088', { price: '1.99', previousPrice: '1.79', editions })
   })
+  // O clique acontece antes de o socket reconectar (reconexão leva ao menos 0,5 s)
+  await page.evaluate(() => window.__kurioMock!.setScenario('default'))
 
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
   await expect(page.getByText('Preço ou disponibilidade mudou. Confira os valores abaixo e confirme novamente.')).toBeVisible()

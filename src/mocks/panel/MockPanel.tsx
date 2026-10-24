@@ -34,7 +34,8 @@ export function MockPanel() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-sm">
+      {/* Com muitos cenários a lista passa da altura do celular: o painel rola em vez de cortar o botão */}
+      <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-sm overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Simulação da API</DialogTitle>
           <DialogDescription>

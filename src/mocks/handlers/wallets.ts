@@ -1,10 +1,14 @@
-import { http, HttpResponse } from 'msw'
+import { delay, http, HttpResponse } from 'msw'
 import type { ApiErrorBody } from '@/api/error'
 import { createWalletInputSchema, walletInputSchema, walletListSchema, walletSchema, type Wallet, type WalletInput } from '@/api/wallet'
 import { db, saveDb } from '../db'
 import { isEnsTakenByOthers } from '../ensRegistry'
 import { errorResponse } from '../http'
+import { getScenario } from '../scenarios'
 import { fieldErrors, readBody, sessionFromRequest } from './auth'
+
+// Tempo que a "extensão da carteira" leva para aprovar ou recusar a conexão
+const CONNECTION_DELAY_MS = 800
 
 const unauthorized = () => errorResponse(401, { code: 'unauthorized', message: 'Entre para acessar suas carteiras.' })
 
@@ -46,7 +50,7 @@ export const walletHandlers = [
     const conflicts = walletConflicts(parsed.data, wallets, session.userId)
     if (Object.keys(conflicts).length > 0) return conflictResponse(conflicts)
 
-    const wallet = walletSchema.parse({ id: `wallet-${crypto.randomUUID()}`, ...parsed.data })
+    const wallet = walletSchema.parse({ id: `wallet-${crypto.randomUUID()}`, ...parsed.data, connected: false })
     wallets.push(wallet)
     saveDb()
     return HttpResponse.json(wallet, { status: 201 })
@@ -68,6 +72,34 @@ export const walletHandlers = [
     if (Object.keys(conflicts).length > 0) return conflictResponse(conflicts)
 
     Object.assign(wallet, parsed.data)
+    saveDb()
+    return HttpResponse.json(walletSchema.parse(wallet))
+  }),
+
+  http.post('/api/wallets/:walletId/connect', async ({ request, params }) => {
+    const session = sessionFromRequest(request)
+    if (!session) return unauthorized()
+    const wallets = db.walletsByUserId[session.userId] ?? []
+    const wallet = wallets.find((item) => item.id === String(params.walletId))
+    if (!wallet) return errorResponse(404, { code: 'not_found', message: 'Carteira não encontrada.' })
+
+    await delay(CONNECTION_DELAY_MS)
+    if (getScenario() === 'wallet-rejected') {
+      return errorResponse(403, { code: 'forbidden', message: 'A carteira recusou a conexão. Tente novamente.' })
+    }
+    // Uma carteira conectada por vez, como numa sessão real de carteira
+    wallets.forEach((item) => { item.connected = item.id === wallet.id })
+    saveDb()
+    return HttpResponse.json(walletSchema.parse(wallet))
+  }),
+
+  http.post('/api/wallets/:walletId/disconnect', ({ request, params }) => {
+    const session = sessionFromRequest(request)
+    if (!session) return unauthorized()
+    const wallet = (db.walletsByUserId[session.userId] ?? []).find((item) => item.id === String(params.walletId))
+    if (!wallet) return errorResponse(404, { code: 'not_found', message: 'Carteira não encontrada.' })
+
+    wallet.connected = false
     saveDb()
     return HttpResponse.json(walletSchema.parse(wallet))
   }),

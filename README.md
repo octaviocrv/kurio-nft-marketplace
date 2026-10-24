@@ -54,6 +54,7 @@ O MSW intercepta as chamadas REST (`/api/*`) e a conexão Socket.IO. O estado da
 | `empty` | O catálogo responde sem nenhum NFT |
 | `session-expired` | A consulta da sessão responde como expirada e o app volta ao login preservando a rota |
 | `favorite-error` | Adicionar ou remover favorito falha depois da atualização otimista, demonstrando o rollback |
+| `wallet-rejected` | A carteira recusa a conexão no pagamento (mensagem de erro e a carteira segue desconectada) |
 
 **Restaurar o estado inicial:** botão "Restaurar dados iniciais" no painel. Apaga banco, cenário e sessão salvos e recarrega com os dados de seed.
 

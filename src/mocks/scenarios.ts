@@ -18,6 +18,7 @@ export const scenarioSchema = z.enum([
   'favorite-error',
   'payment-rejected',
   'order-timeout',
+  'wallet-rejected',
 ])
 export type Scenario = z.infer<typeof scenarioSchema>
 
@@ -32,6 +33,7 @@ export const scenarioLabels: Record<Scenario, { title: string; description: stri
   'favorite-error': { title: 'Erro ao favoritar', description: 'Adicionar ou remover favorito responde com erro.' },
   'payment-rejected': { title: 'Pagamento recusado', description: 'O novo pedido termina recusado e preserva o carrinho.' },
   'order-timeout': { title: 'Timeout do pedido', description: 'O pedido é criado, mas a primeira resposta demora além do limite.' },
+  'wallet-rejected': { title: 'Carteira recusa a conexão', description: 'Conectar uma carteira no pagamento é recusado pela carteira.' },
 }
 
 const STORAGE_KEY = 'mock-scenario'

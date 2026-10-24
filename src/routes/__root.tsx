@@ -5,6 +5,8 @@ import { useEffect } from 'react'
 import { socket } from '@/api/socket'
 import { EmptyState } from '@/components/EmptyState'
 import { getSessionToken } from '@/features/auth/sessionStorage'
+import { RealtimeNotice } from '@/features/realtime/RealtimeNotice'
+import { useRealtimeSync } from '@/features/realtime/useRealtimeSync'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -17,6 +19,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootLayout() {
+  const { notice, dismissNotice } = useRealtimeSync()
+
   // Tempo real vale para o app inteiro (catálogo, carrinho, pedido): conecta com o app e libera ao desmontar
   useEffect(() => {
     const token = getSessionToken()
@@ -27,7 +31,12 @@ function RootLayout() {
     }
   }, [])
 
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <RealtimeNotice notice={notice} onDismiss={dismissNotice} />
+    </>
+  )
 }
 
 function PageNotFound() {

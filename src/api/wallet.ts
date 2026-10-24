@@ -14,6 +14,8 @@ export const walletSchema = z.object({
   ensName: ensNameSchema.nullable(), // quando existe, aparece no lugar do endereço
   network: networkSchema,
   provider: walletProviderSchema, // "Tipo de carteira" no Figma
+  // Sessão de conexão simulada: o pedido só é aceito com a carteira escolhida conectada
+  connected: z.boolean(),
 })
 export type Wallet = z.infer<typeof walletSchema>
 
@@ -45,5 +47,15 @@ export async function createWallet(input: CreateWalletInput): Promise<Wallet> {
 
 export async function updateWallet(walletId: string, input: WalletInput): Promise<Wallet> {
   const { data } = await apiClient.patch(`/wallets/${walletId}`, input)
+  return parseResponse(walletSchema, data)
+}
+
+export async function connectWallet(walletId: string): Promise<Wallet> {
+  const { data } = await apiClient.post(`/wallets/${walletId}/connect`)
+  return parseResponse(walletSchema, data)
+}
+
+export async function disconnectWallet(walletId: string): Promise<Wallet> {
+  const { data } = await apiClient.post(`/wallets/${walletId}/disconnect`)
   return parseResponse(walletSchema, data)
 }

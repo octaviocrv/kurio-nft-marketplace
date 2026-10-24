@@ -9,4 +9,7 @@ import { io } from 'socket.io-client'
 export const socket = io({
   autoConnect: false,
   transports: ['websocket'],
+  // Reconexão mais curta que o padrão (até 5 s): uma queda passa a ser recuperada em poucos segundos
+  reconnectionDelay: 500,
+  reconnectionDelayMax: 2000,
 })

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { ShoppingCart, WalletCards } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { checkoutInputSchema, type CheckoutInput } from '@/api/order'
@@ -23,7 +23,8 @@ import { useCart, useQuote } from '@/features/cart/queries'
 import { networkLabels } from '@/features/catalog/labels'
 import { CheckoutReview } from '@/features/checkout/CheckoutReview'
 import { ProviderOptions } from '@/features/checkout/ProviderOptions'
-import { useWallets } from '@/features/checkout/queries'
+import { useConnectWallet, useDisconnectWallet, useWallets } from '@/features/checkout/queries'
+import { WalletConnection } from '@/features/checkout/WalletConnection'
 import { WalletOptions } from '@/features/checkout/WalletOptions'
 import { getOrderAttempt } from '@/features/order/attemptStorage'
 import { useCreateOrder } from '@/features/order/queries'
@@ -128,6 +129,10 @@ function CheckoutContent({
   const { etapa } = Route.useSearch()
   const navigate = useNavigate()
   const createOrder = useCreateOrder(session.user.id)
+  const connectWallet = useConnectWallet(session.user.id)
+  const disconnectWallet = useDisconnectWallet(session.user.id)
+  const connectButton = useRef<HTMLButtonElement>(null)
+  const [missingConnection, setMissingConnection] = useState(false)
   const [revalidationMessage, setRevalidationMessage] = useState<string | null>(null)
   // Vale também depois de refresh: a tentativa fica salva até o pedido chegar a um estado final
   const hasOpenAttempt = getOrderAttempt(session.user.id) !== null
@@ -161,7 +166,7 @@ function CheckoutContent({
   }
 
   async function confirmOrder() {
-    if (!quote.data || quote.isFetching) return
+    if (!quote.data || quote.isFetching || cartQuery.isFetching) return
     setRevalidationMessage(null)
     try {
       const order = await createOrder.mutateAsync({ ...form.getValues(), quoteId: quote.data.id })
@@ -214,7 +219,9 @@ function CheckoutContent({
             size="lg"
             className="rounded-full"
             onClick={confirmOrder}
-            disabled={!quote.data || quote.isFetching || createOrder.isPending}
+            // Bloqueia também enquanto o carrinho recarrega: um evento de preço/estoque busca o carrinho primeiro e a
+            // cotação depois, e nesse intervalo a cotação exibida ainda é a velha
+            disabled={!quote.data || quote.isFetching || cartQuery.isFetching || createOrder.isPending}
           >
             {createOrder.isPending ? 'Enviando pedido…' : hasOpenAttempt ? 'Recuperar pedido' : quote.data?.issues.length ? 'Confirmar alterações e comprar' : 'Confirmar compra'}
           </Button>
@@ -226,16 +233,37 @@ function CheckoutContent({
     )
   }
 
+  function goToReview() {
+    // Sem carteira conectada não há o que revisar: explica e leva o foco para o botão de conectar
+    if (!wallet.connected) {
+      setMissingConnection(true)
+      connectButton.current?.focus()
+      return
+    }
+    void navigate({ to: '/checkout', search: { etapa: 'revisao' } })
+  }
+  const walletError =
+    connectWallet.error?.message ?? disconnectWallet.error?.message ?? (missingConnection && !wallet.connected ? 'Conecte a carteira para revisar o pedido.' : undefined)
+
   return (
-    <form onSubmit={form.handleSubmit(() => navigate({ to: '/checkout', search: { etapa: 'revisao' } }))}>
+    <form onSubmit={(event) => form.handleSubmit(goToReview)(event)}>
       <PageHeader title="Pagamento com carteira" fallbackTo="/carrinho" />
       <main className="mx-auto flex max-w-md flex-col gap-8 px-6 pb-[calc(10rem+env(safe-area-inset-bottom))]">
         <section className="flex flex-col gap-4">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-bold">Carteira conectada</h2>
+            <h2 className="font-bold">{wallet.connected ? 'Carteira conectada' : 'Conecte sua carteira'}</h2>
             <Link to="/conta/carteiras" className="rounded-sm text-sm font-bold text-highlight outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">Trocar carteira</Link>
           </div>
           <WalletOptions wallets={wallets} selectedId={wallet.id} onSelect={handleWalletChange} />
+          <WalletConnection
+            wallet={wallet}
+            isConnecting={connectWallet.isPending}
+            isDisconnecting={disconnectWallet.isPending}
+            error={walletError}
+            connectButtonRef={connectButton}
+            onConnect={() => connectWallet.mutate(wallet.id)}
+            onDisconnect={() => disconnectWallet.mutate(wallet.id)}
+          />
         </section>
 
         <section className="flex flex-col gap-4">

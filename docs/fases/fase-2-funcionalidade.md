@@ -63,11 +63,11 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [x] Teste: edição de perfil, avatar, senha e carteiras com erros de validação
 
 ### 2.9 Tempo real (Socket.IO)
-- [ ] Eventos `nft.updated` e `order.updated` no formato `{ eventId, resource, id, version, data }` (conexão já existe desde o 2.2)
-- [ ] Ignorar duplicados (`eventId`) e antigos (`version`); aviso acessível de mudança; listeners liberados no unmount/logout
-- [ ] Reconexão: invalida queries ativas (REST é a verdade); evento de sessão anterior nunca atinge outro usuário
-- [ ] Cenário do enunciado: NFT no carrinho muda de preço → aviso + resumo atualizado → checkout bloqueia cotação velha
-- [ ] Testes: mudança via socket no checkout; duplicados/antigos; desconexão com pedido pendente
+- [x] Eventos `nft.updated` e `order.updated` no formato `{ eventId, resource, id, version, data }` (conexão já existe desde o 2.2)
+- [x] Ignorar duplicados (`eventId`) e antigos (`version`); aviso acessível de mudança; listeners liberados no unmount/logout
+- [x] Reconexão: invalida queries ativas (REST é a verdade); evento de sessão anterior nunca atinge outro usuário
+- [x] Cenário do enunciado: NFT no carrinho muda de preço → aviso + resumo atualizado → checkout bloqueia cotação velha
+- [x] Testes: mudança via socket no checkout; duplicados/antigos; desconexão com pedido pendente
 
 ### 2.10 Testes, regressão visual e deploy
 - [ ] Playwright em Chromium, viewports mobile e desktop, estado isolado por teste, relógio controlado nos cenários de tempo
@@ -101,3 +101,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 2.6 Carrinho e cotação: identidade persistente do visitante, merge no login com limite de estoque, operações REST do carrinho, cotação autoritativa em bigint, cupons válidos/inválidos/expirados, skeleton e recuperação de falhas; 16 testes do bloco e 52 testes da suíte completa passando em mobile/desktop | Implementação do carrinho, cotação e cupons |
 | 2026-10-23 | 2.7 Checkout e pedido: sessão, carrinho, cotação e carteiras pela API; revalidação de preço, estoque, cupom e taxa com nova confirmação explícita; `POST /orders` idempotente (mesma chave e payload = mesmo pedido, payload diferente = 409); pedido pendente que termina confirmado ou recusado, recuperável por ID após refresh; recusa preserva o carrinho e confirmação remove só o comprado; recuperação após timeout reenvia o payload salvo e funciona mesmo com o carrinho já esvaziado; isolamento de pedido por usuário; testes E2E mobile/desktop | Implementação do checkout e pedido |
 | 2026-10-23 | 2.8 Perfil e carteiras: `GET/PATCH /profile` e `POST /profile/password` com os mesmos schemas no formulário e no handler, avatar (data URL com limite de 300 KB e prévia), troca de senha com erro de senha atual na API, `POST/PATCH /wallets` (principal e secundária) com validação de endereço 0x e ENS e conflitos por campo, cache de perfil, sessão e carteiras sincronizado, skeletons e erro com nova tentativa, rotas sem fixtures; testes E2E mobile/desktop | Implementação do perfil e das carteiras |
+| 2026-10-23 | 2.9 Tempo real: `nft.updated` e `order.updated` só pelo Socket.IO (mock altera, responde o REST e emite), entrega privada por usuário pelo token do pacote CONNECT, guarda de duplicados (`eventId`) e antigos (`version`) e contra o cache, aviso acessível de preço/estoque com resumo atualizado e confirmação bloqueada até a nova cotação, reconciliação pelo REST ao reconectar, pedido pendente recuperado sem socket; simulação de conexão, recusa (`wallet-rejected`) e desconexão da carteira no pagamento, exigida também pela API; 14 testes de realtime, 10 da carteira e suíte completa passando em mobile/desktop | Implementação do tempo real com Socket.IO |

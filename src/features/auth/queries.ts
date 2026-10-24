@@ -41,7 +41,10 @@ function activateSession(queryClient: QueryClient, session: Session) {
   saveSessionToken(session.token)
   queryClient.setQueryData(sessionKeys.current, session)
   socket.auth = { token: session.token }
-  if (!socket.connected) socket.connect()
+  // O servidor só lê o token no handshake. Quem já estava conectado como visitante precisa reconectar,
+  // senão nunca receberia os eventos privados (pedido) do usuário que acabou de entrar.
+  if (socket.connected) socket.disconnect()
+  socket.connect()
 }
 
 export function clearSession(queryClient: QueryClient): boolean {

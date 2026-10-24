@@ -49,6 +49,7 @@ export const walletsByUserId: Record<string, Wallet[]> = {
       ensName: null,
       network: 'ethereum',
       provider: 'metamask',
+      connected: true,
     },
     {
       id: 'wallet-nova-secondary',
@@ -58,6 +59,7 @@ export const walletsByUserId: Record<string, Wallet[]> = {
       ensName: 'nova.kurio.eth',
       network: 'polygon',
       provider: 'coinbase',
+      connected: false,
     },
   ],
   'user-theo': [
@@ -69,6 +71,7 @@ export const walletsByUserId: Record<string, Wallet[]> = {
       ensName: null,
       network: 'ethereum',
       provider: 'walletconnect',
+      connected: true,
     },
   ],
 }

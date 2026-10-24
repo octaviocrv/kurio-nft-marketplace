@@ -3,6 +3,7 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/r
 import { createOrder, fetchOrder, type CreateOrderInput, type Order } from '@/api/order'
 import { cartKeys } from '@/features/cart/queries'
 import { nftKeys } from '@/features/nft/queries'
+import { useSocketConnected } from '@/features/realtime/useSocketConnected'
 import { clearOrderAttempt, getOrderAttempt, startOrderAttempt } from './attemptStorage'
 
 export const orderKeys = {
@@ -10,18 +11,27 @@ export const orderKeys = {
   detail: (userId: string, orderId: string) => [...orderKeys.all(userId), orderId] as const,
 }
 
-export function orderQueryOptions(orderId: string, userId: string) {
+// Pedido pendente: o socket entrega a mudança de status; a consulta periódica é plano B.
+// Sem socket (queda de conexão) consulta a cada 0,5 s; com socket, só uma rede de segurança a cada 5 s.
+const POLL_WHILE_DISCONNECTED_MS = 500
+const POLL_WHILE_CONNECTED_MS = 5_000
+
+export function orderQueryOptions(orderId: string, userId: string, socketConnected: boolean) {
   return queryOptions({
     queryKey: orderKeys.detail(userId, orderId),
     queryFn: ({ signal }) => fetchOrder(orderId, signal),
-    refetchInterval: (query) => query.state.data?.status === 'pending' ? 500 : false,
+    refetchInterval: (query) => {
+      if (query.state.data?.status !== 'pending') return false
+      return socketConnected ? POLL_WHILE_CONNECTED_MS : POLL_WHILE_DISCONNECTED_MS
+    },
   })
 }
 
 export function useOrder(orderId: string, userId: string | undefined) {
   const queryClient = useQueryClient()
+  const socketConnected = useSocketConnected()
   const query = useQuery({
-    ...orderQueryOptions(orderId, userId ?? 'pending'),
+    ...orderQueryOptions(orderId, userId ?? 'pending', socketConnected),
     enabled: userId !== undefined,
   })
 

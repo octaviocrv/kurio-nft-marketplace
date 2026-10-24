@@ -2,7 +2,7 @@ import { buildEventId, realtimeEventNames, type NftUpdatedEvent, type OrderUpdat
 import type { Order } from '@/api/order'
 import { userCartOwner } from './cartStore'
 import { db, saveDb } from './db'
-import { broadcast } from './socket/server'
+import { broadcast, emitToUser } from './socket/server'
 
 const scheduledOrders = new Set<string>()
 
@@ -25,7 +25,7 @@ function finishOrder(orderId: string): Order | null {
     }
     db.ordersById[orderId] = rejected
     saveDb()
-    emitOrder(rejected)
+    emitOrder(rejected, meta.userId)
     return rejected
   }
 
@@ -62,11 +62,12 @@ function finishOrder(orderId: string): Order | null {
   }
   db.ordersById[orderId] = confirmed
   saveDb()
-  emitOrder(confirmed)
+  emitOrder(confirmed, meta.userId)
   return confirmed
 }
 
-function emitOrder(order: Order) {
+/** Pedido é dado privado: só as conexões do dono recebem (diferente do catálogo, que é público). */
+function emitOrder(order: Order, userId: string) {
   const event: OrderUpdatedEvent = {
     eventId: buildEventId('order', order.id, order.version),
     resource: 'order',
@@ -74,7 +75,7 @@ function emitOrder(order: Order) {
     version: order.version,
     data: order,
   }
-  broadcast(realtimeEventNames.orderUpdated, event)
+  emitToUser(userId, realtimeEventNames.orderUpdated, event)
 }
 
 export function ensureOrderResolution(orderId: string): Order | null {

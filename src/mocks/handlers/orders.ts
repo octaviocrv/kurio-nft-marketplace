@@ -50,6 +50,7 @@ export const orderHandlers = [
 
     const wallet = db.walletsByUserId[session.userId]?.find((item) => item.id === parsed.data.walletId)
     if (!wallet) return errorResponse(404, { code: 'not_found', message: 'Carteira não encontrada.' })
+    if (!wallet.connected) return errorResponse(409, { code: 'conflict', message: 'Conecte a carteira para finalizar a compra.' })
 
     const items = quotedItems.flatMap<OrderItem>((quoted) => {
       const nft = db.nfts.find((item) => item.id === quoted.nftId)

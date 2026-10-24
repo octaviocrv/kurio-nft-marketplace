@@ -67,7 +67,7 @@ export interface StoredIdempotency {
 
 const STORAGE_KEY = 'mock-db'
 // Sobe quando o formato do banco muda: um banco salvo no formato antigo é descartado e o seed volta
-const DB_FORMAT = 4
+const DB_FORMAT = 5
 
 function createSeed(): MockDb {
   // Cópia profunda: o seed (fixtures) nunca é alterado, por isso o reset sempre volta ao mesmo estado

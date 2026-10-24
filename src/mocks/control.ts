@@ -2,7 +2,7 @@ import { buildEventId, realtimeEventNames, type NftUpdatedEvent } from '@/api/ev
 import type { Nft } from '@/api/nft'
 import { db, saveDb } from './db'
 import { saveScenario, type Scenario } from './scenarios'
-import { broadcast, disconnectAll } from './socket/server'
+import { broadcast, disconnectAll, emitToUser } from './socket/server'
 import { clearAllStorage } from './storage'
 
 /*
@@ -44,8 +44,17 @@ export function resetMocks() {
   window.location.reload()
 }
 
-/** Reenvia um evento já emitido (testes de duplicata e de evento antigo). */
+/**
+ * Reenvia um evento já emitido (testes de duplicata e de evento antigo). Segue a mesma regra de
+ * entrega do servidor: pedido só vai para o dono, catálogo para todos.
+ */
 export function replayEvent(eventName: string, event: unknown) {
+  if (eventName === realtimeEventNames.orderUpdated) {
+    const orderId = (event as { id?: string }).id
+    const ownerId = orderId ? db.orderMetaById[orderId]?.userId : undefined
+    if (ownerId) emitToUser(ownerId, eventName, event)
+    return
+  }
   broadcast(eventName, event)
 }
 

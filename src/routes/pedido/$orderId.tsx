@@ -28,8 +28,10 @@ function OrderPage() {
 
   if (session.isPending || order.isPending) return <OrderSkeleton />
   if (order.error?.code === 'not_found') return <OrderNotFound />
-  if (session.error || order.error) {
-    const error = session.error ?? order.error
+  // Falha ao atualizar um pedido que já está na tela (queda de conexão) não derruba a tela: veja o aviso abaixo
+  const blockingError = session.error ?? (order.data ? null : order.error)
+  if (blockingError) {
+    const error = blockingError
     return (
       <main className="flex min-h-dvh flex-col">
         <ErrorState
@@ -55,6 +57,11 @@ function OrderPage() {
       </header>
 
       <main className="mx-auto flex max-w-md flex-col gap-6 px-6 pb-10">
+        {order.isRefetchError && (
+          <p role="status" className="rounded-lg bg-primary/10 px-4 py-3 text-center text-sm text-primary">
+            Sem conexão com o servidor. Vamos atualizar o pedido assim que a conexão voltar.
+          </p>
+        )}
         {order.data.status === 'confirmed' && <ConfirmedOrder order={order.data} />}
         {order.data.status === 'pending' && <PendingOrder order={order.data} />}
         {order.data.status === 'rejected' && <RejectedOrder order={order.data} />}
@@ -68,7 +75,8 @@ function ConfirmedOrder({ order }: { order: Extract<Order, { status: 'confirmed'
 
   return (
     <>
-      <div className="flex flex-col items-center gap-4 text-center">
+      {/* role="status": a confirmação chega sozinha (socket) e precisa ser anunciada ao leitor de tela */}
+      <div role="status" className="flex flex-col items-center gap-4 text-center">
         <ThankYouIllustration className="h-20 text-highlight" />
         <h1 className="font-bold text-muted-foreground">Seus NFTs agora estão na sua carteira</h1>
       </div>
