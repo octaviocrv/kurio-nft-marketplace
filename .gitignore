@@ -22,7 +22,7 @@ blob-report/
 # Lighthouse: execuções locais temporárias (os relatórios finais ficam em lighthouse/reports/)
 .lighthouseci/
 
-# Claude Code: configurações locais da máquina (o CLAUDE.md e docs/ vão pro repo)
+# Claude Code: configurações locais da máquina
 .claude/settings.local.json
 
 # Editor / SO
@@ -44,3 +44,10 @@ docs/figma/canvas-full.png
 
 # Arquivos que o app Claude salva localmente (não fazem parte do projeto)
 Claude outputs/
+
+# Arquivos do processo de trabalho (ficam só na máquina, não fazem parte da entrega)
+CLAUDE.md
+docs/fases/
+docs/projeto/git.md
+docs/projeto/homologacao.md
+docs/projeto/verificacoes.md
