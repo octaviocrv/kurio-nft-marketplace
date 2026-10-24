@@ -20,7 +20,7 @@ export function Pagination({ page, totalPages }: PaginationProps) {
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
 
   return (
-    <nav aria-label="Paginação do catálogo" className="flex justify-center">
+    <nav aria-label="Paginação do catálogo" className="flex justify-center md:justify-end">
       <ul className="flex items-center gap-2">
         <li>
           <PageArrow page={page - 1} disabled={page === 1} label="Página anterior">

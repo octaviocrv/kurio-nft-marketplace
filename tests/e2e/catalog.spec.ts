@@ -10,10 +10,40 @@ function resultNames(page: Page) {
   return page.getByRole('region', { name: 'Resultados' }).getByRole('heading', { level: 3 })
 }
 
+// Desktop (1440) busca pela lupa do header e filtra pela sidebar; mobile usa a barra de busca e a gaveta
+function isDesktop(page: Page) {
+  return (page.viewportSize()?.width ?? 0) >= 1024
+}
+
+async function search(page: Page, term: string) {
+  if (isDesktop(page)) await page.getByRole('button', { name: 'Buscar NFTs' }).click()
+  await page.getByRole('searchbox', { name: 'Buscar NFTs' }).fill(term)
+  await page.getByRole('searchbox', { name: 'Buscar NFTs' }).press('Enter')
+}
+
 async function applyFilters(page: Page, choose: () => Promise<void>) {
-  await page.getByRole('button', { name: /Abrir filtros/ }).click()
+  if (!isDesktop(page)) await page.getByRole('button', { name: /Abrir filtros/ }).click()
   await choose()
   await page.getByRole('button', { name: 'Aplicar filtros' }).click()
+}
+
+// No desktop o "Ordenar por" fica acima do grid e aplica na hora; no mobile está dentro da gaveta
+async function sortBy(page: Page, label: string) {
+  const choose = async () => {
+    await page.getByRole('combobox', { name: 'Ordenar por' }).click()
+    await page.getByRole('option', { name: label }).click()
+  }
+  if (isDesktop(page)) await choose()
+  else await applyFilters(page, choose)
+}
+
+async function expectSearchTerm(page: Page, term: string) {
+  if (isDesktop(page)) {
+    if (term) await expect(page.getByText(`Resultados para “${term}”`)).toBeVisible()
+    else await expect(page.getByText(/Resultados para/)).toBeHidden()
+  } else {
+    await expect(page.getByRole('searchbox', { name: 'Buscar NFTs' })).toHaveValue(term)
+  }
 }
 
 test('busca, filtros combinados, ordenação e paginação compõem a URL e o histórico restaura cada passo', async ({ page }) => {
@@ -25,8 +55,7 @@ test('busca, filtros combinados, ordenação e paginação compõem a URL e o hi
   await expect(resultNames(page).first()).toHaveText('Cosmic Bloom #118')
 
   // Nova busca volta para a página 1
-  await page.getByRole('searchbox', { name: 'Buscar NFTs' }).fill('ape')
-  await page.getByRole('searchbox', { name: 'Buscar NFTs' }).press('Enter')
+  await search(page, 'ape')
   await expect(page).toHaveURL(/busca=ape/)
   await expect(page).not.toHaveURL(/pagina=/)
   await expect(resultNames(page)).toHaveCount(10)
@@ -38,12 +67,14 @@ test('busca, filtros combinados, ordenação e paginação compõem a URL e o hi
   })
   await expect(page).toHaveURL(/rede=ethereum&categoria=arte-digital|categoria=arte-digital.*rede=ethereum/)
   await expect(resultNames(page)).toHaveText(['Emerald Ape #042', 'Onyx Ape #518', 'Opal Ape #956'])
-  await expect(page.getByRole('button', { name: 'Abrir filtros (2 ativos)' })).toBeVisible()
+  if (isDesktop(page)) {
+    await expect(page.getByRole('button', { name: 'Ethereum' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('button', { name: 'Arte digital' })).toHaveAttribute('aria-pressed', 'true')
+  } else {
+    await expect(page.getByRole('button', { name: 'Abrir filtros (2 ativos)' })).toBeVisible()
+  }
 
-  await applyFilters(page, async () => {
-    await page.getByRole('combobox', { name: 'Ordenar por' }).click()
-    await page.getByRole('option', { name: 'Maior preço' }).click()
-  })
+  await sortBy(page, 'Maior preço')
   await expect(page).toHaveURL(/ordem=maior-preco/)
   await expect(resultNames(page)).toHaveText(['Opal Ape #956', 'Onyx Ape #518', 'Emerald Ape #042'])
 
@@ -56,11 +87,11 @@ test('busca, filtros combinados, ordenação e paginação compõem a URL e o hi
   await expect(resultNames(page)).toHaveText(['Emerald Ape #042', 'Onyx Ape #518', 'Opal Ape #956'])
   await page.goBack()
   await expect(resultNames(page)).toHaveCount(10)
-  await expect(page.getByRole('searchbox', { name: 'Buscar NFTs' })).toHaveValue('ape')
+  await expectSearchTerm(page, 'ape')
   await page.goBack()
   await expect(page).toHaveURL(/pagina=2/)
   await expect(resultNames(page).first()).toHaveText('Cosmic Bloom #118')
-  await expect(page.getByRole('searchbox', { name: 'Buscar NFTs' })).toHaveValue('')
+  await expectSearchTerm(page, '')
 })
 
 test('faixa de preço filtra pela API e valor invertido é recusado no formulário', async ({ page }) => {

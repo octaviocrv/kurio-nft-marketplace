@@ -21,12 +21,14 @@ const emptyFilters: CatalogFilters = { categories: [], networks: [], sort: 'padr
 
 // Sem frame mobile no Figma: mesmo conteúdo da sidebar desktop (coleções, preço, rede) + ordenação,
 // em ordem de uso. Nada muda na lista até "Aplicar": combinar vários filtros faz uma consulta só.
+// Mobile e tablet usam a gaveta; o desktop usa a sidebar (FiltersSidebar), com o mesmo formulário.
 export function FiltersSheet({ open, onOpenChange, filters, onApply }: FiltersSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" showCloseButton={false} className="gap-0">
         {/* O conteúdo desmonta ao fechar: cada abertura começa do que está aplicado na URL */}
         <FiltersForm
+          variant="sheet"
           initialFilters={filters}
           onApply={(nextFilters) => {
             onApply(nextFilters)
@@ -38,12 +40,36 @@ export function FiltersSheet({ open, onOpenChange, filters, onApply }: FiltersSh
   )
 }
 
+interface FiltersSidebarProps {
+  filters: CatalogFilters
+  onApply: (filters: CatalogFilters) => void
+}
+
+/** Filtros fixos na lateral do catálogo (desktop do Figma). A ordenação fica no select acima do grid. */
+export function FiltersSidebar({ filters, onApply }: FiltersSidebarProps) {
+  return (
+    <section aria-labelledby="sidebar-filters-title" className="rounded-lg bg-card px-5 py-2">
+      <h2 id="sidebar-filters-title" className="sr-only">
+        Filtros
+      </h2>
+      {/* key: filtro aplicado por outro caminho (aba, ordenação, voltar do navegador) recomeça o rascunho */}
+      <FiltersForm key={JSON.stringify(filters)} variant="sidebar" initialFilters={filters} onApply={onApply} />
+    </section>
+  )
+}
+
 /** Valor digitado → ETH do contrato ("0,5" vira "0.5"; o teclado decimal do celular usa vírgula). */
 function normalizePrice(value: string): string {
   return value.trim().replace(',', '.')
 }
 
-function FiltersForm({ initialFilters, onApply }: { initialFilters: CatalogFilters; onApply: (filters: CatalogFilters) => void }) {
+interface FiltersFormProps {
+  variant: 'sheet' | 'sidebar'
+  initialFilters: CatalogFilters
+  onApply: (filters: CatalogFilters) => void
+}
+
+function FiltersForm({ variant, initialFilters, onApply }: FiltersFormProps) {
   const [draft, setDraft] = useState(initialFilters)
   const [minPrice, setMinPrice] = useState(initialFilters.minPrice ?? '')
   const [maxPrice, setMaxPrice] = useState(initialFilters.maxPrice ?? '')
@@ -55,7 +81,8 @@ function FiltersForm({ initialFilters, onApply }: { initialFilters: CatalogFilte
   }
 
   function clearAll() {
-    setDraft(emptyFilters)
+    // Na sidebar a ordenação não faz parte do formulário: limpar não mexe nela
+    setDraft(variant === 'sheet' ? emptyFilters : { ...emptyFilters, sort: initialFilters.sort })
     setMinPrice('')
     setMaxPrice('')
     setPriceError(null)
@@ -76,6 +103,84 @@ function FiltersForm({ initialFilters, onApply }: { initialFilters: CatalogFilte
     onApply({ ...draft, minPrice: min, maxPrice: max })
   }
 
+  const sortSection = (
+    <FilterSection key="sort" title="Ordenar por">
+      <Select value={draft.sort} onValueChange={(value) => setDraft({ ...draft, sort: value as NftSort })}>
+        <SelectTrigger aria-label="Ordenar por" className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {nftSortSchema.options.map((sort) => (
+            <SelectItem key={sort} value={sort}>{sortLabels[sort]}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </FilterSection>
+  )
+
+  // Na sidebar (280 px) as opções ficam em lista, como no Figma; na gaveta, em grade
+  const networkSection = (
+    <FilterSection key="network" title="Rede">
+      <div className={cn('grid gap-2', variant === 'sheet' ? 'grid-cols-3' : 'grid-cols-1')}>
+        {networkSchema.options.map((network) => (
+          <FilterOption
+            key={network}
+            label={networkLabels[network]}
+            pressed={draft.networks.includes(network)}
+            onToggle={() => setDraft({ ...draft, networks: toggle(draft.networks, network) })}
+          />
+        ))}
+      </div>
+    </FilterSection>
+  )
+
+  const categorySection = (
+    <FilterSection key="category" title="Coleções">
+      <div className={cn('grid gap-2', variant === 'sheet' ? 'grid-cols-2' : 'grid-cols-1')}>
+        {nftCategorySchema.options.map((category) => (
+          <FilterOption
+            key={category}
+            label={categoryLabels[category]}
+            pressed={draft.categories.includes(category)}
+            onToggle={() => setDraft({ ...draft, categories: toggle(draft.categories, category) })}
+          />
+        ))}
+      </div>
+    </FilterSection>
+  )
+
+  const priceSection = (
+    <FilterSection key="price" title="Faixa de preço">
+      <div className="flex items-center gap-3">
+        <PriceInput label="Preço mínimo" placeholder="Mín." value={minPrice} onChange={setMinPrice} errorId={priceError ? priceErrorId : undefined} />
+        <span className="text-sm text-muted-foreground">até</span>
+        <PriceInput label="Preço máximo" placeholder="Máx." value={maxPrice} onChange={setMaxPrice} errorId={priceError ? priceErrorId : undefined} />
+      </div>
+      {priceError && (
+        <p id={priceErrorId} role="alert" className="text-sm text-destructive">
+          {priceError}
+        </p>
+      )}
+    </FilterSection>
+  )
+
+  if (variant === 'sidebar') {
+    // Ordem do Figma desktop: coleções, preço, rede
+    return (
+      <div className="flex flex-col divide-y divide-border">
+        {categorySection}
+        {priceSection}
+        {networkSection}
+        <div className="flex items-center justify-between gap-3 py-5">
+          <Button onClick={apply}>Aplicar filtros</Button>
+          <Button variant="link" className="h-auto p-0" onClick={clearAll}>
+            Limpar
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
       {/* Alça: indica que a gaveta pode ser arrastada/fechada para baixo */}
@@ -90,57 +195,10 @@ function FiltersForm({ initialFilters, onApply }: { initialFilters: CatalogFilte
       </SheetHeader>
 
       <div className="flex flex-col divide-y divide-border overflow-y-auto px-6">
-        <FilterSection title="Ordenar por">
-          <Select value={draft.sort} onValueChange={(value) => setDraft({ ...draft, sort: value as NftSort })}>
-            <SelectTrigger aria-label="Ordenar por" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {nftSortSchema.options.map((sort) => (
-                <SelectItem key={sort} value={sort}>{sortLabels[sort]}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FilterSection>
-
-        <FilterSection title="Rede">
-          <div className="grid grid-cols-3 gap-2">
-            {networkSchema.options.map((network) => (
-              <FilterOption
-                key={network}
-                label={networkLabels[network]}
-                pressed={draft.networks.includes(network)}
-                onToggle={() => setDraft({ ...draft, networks: toggle(draft.networks, network) })}
-              />
-            ))}
-          </div>
-        </FilterSection>
-
-        <FilterSection title="Coleções">
-          <div className="grid grid-cols-2 gap-2">
-            {nftCategorySchema.options.map((category) => (
-              <FilterOption
-                key={category}
-                label={categoryLabels[category]}
-                pressed={draft.categories.includes(category)}
-                onToggle={() => setDraft({ ...draft, categories: toggle(draft.categories, category) })}
-              />
-            ))}
-          </div>
-        </FilterSection>
-
-        <FilterSection title="Faixa de preço">
-          <div className="flex items-center gap-3">
-            <PriceInput label="Preço mínimo" placeholder="Mín." value={minPrice} onChange={setMinPrice} errorId={priceError ? priceErrorId : undefined} />
-            <span className="text-sm text-muted-foreground">até</span>
-            <PriceInput label="Preço máximo" placeholder="Máx." value={maxPrice} onChange={setMaxPrice} errorId={priceError ? priceErrorId : undefined} />
-          </div>
-          {priceError && (
-            <p id={priceErrorId} role="alert" className="text-sm text-destructive">
-              {priceError}
-            </p>
-          )}
-        </FilterSection>
+        {sortSection}
+        {networkSection}
+        {categorySection}
+        {priceSection}
       </div>
 
       <SheetFooter className="border-t border-border px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">

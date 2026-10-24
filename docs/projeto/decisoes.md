@@ -75,6 +75,9 @@
 - **`useCartOwnerId`:** a regra "usuário logado ou visitante, esperando a sessão salva responder" estava repetida no carrinho e no detalhe; com o header virou um hook único.
 - **Busca no desktop:** o Figma desktop só tem o ícone de lupa no header. Ele abre um diálogo de busca (foco preso e devolvido pelo Radix) que leva a `/?busca=`. No Início a busca mantém os filtros aplicados; vinda de outra tela, começa do zero.
 
+- **Início no desktop:** a lista usa o mesmo hook e o mesmo formulário de filtros nos dois layouts (`FiltersForm` com variante gaveta ou sidebar). Na sidebar os filtros também só valem ao "Aplicar" (uma consulta por combinação); o rascunho recomeça quando os filtros aplicados mudam por outro caminho (aba, ordenação, voltar do navegador). "Ordenar por" do desktop fica acima do grid e aplica na hora, como as abas. Sem campo de busca na página, o termo aplicado aparece como "Resultados para …" com "Limpar busca". O tablet mantém a barra de busca e a gaveta (a sidebar só cabe a partir de 1024 px).
+- **Página do catálogo com 12 NFTs:** divide certo em 2 colunas (mobile) e 3 (tablet/desktop), e o tamanho não depende da tela (`?pagina=2` mostra os mesmos NFTs em qualquer aparelho).
+
 ## Rotas
 
 | Rota | Tela |
@@ -102,4 +105,7 @@
 - **Formulários de Perfil e Carteiras:** no Figma os dois repetem campos um do outro (carteira pede nome de exibição, e-mail e ENS do perfil; perfil pede apelido da carteira). Cada contrato fica só com o que é dele: `User` (nome, usuário, e-mail, ENS, avatar) e `Wallet` (apelido, endereço, ENS opcional, rede, tipo). "Código de indicação" fica fora (sem regra no enunciado).
 - **Navegação do header:** "Mercado" leva ao catálogo do Início (`/#catalogo`) e fica marcado no detalhe, no carrinho e no pagamento, como no breadcrumb do Figma ("Início / Mercado / Carrinho"). "Criadores" e "Aprenda" (editoriais) aparecem desabilitados.
 - **Rodapé:** só leva a telas que existem (Meu perfil, Lista de interesse, Coleções como filtro real do catálogo, `mailto:`/`tel:` no contato). Minha coleção, Atividade, Estúdio do criador, Central de ajuda, redes sociais e newsletter aparecem desabilitados com "indisponível na demo". As redes sociais viram siglas, porque o lucide 1.x removeu os ícones de marca e não vale uma dependência nova para links desabilitados.
+- **Sidebar de filtros:** sem as contagens por coleção/rede do Figma (a API não devolve facetas e os números do Figma são de exemplo) e com campos mínimo/máximo no lugar do slider de preço (aceita qualquer valor em ETH, funciona por teclado e reaproveita a validação do contrato).
+- **"NFT em destaque" da sidebar:** um dos destaques reais (mais favoritados); "Oferta limitada" só aparece se ele estiver com desconto.
+- **Promos e blog do Início (tablet/desktop):** conteúdo editorial fixo. O "Explorar" das promos leva a um recorte real do catálogo (lançamentos recentes, arte digital); o "Ler mais" do blog aparece desabilitado, porque páginas editoriais estão fora do escopo. No mobile não aparecem (não estão no frame mobile).
 - Inconsistências de dado do Figma (token IDs diferentes, edição duplicada) são corrigidas nas fixtures.

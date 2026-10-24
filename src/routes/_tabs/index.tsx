@@ -1,4 +1,4 @@
-import { createFileRoute, useLocation } from '@tanstack/react-router'
+import { createFileRoute, Link, useLocation } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 import { useState } from 'react'
 import { favoriteIds as toFavoriteIds } from '@/api/favorite'
@@ -9,12 +9,16 @@ import { ErrorState } from '@/components/ErrorState'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useOptionalSession } from '@/features/auth/queries'
 import { catalogSearchSchema, countActiveFilters, filtersFromSearch, searchFromFilters, toNftListParams, type CatalogFilters } from '@/features/catalog/catalogSearch'
+import { BlogTeaser } from '@/features/catalog/BlogTeaser'
 import { HeroSkeleton, NftGridSkeleton } from '@/features/catalog/CatalogSkeletons'
-import { FiltersSheet } from '@/features/catalog/FiltersSheet'
+import { FeaturedOffer } from '@/features/catalog/FeaturedOffer'
+import { FiltersSheet, FiltersSidebar } from '@/features/catalog/FiltersSheet'
 import { HeroCarousel } from '@/features/catalog/HeroCarousel'
 import { NftGrid } from '@/features/catalog/NftGrid'
 import { Pagination } from '@/features/catalog/Pagination'
+import { PromoBanners } from '@/features/catalog/PromoBanners'
 import { SearchBar } from '@/features/catalog/SearchBar'
+import { SortSelect } from '@/features/catalog/SortSelect'
 import { FavoriteFeedback } from '@/features/favorite/FavoriteFeedback'
 import { useFavorites, useToggleFavorite } from '@/features/favorite/queries'
 import { useNftList } from '@/features/nft/queries'
@@ -62,46 +66,86 @@ function HomePage() {
   }
 
   const activeTab = tabSorts.some((tab) => tab.sort === filters.sort) ? filters.sort : ''
+  // Card da sidebar: prefere um destaque com desconto, para o "Oferta limitada" ser verdade
+  const featuredOffer = featured.data?.items.find((nft) => nft.previousPrice !== null) ?? featured.data?.items[0]
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-6 px-6 pt-6">
+    <main className="mx-auto flex max-w-md flex-col gap-6 px-6 pt-6 md:page-container md:gap-12 md:pt-10">
       <h1 className="sr-only">Kurio — marketplace de NFTs</h1>
-      <SearchBar
-        search={search.busca}
-        activeFilterCount={countActiveFilters(filters)}
-        // Nova busca volta para a página 1
-        onSearch={(busca) => navigate({ search: (previous) => ({ ...previous, busca, pagina: undefined }) })}
-        onOpenFilters={() => setFiltersOpen(true)}
-      />
+      {/* Desktop busca pelo header e filtra pela sidebar; mobile e tablet usam a barra com a gaveta */}
+      <div className="lg:hidden">
+        <SearchBar
+          search={search.busca}
+          activeFilterCount={countActiveFilters(filters)}
+          // Nova busca volta para a página 1
+          onSearch={(busca) => navigate({ search: (previous) => ({ ...previous, busca, pagina: undefined }) })}
+          onOpenFilters={() => setFiltersOpen(true)}
+        />
+      </div>
 
       {featured.isPending ? <HeroSkeleton /> : featured.data && featured.data.items.length > 0 && <HeroCarousel nfts={featured.data.items} />}
 
-      <Tabs value={activeTab} onValueChange={(sort) => applyFilters({ ...filters, sort: sort as NftSort })}>
-        {/* Rolagem lateral: em telas de 360px as três abas não cabem */}
-        <div className="-mx-6 overflow-x-auto px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {/* -ml-2 compensa o respiro interno da aba, alinhando o texto com o resto da página */}
-          <TabsList className="-ml-2">
-            {tabSorts.map((tab) => (
-              <TabsTrigger key={tab.sort} value={tab.sort}>{tab.label}</TabsTrigger>
-            ))}
-          </TabsList>
+      {/* Âncora do "Mercado" do header */}
+      <div id="catalogo" className="flex scroll-mt-6 flex-col gap-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-10">
+        <aside aria-label="Filtros e destaque" className="hidden flex-col gap-8 lg:flex">
+          <FiltersSidebar filters={filters} onApply={applyFilters} />
+          {featuredOffer && <FeaturedOffer nft={featuredOffer} />}
+        </aside>
+
+        <div className="flex min-w-0 flex-col gap-6">
+          {/* Sem campo de busca no desktop: mostra o termo aplicado e como desfazer */}
+          {search.busca && (
+            <p className="hidden items-center gap-3 text-sm lg:flex">
+              Resultados para “{search.busca}”
+              <Link
+                to="/"
+                search={(previous) => ({ ...previous, busca: undefined, pagina: undefined })}
+                className="rounded-sm font-bold text-highlight outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              >
+                Limpar busca
+              </Link>
+            </p>
+          )}
+
+          <div className="flex items-center justify-between gap-4">
+            <Tabs value={activeTab} onValueChange={(sort) => applyFilters({ ...filters, sort: sort as NftSort })} className="min-w-0">
+              {/* Rolagem lateral: em telas de 360px as três abas não cabem */}
+              <div className="-mx-6 overflow-x-auto px-6 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+                {/* -ml-2 compensa o respiro interno da aba, alinhando o texto com o resto da página */}
+                <TabsList className="-ml-2">
+                  {tabSorts.map((tab) => (
+                    <TabsTrigger key={tab.sort} value={tab.sort}>{tab.label}</TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+            </Tabs>
+            <div className="hidden lg:block">
+              <SortSelect sort={filters.sort} onSortChange={(sort) => applyFilters({ ...filters, sort })} />
+            </div>
+          </div>
+
+          <section aria-label="Resultados" aria-busy={catalog.isFetching} className="flex flex-col gap-6 md:gap-8">
+            {/* Anuncia o resultado de cada busca/filtro para leitor de tela */}
+            <p role="status" className="sr-only">
+              {catalog.data && `${catalog.data.total} ${catalog.data.total === 1 ? 'NFT encontrado' : 'NFTs encontrados'}`}
+            </p>
+
+            <FavoriteFeedback error={toggleFavorite.error} />
+            <CatalogResults
+              catalog={catalog}
+              favoriteIds={favoriteIds}
+              favoriteDisabled={session.fetchStatus === 'fetching' || favorites.isFetching || toggleFavorite.isPending}
+              onFavoriteToggle={handleFavoriteToggle}
+            />
+          </section>
         </div>
-      </Tabs>
+      </div>
 
-      <section aria-label="Resultados" aria-busy={catalog.isFetching} className="flex flex-col gap-6">
-        {/* Anuncia o resultado de cada busca/filtro para leitor de tela */}
-        <p role="status" className="sr-only">
-          {catalog.data && `${catalog.data.total} ${catalog.data.total === 1 ? 'NFT encontrado' : 'NFTs encontrados'}`}
-        </p>
-
-        <FavoriteFeedback error={toggleFavorite.error} />
-        <CatalogResults
-          catalog={catalog}
-          favoriteIds={favoriteIds}
-          favoriteDisabled={session.fetchStatus === 'fetching' || favorites.isFetching || toggleFavorite.isPending}
-          onFavoriteToggle={handleFavoriteToggle}
-        />
-      </section>
+      {/* Promos e blog só existem no Figma desktop; no mobile o Início termina no catálogo */}
+      <div className="hidden flex-col gap-16 md:flex">
+        <PromoBanners />
+        <BlogTeaser />
+      </div>
 
       <FiltersSheet open={filtersOpen} onOpenChange={setFiltersOpen} filters={filters} onApply={applyFilters} />
     </main>
