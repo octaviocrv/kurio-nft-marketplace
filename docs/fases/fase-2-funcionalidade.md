@@ -58,9 +58,9 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [x] Testes: compra completa; pagamento recusado; clique repetido; timeout com recuperação do mesmo pedido
 
 ### 2.8 Perfil e carteiras
-- [ ] `GET/PATCH /profile`, avatar (imagem → data URL, com limite de tamanho), `POST /profile/password`
-- [ ] `GET/POST/PATCH /wallets` (principal e secundária), validação de endereço 0x e ENS
-- [ ] Teste: edição de perfil, avatar, senha e carteiras com erros de validação
+- [x] `GET/PATCH /profile`, avatar (imagem → data URL, com limite de tamanho), `POST /profile/password`
+- [x] `GET/POST/PATCH /wallets` (principal e secundária), validação de endereço 0x e ENS
+- [x] Teste: edição de perfil, avatar, senha e carteiras com erros de validação
 
 ### 2.9 Tempo real (Socket.IO)
 - [ ] Eventos `nft.updated` e `order.updated` no formato `{ eventId, resource, id, version, data }` (conexão já existe desde o 2.2)
@@ -100,3 +100,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 2.5 Favoritos: API isolada por usuário, integração no catálogo/detalhe/lista, login com retorno ao fluxo, atualização otimista com rollback acessível, persistência e testes E2E mobile/desktop | Implementação dos favoritos com atualização otimista |
 | 2026-10-23 | 2.6 Carrinho e cotação: identidade persistente do visitante, merge no login com limite de estoque, operações REST do carrinho, cotação autoritativa em bigint, cupons válidos/inválidos/expirados, skeleton e recuperação de falhas; 16 testes do bloco e 52 testes da suíte completa passando em mobile/desktop | Implementação do carrinho, cotação e cupons |
 | 2026-10-23 | 2.7 Checkout e pedido: sessão, carrinho, cotação e carteiras pela API; revalidação de preço, estoque, cupom e taxa com nova confirmação explícita; `POST /orders` idempotente (mesma chave e payload = mesmo pedido, payload diferente = 409); pedido pendente que termina confirmado ou recusado, recuperável por ID após refresh; recusa preserva o carrinho e confirmação remove só o comprado; recuperação após timeout reenvia o payload salvo e funciona mesmo com o carrinho já esvaziado; isolamento de pedido por usuário; testes E2E mobile/desktop | Implementação do checkout e pedido |
+| 2026-10-23 | 2.8 Perfil e carteiras: `GET/PATCH /profile` e `POST /profile/password` com os mesmos schemas no formulário e no handler, avatar (data URL com limite de 300 KB e prévia), troca de senha com erro de senha atual na API, `POST/PATCH /wallets` (principal e secundária) com validação de endereço 0x e ENS e conflitos por campo, cache de perfil, sessão e carteiras sincronizado, skeletons e erro com nova tentativa, rotas sem fixtures; testes E2E mobile/desktop | Implementação do perfil e das carteiras |

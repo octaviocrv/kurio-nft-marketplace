@@ -1,27 +1,50 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { z } from 'zod'
+import type { Wallet } from '@/api/wallet'
+import { ErrorState } from '@/components/ErrorState'
+import { WalletsSkeleton } from '@/features/account/AccountSkeletons'
+import { useCreateWallet, useUpdateWallet } from '@/features/account/queries'
 import { WalletSection } from '@/features/account/WalletSection'
-import { users, walletsByUserId } from '@/mocks/fixtures/users' // fase 1: vira hook de Query na fase 2
-
-// TEMPORÁRIO (fase 1): ?usuario=theo mostra o estado "sem carteira secundária" (sem login ainda)
-const walletsSearchSchema = z.object({ usuario: z.enum(['nova', 'theo']).optional().catch(undefined) })
+import { useSession } from '@/features/auth/queries'
+import { useWallets } from '@/features/checkout/queries'
 
 export const Route = createFileRoute('/_tabs/conta/carteiras')({
-  validateSearch: walletsSearchSchema,
   component: WalletsPage,
 })
 
 function WalletsPage() {
-  const { usuario } = Route.useSearch()
-  const user = users.find((item) => item.id === `user-${usuario ?? 'nova'}`) ?? users[0]!
-  const wallets = walletsByUserId[user.id] ?? []
+  const session = useSession()
+  const userId = session.data?.user.id
+  const wallets = useWallets(userId)
+
+  if (!userId || wallets.isPending) return <WalletsSkeleton />
+  if (wallets.error) {
+    return <ErrorState title="Não foi possível carregar suas carteiras" description={wallets.error.message} onRetry={() => void wallets.refetch()} isRetrying={wallets.isFetching} />
+  }
+  return <WalletsContent userId={userId} wallets={wallets.data.items} />
+}
+
+function WalletsContent({ userId, wallets }: { userId: string; wallets: Wallet[] }) {
+  const createWallet = useCreateWallet(userId)
+  const updateWallet = useUpdateWallet(userId)
+  const primary = wallets.find((wallet) => wallet.slot === 'primary')
+  const secondary = wallets.find((wallet) => wallet.slot === 'secondary')
 
   return (
     <div className="flex flex-col gap-6">
       <p className="text-center text-sm text-muted-foreground">Estas carteiras ficam disponíveis no pagamento e para receber NFTs comprados.</p>
       {/* key: trocar de usuário remonta as seções e fecha formulários abertos */}
-      <WalletSection key={`${user.id}-primary`} slot="primary" wallet={wallets.find((wallet) => wallet.slot === 'primary')} />
-      <WalletSection key={`${user.id}-secondary`} slot="secondary" wallet={wallets.find((wallet) => wallet.slot === 'secondary')} />
+      <WalletSection
+        key={`${userId}-primary`}
+        slot="primary"
+        wallet={primary}
+        onSave={(input) => (primary ? updateWallet.mutateAsync({ walletId: primary.id, input }) : createWallet.mutateAsync({ ...input, slot: 'primary' }))}
+      />
+      <WalletSection
+        key={`${userId}-secondary`}
+        slot="secondary"
+        wallet={secondary}
+        onSave={(input) => (secondary ? updateWallet.mutateAsync({ walletId: secondary.id, input }) : createWallet.mutateAsync({ ...input, slot: 'secondary' }))}
+      />
     </div>
   )
 }

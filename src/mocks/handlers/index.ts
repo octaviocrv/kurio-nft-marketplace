@@ -5,6 +5,7 @@ import { favoriteHandlers } from './favorites'
 import { networkConditionsHandler } from './network'
 import { nftHandlers } from './nfts'
 import { orderHandlers } from './orders'
+import { profileHandlers } from './profile'
 import { quoteHandlers } from './quote'
 import { walletHandlers } from './wallets'
 
@@ -19,6 +20,7 @@ export const handlers: RequestHandler[] = [
   ...favoriteHandlers,
   ...cartHandlers,
   ...quoteHandlers,
+  ...profileHandlers,
   ...walletHandlers,
   ...orderHandlers,
 ]

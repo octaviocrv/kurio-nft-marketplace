@@ -9,11 +9,11 @@ import { getScenario } from '../scenarios'
 
 const SESSION_DURATION_MS = 8 * 60 * 60 * 1000
 
-function fieldErrors(issues: { path: PropertyKey[]; message: string }[]) {
+export function fieldErrors(issues: { path: PropertyKey[]; message: string }[]) {
   return Object.fromEntries(issues.map((issue) => [issue.path.join('.'), issue.message]))
 }
 
-async function readBody(request: Request): Promise<unknown> {
+export async function readBody(request: Request): Promise<unknown> {
   try {
     return await request.json()
   } catch {
@@ -21,11 +21,11 @@ async function readBody(request: Request): Promise<unknown> {
   }
 }
 
-function randomHex(bytes: number): string {
+export function randomHex(bytes: number): string {
   return Array.from(crypto.getRandomValues(new Uint8Array(bytes)), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
-async function hashPassword(salt: string, password: string): Promise<string> {
+export async function hashPassword(salt: string, password: string): Promise<string> {
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + password))
   return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }

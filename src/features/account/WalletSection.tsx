@@ -1,6 +1,6 @@
 import { Check, Copy, Plus, Wallet as WalletIcon } from 'lucide-react'
 import { useState } from 'react'
-import type { Wallet, WalletSlot } from '@/api/wallet'
+import type { Wallet, WalletInput, WalletSlot } from '@/api/wallet'
 import { Button } from '@/components/ui/button'
 import { networkLabels } from '@/features/catalog/labels'
 import { walletProviderLabels } from '@/features/checkout/labels'
@@ -14,14 +14,23 @@ const slotNames: Record<WalletSlot, string> = {
 }
 
 /** Uma carteira (principal ou secundária): card com os dados, ou vazio com "Adicionar". O formulário abre no lugar. */
-export function WalletSection({ slot, wallet }: { slot: WalletSlot; wallet?: Wallet }) {
+export function WalletSection({ slot, wallet, onSave }: { slot: WalletSlot; wallet?: Wallet; onSave: (input: WalletInput) => Promise<unknown> }) {
   const [editing, setEditing] = useState(false)
   const title = `Carteira ${slotNames[slot]}`
 
   if (editing) {
     return (
       <AccountCard title={wallet ? `Editar ${title.toLowerCase()}` : `Nova ${title.toLowerCase()}`}>
-        <WalletForm slot={slot} wallet={wallet} onCancel={() => setEditing(false)} />
+        <WalletForm
+          slot={slot}
+          wallet={wallet}
+          // Só fecha o formulário depois que a API aceitou; com erro ele continua aberto para corrigir
+          onSave={async (input) => {
+            await onSave(input)
+            setEditing(false)
+          }}
+          onCancel={() => setEditing(false)}
+        />
       </AccountCard>
     )
   }

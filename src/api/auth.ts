@@ -2,15 +2,15 @@ import { z } from 'zod'
 import { apiClient, parseResponse } from './client'
 import { sessionSchema, type Session } from './user'
 
-const usernameSchema = z
+export const usernameSchema = z
   .string()
   .trim()
   .min(3, 'Use pelo menos 3 caracteres')
   .max(24, 'Use no máximo 24 caracteres')
   .regex(/^[a-zA-Z0-9._-]+$/, 'Use apenas letras, números, ponto, hífen ou sublinhado')
 
-const emailSchema = z.email('Informe um e-mail válido')
-const passwordSchema = z.string().min(8, 'Use pelo menos 8 caracteres').max(72, 'Use no máximo 72 caracteres')
+export const emailSchema = z.email('Informe um e-mail válido')
+export const passwordSchema = z.string().min(8, 'Use pelo menos 8 caracteres').max(72, 'Use no máximo 72 caracteres')
 
 export const loginInputSchema = z.object({
   email: emailSchema,

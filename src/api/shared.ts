@@ -13,13 +13,13 @@ export const dateTimeSchema = z.iso.datetime()
 export const quantitySchema = z.number().int().positive()
 
 /** Redes listadas nos filtros do Figma */
-export const networkSchema = z.enum(['ethereum', 'polygon', 'solana'])
+export const networkSchema = z.enum(['ethereum', 'polygon', 'solana'], 'Selecione uma rede')
 export type Network = z.infer<typeof networkSchema>
 
 /** Provedores da tela de pagamento */
-export const walletProviderSchema = z.enum(['metamask', 'walletconnect', 'coinbase'])
+export const walletProviderSchema = z.enum(['metamask', 'walletconnect', 'coinbase'], 'Selecione o tipo de carteira')
 export type WalletProvider = z.infer<typeof walletProviderSchema>
 
-export const walletAddressSchema = z.string().regex(/^0x[0-9a-fA-F]{40}$/, 'Endereço de carteira inválido')
+export const walletAddressSchema = z.string().trim().regex(/^0x[0-9a-fA-F]{40}$/, 'Endereço de carteira inválido')
 
 export const ensNameSchema = z.string().regex(/^[a-z0-9-]+(\.[a-z0-9-]+)*\.eth$/, 'Nome ENS inválido (ex.: nome.eth)')
