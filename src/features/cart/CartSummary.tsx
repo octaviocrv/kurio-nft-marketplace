@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import type { ApiError } from '@/api/error'
 import { SummaryRow } from '@/components/SummaryRow'
@@ -21,6 +22,7 @@ interface CartSummaryProps {
   onCheckout: () => void
 }
 
+/** Resumo e cupom. Mobile: painel fixo no rodapé. Tablet/desktop: coluna ao lado da tabela. */
 export function CartSummary({
   subtotal,
   discount,
@@ -40,8 +42,11 @@ export function CartSummary({
   const [code, setCode] = useState(couponCode ?? '')
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-md flex-col gap-4 px-6 pt-5 pb-5">
+    <section aria-labelledby="cart-summary-title" className="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-border bg-card pb-[env(safe-area-inset-bottom)] md:static md:rounded-none md:border-0 md:bg-transparent md:pb-0">
+      <div className="mx-auto flex max-w-md flex-col gap-4 px-6 pt-5 pb-5 md:max-w-none md:p-0">
+        <h2 id="cart-summary-title" className="sr-only md:not-sr-only md:border-b md:pb-3 md:text-lg md:font-bold">
+          Resumo da compra
+        </h2>
         <form
           className="flex h-12 items-center gap-2 rounded-full border border-border bg-background py-1.5 pr-1.5 pl-5 focus-within:border-ring"
           onSubmit={(event) => {
@@ -86,7 +91,10 @@ export function CartSummary({
         <Button size="lg" className="rounded-full" onClick={onCheckout} disabled={checkoutDisabled}>
           {isQuotePending ? 'Atualizando cotação…' : 'Conectar e finalizar'}
         </Button>
+        <Link to="/" className="hidden self-center rounded-sm text-sm text-highlight outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 md:inline">
+          Continuar explorando
+        </Link>
       </div>
-    </div>
+    </section>
   )
 }

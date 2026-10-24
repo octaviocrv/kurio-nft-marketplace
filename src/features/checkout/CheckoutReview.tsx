@@ -20,30 +20,11 @@ interface CheckoutReviewProps {
 
 /** Etapa de revisão (não existe no Figma): tudo o que vai ser enviado, antes do clique final. */
 export function CheckoutReview({ items, buyer, wallet, provider, network, totals }: CheckoutReviewProps) {
-  const issueTypes = new Map(totals.issues.map((issue) => [issue.cartItemId, issue.type]))
-
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
         <h2 className="font-bold">Itens</h2>
-        <ul className="flex flex-col gap-3">
-          {items.map((item) => {
-            const issue = issueTypes.get(item.id)
-            const quantity = issue === 'sold_out' ? 0 : Math.min(item.quantity, item.available)
-            return (
-              <li key={item.id} className="flex items-center gap-3 text-sm">
-                <img src={item.image} alt="" width={48} height={48} loading="lazy" className="size-12 shrink-0 rounded-lg object-cover" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-bold">{item.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Edição {item.editionLabel} · {quantity}×{quantity !== item.quantity ? ` (de ${item.quantity})` : ''}
-                  </p>
-                </div>
-                <EthAmount value={toEthString(multiplyWei(parseEth(item.unitPrice), quantity))} className="font-bold text-highlight" />
-              </li>
-            )
-          })}
-        </ul>
+        <CheckoutItemList items={items} issues={totals.issues} />
       </section>
 
       <ReviewBlock
@@ -71,6 +52,32 @@ export function CheckoutReview({ items, buyer, wallet, provider, network, totals
       {/* Enunciado: preço, estoque, cupom e taxa são revalidados antes de confirmar (fase 2) */}
       <p className="text-center text-xs text-muted-foreground">Preços e disponibilidade são conferidos novamente ao confirmar.</p>
     </div>
+  )
+}
+
+/** Itens que vão no pedido. Com aviso de estoque, mostra a quantidade que realmente será comprada. */
+export function CheckoutItemList({ items, issues }: { items: CartItem[]; issues: Quote['issues'] }) {
+  const issueTypes = new Map(issues.map((issue) => [issue.cartItemId, issue.type]))
+
+  return (
+    <ul className="flex flex-col gap-3">
+      {items.map((item) => {
+        const issue = issueTypes.get(item.id)
+        const quantity = issue === 'sold_out' ? 0 : Math.min(item.quantity, item.available)
+        return (
+          <li key={item.id} className="flex items-center gap-3 text-sm">
+            <img src={item.image} alt="" width={48} height={48} loading="lazy" className="size-12 shrink-0 rounded-lg object-cover" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-bold">{item.name}</p>
+              <p className="text-xs text-muted-foreground">
+                Edição {item.editionLabel} · {quantity}×{quantity !== item.quantity ? ` (de ${item.quantity})` : ''}
+              </p>
+            </div>
+            <EthAmount value={toEthString(multiplyWei(parseEth(item.unitPrice), quantity))} className="font-bold text-highlight" />
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 

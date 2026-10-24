@@ -11,7 +11,9 @@ import type { Wallet } from '@/api/wallet'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
 import { EthAmount } from '@/components/EthAmount'
+import { DesktopPageHeading } from '@/components/layout/DesktopPageHeading'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { SummaryRow } from '@/components/SummaryRow'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,13 +23,14 @@ import { requireSession, useSession } from '@/features/auth/queries'
 import { cartOwnerId } from '@/features/cart/guestIdentity'
 import { useCart, useQuote } from '@/features/cart/queries'
 import { networkLabels } from '@/features/catalog/labels'
-import { CheckoutReview } from '@/features/checkout/CheckoutReview'
+import { CheckoutItemList, CheckoutReview } from '@/features/checkout/CheckoutReview'
 import { ProviderOptions } from '@/features/checkout/ProviderOptions'
 import { useConnectWallet, useDisconnectWallet, useWallets } from '@/features/checkout/queries'
 import { WalletConnection } from '@/features/checkout/WalletConnection'
 import { WalletOptions } from '@/features/checkout/WalletOptions'
 import { getOrderAttempt } from '@/features/order/attemptStorage'
 import { useCreateOrder } from '@/features/order/queries'
+import { TABLET_UP, useMediaQuery } from '@/lib/useMediaQuery'
 
 const checkoutSearchSchema = z.object({
   etapa: z.enum(['pagamento', 'revisao']).optional().catch(undefined),
@@ -132,6 +135,7 @@ function CheckoutContent({
   const connectWallet = useConnectWallet(session.user.id)
   const disconnectWallet = useDisconnectWallet(session.user.id)
   const connectButton = useRef<HTMLButtonElement>(null)
+  const isWide = useMediaQuery(TABLET_UP)
   const [missingConnection, setMissingConnection] = useState(false)
   const [revalidationMessage, setRevalidationMessage] = useState<string | null>(null)
   // Vale também depois de refresh: a tentativa fica salva até o pedido chegar a um estado final
@@ -184,8 +188,11 @@ function CheckoutContent({
   if (etapa === 'revisao') {
     return (
       <>
-        <PageHeader title="Revisão do pedido" fallbackTo="/checkout" />
-        <main className="mx-auto max-w-md px-6 pb-[calc(12rem+env(safe-area-inset-bottom))]">
+        <div className="md:hidden">
+          <PageHeader title="Revisão do pedido" fallbackTo="/checkout" />
+        </div>
+        <main className="mx-auto max-w-md px-6 pb-[calc(12rem+env(safe-area-inset-bottom))] md:flex md:max-w-2xl md:flex-col md:gap-6 md:pt-6 md:pb-0">
+          <DesktopPageHeading title="Revisão do pedido" crumb="Revisão" />
           {quote.isPending && <QuoteSkeleton />}
           {quote.error && (
             <div role="alert" className="mb-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -213,22 +220,22 @@ function CheckoutContent({
               totals={quote.data}
             />
           )}
+          <BottomActions>
+            <Button
+              size="lg"
+              className="rounded-full"
+              onClick={confirmOrder}
+              // Bloqueia também enquanto o carrinho recarrega: um evento de preço/estoque busca o carrinho primeiro e a
+              // cotação depois, e nesse intervalo a cotação exibida ainda é a velha
+              disabled={!quote.data || quote.isFetching || cartQuery.isFetching || createOrder.isPending}
+            >
+              {createOrder.isPending ? 'Enviando pedido…' : hasOpenAttempt ? 'Recuperar pedido' : quote.data?.issues.length ? 'Confirmar alterações e comprar' : 'Confirmar compra'}
+            </Button>
+            <Button variant="link" asChild disabled={createOrder.isPending}>
+              <Link to="/checkout" search={{}}>Editar pagamento</Link>
+            </Button>
+          </BottomActions>
         </main>
-        <BottomActions>
-          <Button
-            size="lg"
-            className="rounded-full"
-            onClick={confirmOrder}
-            // Bloqueia também enquanto o carrinho recarrega: um evento de preço/estoque busca o carrinho primeiro e a
-            // cotação depois, e nesse intervalo a cotação exibida ainda é a velha
-            disabled={!quote.data || quote.isFetching || cartQuery.isFetching || createOrder.isPending}
-          >
-            {createOrder.isPending ? 'Enviando pedido…' : hasOpenAttempt ? 'Recuperar pedido' : quote.data?.issues.length ? 'Confirmar alterações e comprar' : 'Confirmar compra'}
-          </Button>
-          <Button variant="link" asChild disabled={createOrder.isPending}>
-            <Link to="/checkout" search={{}}>Editar pagamento</Link>
-          </Button>
-        </BottomActions>
       </>
     )
   }
@@ -247,56 +254,77 @@ function CheckoutContent({
 
   return (
     <form onSubmit={(event) => form.handleSubmit(goToReview)(event)}>
-      <PageHeader title="Pagamento com carteira" fallbackTo="/carrinho" />
-      <main className="mx-auto flex max-w-md flex-col gap-8 px-6 pb-[calc(10rem+env(safe-area-inset-bottom))]">
-        <section className="flex flex-col gap-4">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-bold">{wallet.connected ? 'Carteira conectada' : 'Conecte sua carteira'}</h2>
-            <Link to="/conta/carteiras" className="rounded-sm text-sm font-bold text-highlight outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">Trocar carteira</Link>
+      <div className="md:hidden">
+        <PageHeader title="Pagamento com carteira" fallbackTo="/carrinho" />
+      </div>
+      {/* Tablet/desktop: formulário à esquerda e "Seus NFTs" (itens, valores e ação) à direita, como no Figma */}
+      <main className="mx-auto flex max-w-md flex-col gap-8 px-6 pb-[calc(10rem+env(safe-area-inset-bottom))] md:page-container md:gap-6 md:pt-6 md:pb-0">
+        <DesktopPageHeading title="Pagamento com carteira" crumb="Pagamento" />
+        <div className="flex flex-col gap-8 md:grid md:grid-cols-[minmax(0,1fr)_20rem] md:items-start md:gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-20">
+          <div className="flex flex-col gap-8">
+            <section className="flex flex-col gap-4">
+              <div className="flex items-baseline justify-between">
+                <h2 className="font-bold">{wallet.connected ? 'Carteira conectada' : 'Conecte sua carteira'}</h2>
+                <Link to="/conta/carteiras" className="rounded-sm text-sm font-bold text-highlight outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">Trocar carteira</Link>
+              </div>
+              <WalletOptions wallets={wallets} selectedId={wallet.id} onSelect={handleWalletChange} />
+              <WalletConnection
+                wallet={wallet}
+                isConnecting={connectWallet.isPending}
+                isDisconnecting={disconnectWallet.isPending}
+                error={walletError}
+                connectButtonRef={connectButton}
+                onConnect={() => connectWallet.mutate(wallet.id)}
+                onDisconnect={() => disconnectWallet.mutate(wallet.id)}
+              />
+            </section>
+
+            <section className="flex flex-col gap-4">
+              <h2 className="font-bold">Carteira e rede</h2>
+              <ProviderOptions selected={values.walletProvider} onSelect={(provider) => form.setValue('walletProvider', provider as WalletProvider)} />
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="checkout-network">Rede</Label>
+                <Select value={values.network} onValueChange={(network) => form.setValue('network', network as Network)}>
+                  <SelectTrigger id="checkout-network" className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {networkSchema.options.map((option) => <SelectItem key={option} value={option}>{networkLabels[option]}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </section>
+
+            <section className="flex flex-col gap-3">
+              <h2 className="font-bold">Dados do colecionador</h2>
+              <Label htmlFor="buyer-name" className="sr-only">Nome</Label>
+              <Input id="buyer-name" autoComplete="name" placeholder="Nome" {...form.register('buyerName')} aria-invalid={!!form.formState.errors.buyerName} />
+              {form.formState.errors.buyerName && <p role="alert" className="text-xs text-destructive">{form.formState.errors.buyerName.message}</p>}
+              <Label htmlFor="buyer-email" className="sr-only">E-mail</Label>
+              <Input id="buyer-email" type="email" autoComplete="email" placeholder="E-mail" {...form.register('buyerEmail')} aria-invalid={!!form.formState.errors.buyerEmail} />
+              {form.formState.errors.buyerEmail && <p role="alert" className="text-xs text-destructive">{form.formState.errors.buyerEmail.message}</p>}
+            </section>
           </div>
-          <WalletOptions wallets={wallets} selectedId={wallet.id} onSelect={handleWalletChange} />
-          <WalletConnection
-            wallet={wallet}
-            isConnecting={connectWallet.isPending}
-            isDisconnecting={disconnectWallet.isPending}
-            error={walletError}
-            connectButtonRef={connectButton}
-            onConnect={() => connectWallet.mutate(wallet.id)}
-            onDisconnect={() => disconnectWallet.mutate(wallet.id)}
-          />
-        </section>
 
-        <section className="flex flex-col gap-4">
-          <h2 className="font-bold">Carteira e rede</h2>
-          <ProviderOptions selected={values.walletProvider} onSelect={(provider) => form.setValue('walletProvider', provider as WalletProvider)} />
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="checkout-network">Rede</Label>
-            <Select value={values.network} onValueChange={(network) => form.setValue('network', network as Network)}>
-              <SelectTrigger id="checkout-network" className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {networkSchema.options.map((option) => <SelectItem key={option} value={option}>{networkLabels[option]}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        </section>
-
-        <section className="flex flex-col gap-3">
-          <h2 className="font-bold">Dados do colecionador</h2>
-          <Label htmlFor="buyer-name" className="sr-only">Nome</Label>
-          <Input id="buyer-name" autoComplete="name" placeholder="Nome" {...form.register('buyerName')} aria-invalid={!!form.formState.errors.buyerName} />
-          {form.formState.errors.buyerName && <p role="alert" className="text-xs text-destructive">{form.formState.errors.buyerName.message}</p>}
-          <Label htmlFor="buyer-email" className="sr-only">E-mail</Label>
-          <Input id="buyer-email" type="email" autoComplete="email" placeholder="E-mail" {...form.register('buyerEmail')} aria-invalid={!!form.formState.errors.buyerEmail} />
-          {form.formState.errors.buyerEmail && <p role="alert" className="text-xs text-destructive">{form.formState.errors.buyerEmail.message}</p>}
-        </section>
-
-        {quote.data ? (
-          <p className="flex items-baseline justify-end gap-4 font-bold">Total: <EthAmount value={quote.data.total} className="text-xl text-highlight" /></p>
-        ) : <QuoteSkeleton />}
+          <aside aria-labelledby="checkout-summary-title" className="flex flex-col gap-4 md:rounded-lg md:bg-card md:p-6">
+            <h2 id="checkout-summary-title" className="sr-only md:not-sr-only md:font-bold">Seus NFTs</h2>
+            {isWide && <CheckoutItemList items={cart.items} issues={quote.data?.issues ?? []} />}
+            {!quote.data ? (
+              <QuoteSkeleton />
+            ) : isWide ? (
+              <dl className="flex flex-col gap-2 border-t border-border pt-4">
+                <SummaryRow label="Subtotal" value={quote.data.subtotal} />
+                <SummaryRow label="Desconto do cupom" value={quote.data.discount} variant="discount" />
+                <SummaryRow label="Taxa de rede" value={quote.data.networkFee} hint="Taxa estimada" />
+                <SummaryRow label="Total" value={quote.data.total} variant="total" />
+              </dl>
+            ) : (
+              <p className="flex items-baseline justify-end gap-4 font-bold">Total: <EthAmount value={quote.data.total} className="text-xl text-highlight" /></p>
+            )}
+            <BottomActions>
+              <Button type="submit" size="lg" className="rounded-full" disabled={!quote.data || quote.isFetching}>Revisar pedido</Button>
+            </BottomActions>
+          </aside>
+        </div>
       </main>
-      <BottomActions>
-        <Button type="submit" size="lg" className="rounded-full" disabled={!quote.data || quote.isFetching}>Revisar pedido</Button>
-      </BottomActions>
     </form>
   )
 }
@@ -316,10 +344,11 @@ function QuoteSkeleton() {
   return <Skeleton aria-label="Atualizando valores" className="h-28 w-full" />
 }
 
+/** Ações do checkout: fixas no rodapé no mobile, no fluxo da página a partir do tablet. */
 function BottomActions({ children }: { children: ReactNode }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 bg-linear-to-t from-background via-background to-transparent pt-6 pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-md flex-col gap-1 px-6 pb-5">{children}</div>
+    <div className="fixed inset-x-0 bottom-0 z-40 bg-linear-to-t from-background via-background to-transparent pt-6 pb-[env(safe-area-inset-bottom)] md:static md:bg-none md:p-0">
+      <div className="mx-auto flex max-w-md flex-col gap-1 px-6 pb-5 md:max-w-none md:px-0 md:pb-0">{children}</div>
     </div>
   )
 }

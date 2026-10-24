@@ -80,6 +80,9 @@
 
 - **Detalhe no tablet/desktop:** mesma rota, mesmo estado (edição, quantidade) e mesmos handlers do mobile. A barra de compra é a mesma `BuyBar`, fixa no rodapé no mobile e em linha no painel a partir de 768 px; a galeria troca o carrossel por miniaturas que selecionam a imagem grande (`aria-pressed`). "Mais desta coleção" usa a própria consulta do catálogo (mesma coleção, mais favoritados, sem o NFT atual).
 
+- **`useMediaQuery` (a partir de 768 px):** quando mobile e desktop precisam de marcação diferente (carrinho em cards × tabela, resumo do pagamento só com total × itens e valores), a rota renderiza só um layout. Esconder um deles por CSS deixaria controles e textos duplicados no DOM (dois steppers para o mesmo item, mesmo valor duas vezes). Quando só muda o arranjo, continua sendo classe `md:`/`lg:`.
+- **Carrinho e pagamento no tablet/desktop:** mesmos hooks, mesma cotação e mesmas ações. O resumo do carrinho e as ações do checkout são os mesmos componentes do mobile, fixos no rodapé no celular e no fluxo da página a partir de 768 px. No tablet o resumo do carrinho fica abaixo da tabela (lado a lado só a partir de 1024 px, senão a tabela espreme). "Colecionadores também viram" reaproveita a consulta do catálogo (mais favoritados, sem o que já está no carrinho); `useFavoriteActions` concentra o favoritar com retorno ao login para essa vitrine.
+
 ## Rotas
 
 | Rota | Tela |
@@ -111,4 +114,6 @@
 - **"NFT em destaque" da sidebar:** um dos destaques reais (mais favoritados); "Oferta limitada" só aparece se ele estiver com desconto.
 - **Promos e blog do Início (tablet/desktop):** conteúdo editorial fixo. O "Explorar" das promos leva a um recorte real do catálogo (lançamentos recentes, arte digital); o "Ler mais" do blog aparece desabilitado, porque páginas editoriais estão fora do escopo. No mobile não aparecem (não estão no frame mobile).
 - **Abas do detalhe:** "Detalhes do NFT" mostra só o que o contrato tem (rede, coleção, token, data de listagem, edições e atributos); os textos de contrato inteligente e royalties do Figma não existem na API e não foram inventados. "Avaliações" mostra a nota média e o total reais; os comentários individuais não fazem parte do contrato e a aba diz isso. A lupa de zoom da imagem do Figma ficou de fora (sem comportamento definido no enunciado).
+- **Carrinho desktop:** a coluna "Edições" do Figma é a quantidade e virou "Quantidade"; a linha mostra a edição escolhida no lugar do ID do token (o item do carrinho é NFT + edição). O título "Resumo da carteira" virou "Resumo da compra".
+- **Pagamento desktop:** formulário do frame mobile (carteiras, provedor, rede, dados do colecionador) à esquerda e "Seus NFTs" (itens, valores e "Revisar pedido") à direita, como na coluna do Figma. A revisão é uma coluna central com o mesmo conteúdo do mobile.
 - Inconsistências de dado do Figma (token IDs diferentes, edição duplicada) são corrigidas nas fixtures.
