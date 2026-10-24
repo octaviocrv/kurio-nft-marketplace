@@ -48,19 +48,19 @@ export function SnapCarousel({ label, slides, className, dotsClassName }: SnapCa
       </div>
 
       {slides.length > 1 && (
-        <div className={cn('absolute inset-x-0 bottom-3 flex justify-center gap-1.5', dotsClassName)}>
+        <div className={cn('absolute inset-x-0 bottom-1 flex justify-center', dotsClassName)}>
           {slides.map((_, index) => (
+            // Alvo de toque de 24 px (WCAG 2.5.8) com o ponto de 8 px desenhado dentro
             <button
               key={index}
               type="button"
               onClick={() => goTo(index)}
               aria-label={`Ir para ${index + 1} de ${slides.length}`}
               aria-current={index === activeIndex}
-              className={cn(
-                'size-2 cursor-pointer rounded-full bg-muted-foreground/40 transition-colors',
-                index === activeIndex && 'bg-highlight',
-              )}
-            />
+              className="group flex size-6 cursor-pointer items-center justify-center rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              <span aria-hidden className={cn('size-2 rounded-full bg-muted-foreground/40 transition-colors', index === activeIndex && 'bg-highlight')} />
+            </button>
           ))}
         </div>
       )}

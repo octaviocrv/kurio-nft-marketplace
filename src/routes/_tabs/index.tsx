@@ -6,7 +6,6 @@ import type { Nft } from '@/api/nft'
 import type { NftSort } from '@/api/nft'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useOptionalSession } from '@/features/auth/queries'
 import { catalogSearchSchema, countActiveFilters, filtersFromSearch, searchFromFilters, toNftListParams, type CatalogFilters } from '@/features/catalog/catalogSearch'
 import { BlogTeaser } from '@/features/catalog/BlogTeaser'
@@ -19,6 +18,7 @@ import { Pagination } from '@/features/catalog/Pagination'
 import { PromoBanners } from '@/features/catalog/PromoBanners'
 import { SearchBar } from '@/features/catalog/SearchBar'
 import { SortSelect } from '@/features/catalog/SortSelect'
+import { SortShortcuts } from '@/features/catalog/SortShortcuts'
 import { FavoriteFeedback } from '@/features/favorite/FavoriteFeedback'
 import { useFavorites, useToggleFavorite } from '@/features/favorite/queries'
 import { useNftList } from '@/features/nft/queries'
@@ -65,7 +65,6 @@ function HomePage() {
     toggleFavorite.mutate({ nft, isFavorite: favoriteIds.has(nft.id) })
   }
 
-  const activeTab = tabSorts.some((tab) => tab.sort === filters.sort) ? filters.sort : ''
   // Card da sidebar: prefere um destaque com desconto, para o "Oferta limitada" ser verdade
   const featuredOffer = featured.data?.items.find((nft) => nft.previousPrice !== null) ?? featured.data?.items[0]
 
@@ -108,17 +107,10 @@ function HomePage() {
           )}
 
           <div className="flex items-center justify-between gap-4">
-            <Tabs value={activeTab} onValueChange={(sort) => applyFilters({ ...filters, sort: sort as NftSort })} className="min-w-0">
-              {/* Rolagem lateral: em telas de 360px as três abas não cabem */}
-              <div className="-mx-6 overflow-x-auto px-6 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
-                {/* -ml-2 compensa o respiro interno da aba, alinhando o texto com o resto da página */}
-                <TabsList className="-ml-2">
-                  {tabSorts.map((tab) => (
-                    <TabsTrigger key={tab.sort} value={tab.sort}>{tab.label}</TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
-            </Tabs>
+            {/* Rolagem lateral: em telas de 360px os três atalhos não cabem */}
+            <div className="-mx-6 min-w-0 overflow-x-auto px-6 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+              <SortShortcuts shortcuts={tabSorts} activeSort={filters.sort} onSortChange={(sort) => applyFilters({ ...filters, sort })} />
+            </div>
             <div className="hidden lg:block">
               <SortSelect sort={filters.sort} onSortChange={(sort) => applyFilters({ ...filters, sort })} />
             </div>

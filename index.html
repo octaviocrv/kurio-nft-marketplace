@@ -4,9 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Kurio — NFT Marketplace</title>
+    <meta name="description" content="Kurio: marketplace de NFTs para descobrir, colecionar e comprar arte digital de criadores independentes." />
+    <meta name="theme-color" content="#140d0a" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Fundo e marca já no HTML: a tela não fica branca nem vazia enquanto a API simulada (MSW) inicia -->
+    <style>
+      html { background: #140d0a; color: #f7f3ec; }
+      .boot { display: grid; min-height: 100dvh; place-items: center; margin: 0; font: 700 1.5rem monospace; letter-spacing: 0.1em; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><p class="boot" aria-hidden="true">KURIO</p></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

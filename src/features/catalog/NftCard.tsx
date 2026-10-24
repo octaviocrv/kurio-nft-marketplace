@@ -10,9 +10,11 @@ interface NftCardProps {
   isFavorite: boolean
   favoriteDisabled?: boolean
   onFavoriteToggle: (nft: Nft) => void
+  /** Imagem acima da dobra: carrega sem lazy. */
+  eager?: boolean
 }
 
-export function NftCard({ nft, isFavorite, favoriteDisabled, onFavoriteToggle }: NftCardProps) {
+export function NftCard({ nft, isFavorite, favoriteDisabled, onFavoriteToggle, eager = false }: NftCardProps) {
   const soldOut = isSoldOut(nft)
 
   return (
@@ -26,7 +28,7 @@ export function NftCard({ nft, isFavorite, favoriteDisabled, onFavoriteToggle }:
               alt={nft.name}
               width={400}
               height={400}
-              loading="lazy"
+              loading={eager ? 'eager' : 'lazy'}
               decoding="async"
               className={cn('aspect-square w-full object-cover', soldOut && 'opacity-50 grayscale')}
             />

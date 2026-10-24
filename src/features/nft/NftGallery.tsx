@@ -34,7 +34,7 @@ export function NftGallery({ name, images }: { name: string; images: string[] })
               className="aspect-square w-full object-cover"
             />
           ))}
-          dotsClassName="bottom-14"
+          dotsClassName="bottom-12"
         />
       </div>
 
