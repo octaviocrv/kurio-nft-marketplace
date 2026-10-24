@@ -23,9 +23,10 @@ export function PageHeader({ title, fallbackTo = '/', action }: PageHeaderProps)
     else navigate({ to: fallbackTo })
   }
 
+  // A partir do tablet a navegação é o header do site: o botão voltar some, o título fica
   return (
     <header className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-3 px-6 pt-6 pb-4">
-      <Button variant="secondary" size="icon" className="rounded-full text-muted-foreground" onClick={handleBack} aria-label="Voltar">
+      <Button variant="secondary" size="icon" className="rounded-full text-muted-foreground md:invisible" onClick={handleBack} aria-label="Voltar">
         <ChevronLeft className="size-5" />
       </Button>
       {title && <h1 className="truncate text-center text-lg font-bold">{title}</h1>}

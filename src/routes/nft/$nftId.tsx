@@ -8,9 +8,8 @@ import { ErrorState } from '@/components/ErrorState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { useOptionalSession } from '@/features/auth/queries'
-import { getSessionToken } from '@/features/auth/sessionStorage'
-import { cartOwnerId } from '@/features/cart/guestIdentity'
 import { useAddCartItem } from '@/features/cart/queries'
+import { useCartOwnerId } from '@/features/cart/useCartOwnerId'
 import { FavoriteFeedback } from '@/features/favorite/FavoriteFeedback'
 import { useFavorites, useToggleFavorite } from '@/features/favorite/queries'
 import { BuyBar } from '@/features/nft/BuyBar'
@@ -58,8 +57,7 @@ function NftDetail({ nft }: { nft: Nft }) {
   const soldOut = isSoldOut(nft)
   const session = useOptionalSession()
   const userId = session.data?.user.id
-  const hasStoredSession = getSessionToken() !== null
-  const ownerId = userId ? cartOwnerId(userId) : hasStoredSession && session.isPending ? undefined : cartOwnerId()
+  const ownerId = useCartOwnerId()
   const addToCart = useAddCartItem(ownerId)
   const [cartMessage, setCartMessage] = useState<string | null>(null)
   const favorites = useFavorites(userId)

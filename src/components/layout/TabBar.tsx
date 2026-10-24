@@ -40,7 +40,7 @@ function TabLink({ to, label, icon: Icon, filled, section }: Tab) {
 
 export function TabBar() {
   return (
-    <nav aria-label="Navegação principal" className="fixed inset-x-0 bottom-0 z-40">
+    <nav aria-label="Navegação principal" className="fixed inset-x-0 bottom-0 z-40 md:hidden">
       {/* Fundo da barra com um recorte em meia-lua no topo (máscara CSS), onde o botão central encaixa.
           Fica numa camada separada porque a máscara cortaria também o botão. */}
       <div

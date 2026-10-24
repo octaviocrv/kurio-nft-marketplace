@@ -5,24 +5,16 @@ import { ErrorState } from '@/components/ErrorState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { useOptionalSession } from '@/features/auth/queries'
-import { getSessionToken } from '@/features/auth/sessionStorage'
 import { CartItemCard } from '@/features/cart/CartItemCard'
 import { CartSummary } from '@/features/cart/CartSummary'
-import { cartOwnerId } from '@/features/cart/guestIdentity'
+import { useCartOwnerId } from '@/features/cart/useCartOwnerId'
 import { useApplyCoupon, useCart, useQuote, useRemoveCartItem, useUpdateCartItem } from '@/features/cart/queries'
 
 export const Route = createFileRoute('/carrinho')({ component: CartPage })
 
 function CartPage() {
   const navigate = useNavigate()
-  const session = useOptionalSession()
-  const hasStoredSession = getSessionToken() !== null
-  const ownerId = session.data?.user.id
-    ? cartOwnerId(session.data.user.id)
-    : hasStoredSession && session.isPending
-      ? undefined
-      : cartOwnerId()
+  const ownerId = useCartOwnerId()
   const cart = useCart(ownerId)
   const quote = useQuote(ownerId, cart.data)
   const updateItem = useUpdateCartItem(ownerId)

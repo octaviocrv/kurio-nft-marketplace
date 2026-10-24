@@ -94,6 +94,14 @@
   }
 }
 
+/* Container das telas de tablet/desktop: 1200 px de conteúdo como no Figma, com respiro nas laterais */
+@utility page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: calc(1200px + 3rem);
+  padding-inline: 1.5rem;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

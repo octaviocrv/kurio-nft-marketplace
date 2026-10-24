@@ -70,6 +70,11 @@
 - **Relógio controlado onde o tempo é o cenário:** os dois testes de timeout do pedido usam `page.clock.install()` e `fastForward` para atravessar o limite de 8 s do Axios sem esperar (o app segue em tempo real; só o teste avança o relógio). O restante controla latência por cenário e eventos pelo mock.
 - **Deploy:** nada de Docker nem de Playwright no build da Vercel (`npm run build`, saída `dist`, sem variável de ambiente). `engines.node >= 22` no `package.json` fixa o piso da versão. Conferido de um checkout limpo (arquivos versionados + novos): `npm ci`, typecheck, lint, build e `vite preview` com acesso direto/refresh em todas as rotas.
 
+- **Breakpoints da fase 3:** abaixo de 768 px fica o layout mobile da fase 2 (tab bar, cabeçalho com voltar). A partir de 768 entram o header e o footer do site; os 4 itens de navegação cabem no tablet, então o tablet já usa a navegação do desktop. Container de 1200 px de conteúdo (`page-container` em `index.css`).
+- **Header e footer no layout raiz:** aparecem em toda rota de tablet/desktop (inclusive atrás do modal de login). Os dados do header (sessão e carrinho) são buscados pelo layout raiz e passados por props. O contador do carrinho é a soma das quantidades do carrinho real (visitante ou usuário); a consulta roda também no mobile, onde o header está oculto, o que custa uma requisição com cache e evita um hook de media query só para isso.
+- **`useCartOwnerId`:** a regra "usuário logado ou visitante, esperando a sessão salva responder" estava repetida no carrinho e no detalhe; com o header virou um hook único.
+- **Busca no desktop:** o Figma desktop só tem o ícone de lupa no header. Ele abre um diálogo de busca (foco preso e devolvido pelo Radix) que leva a `/?busca=`. No Início a busca mantém os filtros aplicados; vinda de outra tela, começa do zero.
+
 ## Rotas
 
 | Rota | Tela |
@@ -95,4 +100,6 @@
 - **Grid do catálogo alinhado:** o Figma mobile desloca a coluna da direita para baixo; com selos (RARO, Esgotado) e nomes reais o efeito parecia desalinhado. As duas colunas ficam alinhadas.
 - **Cor de erro** (`--kurio-danger: #E5604D`) não existe no Figma: criada no tom quente da paleta para validação de formulário.
 - **Formulários de Perfil e Carteiras:** no Figma os dois repetem campos um do outro (carteira pede nome de exibição, e-mail e ENS do perfil; perfil pede apelido da carteira). Cada contrato fica só com o que é dele: `User` (nome, usuário, e-mail, ENS, avatar) e `Wallet` (apelido, endereço, ENS opcional, rede, tipo). "Código de indicação" fica fora (sem regra no enunciado).
+- **Navegação do header:** "Mercado" leva ao catálogo do Início (`/#catalogo`) e fica marcado no detalhe, no carrinho e no pagamento, como no breadcrumb do Figma ("Início / Mercado / Carrinho"). "Criadores" e "Aprenda" (editoriais) aparecem desabilitados.
+- **Rodapé:** só leva a telas que existem (Meu perfil, Lista de interesse, Coleções como filtro real do catálogo, `mailto:`/`tel:` no contato). Minha coleção, Atividade, Estúdio do criador, Central de ajuda, redes sociais e newsletter aparecem desabilitados com "indisponível na demo". As redes sociais viram siglas, porque o lucide 1.x removeu os ícones de marca e não vale uma dependência nova para links desabilitados.
 - Inconsistências de dado do Figma (token IDs diferentes, edição duplicada) são corrigidas nas fixtures.
