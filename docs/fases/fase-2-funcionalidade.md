@@ -70,10 +70,10 @@ Cada tarefa = um ciclo de homologação + um commit. Testes Playwright de cada f
 - [x] Testes: mudança via socket no checkout; duplicados/antigos; desconexão com pedido pendente
 
 ### 2.10 Testes, regressão visual e deploy
-- [ ] Playwright em Chromium, viewports mobile e desktop, estado isolado por teste, relógio controlado nos cenários de tempo
-- [ ] Regressão visual de início, detalhe, carrinho e pagamento **no mobile** (baselines versionadas, dados estáveis), geradas e comparadas no Docker oficial do Playwright. As do desktop entram na fase 3, quando as telas desktop existirem
-- [ ] Relatório HTML + traces de falha
-- [ ] Deploy na Vercel: mocks ativos, acesso direto e refresh em qualquer rota
+- [x] Playwright em Chromium, viewports mobile e desktop, estado isolado por teste, relógio controlado nos cenários de tempo
+- [x] Regressão visual de início, detalhe, carrinho e pagamento **no mobile** (baselines versionadas, dados estáveis), geradas e comparadas no Docker oficial do Playwright. As do desktop entram na fase 3, quando as telas desktop existirem
+- [x] Relatório HTML + traces de falha
+- [ ] Deploy na Vercel: mocks ativos, acesso direto e refresh em qualquer rota — publicação feita pelo Octavio; repositório conferido de um checkout limpo
 
 ## Critério de pronto
 
@@ -102,3 +102,4 @@ Problemas reportados pelo Octavio (ver `docs/projeto/homologacao.md`).
 | 2026-10-23 | 2.7 Checkout e pedido: sessão, carrinho, cotação e carteiras pela API; revalidação de preço, estoque, cupom e taxa com nova confirmação explícita; `POST /orders` idempotente (mesma chave e payload = mesmo pedido, payload diferente = 409); pedido pendente que termina confirmado ou recusado, recuperável por ID após refresh; recusa preserva o carrinho e confirmação remove só o comprado; recuperação após timeout reenvia o payload salvo e funciona mesmo com o carrinho já esvaziado; isolamento de pedido por usuário; testes E2E mobile/desktop | Implementação do checkout e pedido |
 | 2026-10-23 | 2.8 Perfil e carteiras: `GET/PATCH /profile` e `POST /profile/password` com os mesmos schemas no formulário e no handler, avatar (data URL com limite de 300 KB e prévia), troca de senha com erro de senha atual na API, `POST/PATCH /wallets` (principal e secundária) com validação de endereço 0x e ENS e conflitos por campo, cache de perfil, sessão e carteiras sincronizado, skeletons e erro com nova tentativa, rotas sem fixtures; testes E2E mobile/desktop | Implementação do perfil e das carteiras |
 | 2026-10-23 | 2.9 Tempo real: `nft.updated` e `order.updated` só pelo Socket.IO (mock altera, responde o REST e emite), entrega privada por usuário pelo token do pacote CONNECT, guarda de duplicados (`eventId`) e antigos (`version`) e contra o cache, aviso acessível de preço/estoque com resumo atualizado e confirmação bloqueada até a nova cotação, reconciliação pelo REST ao reconectar, pedido pendente recuperado sem socket; simulação de conexão, recusa (`wallet-rejected`) e desconexão da carteira no pagamento, exigida também pela API; 14 testes de realtime, 10 da carteira e suíte completa passando em mobile/desktop | Implementação do tempo real com Socket.IO |
+| 2026-10-23 | 2.10 Testes, regressão visual e deploy: projeto `visual` à parte (mobile) rodando na imagem oficial do Playwright via `npm run test:visual` (baselines de início, detalhe, carrinho e pagamento em `tests/e2e/__screenshots__`, estáveis em duas execuções), testes de timeout do pedido com `page.clock`, relatório HTML em `reports/playwright/` (100 testes passando em mobile/desktop), README com testes e passos de deploy, `engines` Node 22+ e checkout limpo conferido (`npm ci`, typecheck, lint, build, preview com refresh nas rotas); publicação na Vercel com o Octavio | Implementação dos testes, regressão visual e preparação do deploy |

@@ -22,8 +22,10 @@ npm run dev        # http://localhost:5173, com a API simulada ligada
 | `npm run preview` | Serve o build de produção |
 | `npm run typecheck` | Verificação de tipos |
 | `npm run lint` | ESLint |
-| `npm run test:e2e` | Testes Playwright (Chromium, mobile 390 e desktop 1440) |
+| `npm run test:e2e` | Fluxos E2E com Playwright (Chromium, mobile 390 e desktop 1440). Não precisa de Docker |
 | `npm run test:e2e:report` | Abre o relatório HTML da última execução |
+| `npm run test:visual` | Regressão visual (início, detalhe, carrinho e pagamento no mobile) comparada com as baselines. Roda no Docker oficial do Playwright |
+| `npm run test:visual:update` | Regrava as baselines (`tests/e2e/__screenshots__`) quando uma mudança visual é intencional |
 
 ## Variáveis de ambiente
 
@@ -58,6 +60,12 @@ O MSW intercepta as chamadas REST (`/api/*`) e a conexão Socket.IO. O estado da
 
 **Restaurar o estado inicial:** botão "Restaurar dados iniciais" no painel. Apaga banco, cenário e sessão salvos e recarrega com os dados de seed.
 
+## Testes
+
+- **Fluxos (`npm run test:e2e`):** cada teste abre um contexto novo do navegador, então parte do banco semeado e do cenário padrão. Latência e falhas vêm dos cenários, os eventos em tempo real são disparados pelo mock (`window.__kurioMock`) e chegam pelo cliente Socket.IO, e os cenários de espera usam o relógio do Playwright (`page.clock`).
+- **Relatório:** `npm run test:e2e:report` abre o HTML da última execução. A execução final entregue está em `reports/playwright/` (abra o `index.html`). Os traces só são gravados quando um teste falha.
+- **Regressão visual (`npm run test:visual`):** precisa do Docker, porque a imagem oficial do Playwright (mesma versão do pacote) garante a mesma renderização de fonte em qualquer máquina. As baselines ficam versionadas em `tests/e2e/__screenshots__/`. A primeira execução baixa a imagem e instala as dependências dentro do container (alguns minutos); no Windows, use o Docker Desktop.
+
 ## Deploy
 
-Vercel, como projeto Vite (build `npm run build`, saída `dist`). O `vercel.json` faz qualquer rota abrir o app (acesso direto e refresh) e serve o worker do MSW sem cache. Não precisa configurar variável de ambiente.
+Vercel, como projeto Vite. Passo a passo: importar o repositório, manter o preset **Vite** (build `npm run build`, saída `dist`) e publicar. Não precisa configurar variável de ambiente nem escolher outra versão do Node (o `package.json` pede Node 22+). O `vercel.json` faz qualquer rota abrir o app (acesso direto e refresh) e serve o worker do MSW sem cache; os mocks e o Socket.IO simulado rodam no próprio navegador, então não há backend para publicar.

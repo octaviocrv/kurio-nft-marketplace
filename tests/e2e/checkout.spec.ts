@@ -116,10 +116,12 @@ test('clique repetido cria um pedido só e a mesma chave protege contra payload 
 })
 
 test('timeout recupera exatamente o pedido já criado', async ({ page }) => {
-  test.slow()
+  // Relógio controlado: o app segue em tempo real e o teste avança os 8 s do limite de espera sem esperá-los
+  await page.clock.install()
   await prepareReview(page)
   await page.evaluate(() => window.__kurioMock!.setScenario('order-timeout'))
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.clock.fastForward(10_000)
 
   // Sem resposta, o botão volta como "Recuperar pedido". Pode ser pelo alerta de timeout ou, quando o socket avisa
   // antes que o pedido foi confirmado, pela tela de recuperação (o carrinho já esvaziou): o botão é o mesmo.
@@ -134,10 +136,11 @@ test('timeout recupera exatamente o pedido já criado', async ({ page }) => {
 })
 
 test('recuperação após refresh funciona com o carrinho já esvaziado pelo pedido', async ({ page }) => {
-  test.slow()
+  await page.clock.install()
   await prepareReview(page)
   await page.evaluate(() => window.__kurioMock!.setScenario('order-timeout'))
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.clock.fastForward(10_000)
   // Sem resposta, o botão volta como "Recuperar pedido". Pode ser pelo alerta de timeout ou, quando o socket avisa
   // antes que o pedido foi confirmado, pela tela de recuperação (o carrinho já esvaziou): o botão é o mesmo.
   await expect(page.getByRole('button', { name: 'Recuperar pedido' })).toBeEnabled({ timeout: 12_000 })
