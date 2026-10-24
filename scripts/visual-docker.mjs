@@ -17,7 +17,7 @@ const extraArgs = process.argv.slice(2).join(' ')
 
 // O projeto é montado em /app, mas node_modules fica num volume anônimo: o `npm ci` do container
 // instala os binários do Linux sem tocar nos node_modules do Windows/macOS.
-const command = `npm ci --no-audit --no-fund --loglevel=error && npx playwright test --project=visual ${extraArgs}`
+const command = `npm ci --no-audit --no-fund --loglevel=error && npx playwright test --project=visual-mobile --project=visual-desktop ${extraArgs}`
 const result = spawnSync(
   'docker',
   ['run', '--rm', '--ipc=host', '-v', `${process.cwd()}:/app`, '-v', '/app/node_modules', '-w', '/app', image, 'sh', '-c', command],

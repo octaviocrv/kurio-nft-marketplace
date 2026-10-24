@@ -10,8 +10,9 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
-  // Baselines de regressão visual: só existem as geradas no Docker oficial (Linux), então o nome não leva plataforma
-  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
+  // Baselines de regressão visual: só existem as geradas no Docker oficial (Linux), então o nome não leva plataforma;
+  // a pasta separa mobile e desktop (visual-mobile / visual-desktop)
+  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{projectName}/{arg}{ext}',
   expect: {
     // Animações paradas e cursor escondido; a tolerância absorve só o serrilhado do anti-aliasing
     toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixelRatio: 0.002 },
@@ -35,11 +36,16 @@ export default defineConfig({
       testIgnore: /visual\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
-    // Regressão visual: projeto à parte, só roda no Docker (`npm run test:visual`). Mobile agora; o desktop entra na fase 3
+    // Regressão visual: projetos à parte, só rodam no Docker (`npm run test:visual`), nos dois viewports
     {
-      name: 'visual',
+      name: 'visual-mobile',
       testMatch: /visual\.spec\.ts/,
       use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
+    },
+    {
+      name: 'visual-desktop',
+      testMatch: /visual\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
   ],
   webServer: {

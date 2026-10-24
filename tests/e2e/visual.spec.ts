@@ -1,13 +1,24 @@
 import { expect, test, type Page } from '@playwright/test'
 
-// Regressão visual das telas principais no mobile. Dados estáveis: cada teste abre um contexto novo
+// Regressão visual das telas principais no mobile (390) e no desktop (1440). Dados estáveis: cada teste abre um contexto novo
 // (banco do mock semeado com as fixtures, cenário padrão) e a captura só acontece depois de fontes e
 // imagens carregadas e das consultas resolvidas (nada de skeleton na imagem).
 // Roda só no Docker oficial do Playwright: `npm run test:visual` (baselines em tests/e2e/__screenshots__).
 
 async function waitUntilSettled(page: Page) {
+  // Rola até o fim e volta: as imagens com loading="lazy" (promos, blog, vitrines do desktop) carregam antes da captura
+  await page.evaluate(async () => {
+    window.scrollTo(0, document.body.scrollHeight)
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    window.scrollTo(0, 0)
+  })
   await page.evaluate(() => document.fonts.ready)
-  await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete && image.naturalWidth > 0))
+  // Só as imagens visíveis: as do outro layout (escondidas por CSS) e com loading="lazy" nunca carregam
+  await page.waitForFunction(() =>
+    Array.from(document.images)
+      .filter((image) => image.checkVisibility())
+      .every((image) => image.complete && image.naturalWidth > 0),
+  )
   await expect(page.getByLabel(/Atualizando valores|Carregando/)).toHaveCount(0)
 }
 
