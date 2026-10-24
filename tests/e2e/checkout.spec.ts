@@ -198,3 +198,21 @@ test('pedido de outro usuário responde como não encontrado', async ({ page }) 
   await page.goto(novaOrderUrl)
   await expect(page.getByRole('heading', { name: 'Pedido não encontrado' })).toBeVisible()
 })
+
+test('recibo confirmado reproduz o snapshot do pedido, mesmo se o catálogo mudar depois', async ({ page }) => {
+  await prepareReview(page)
+  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 10_000 })
+
+  const receipt = page.getByRole('main')
+  await expect(receipt).toContainText('ID da transação')
+  await expect(receipt).toContainText('Amber Ape #117')
+  const before = await receipt.innerText()
+
+  // Preço do catálogo muda depois da compra: o recibo guarda os valores do momento do pedido
+  await page.evaluate(() => window.__kurioMock!.updateNft('amber-ape-117', { price: '9.99' }))
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible()
+  expect(await receipt.innerText()).toBe(before)
+  await expect(receipt).not.toContainText('9.99')
+})

@@ -13,6 +13,12 @@ npm install
 npm run dev        # http://localhost:5173, com a API simulada ligada
 ```
 
+Para rodar os testes E2E, instale uma vez o Chromium do Playwright:
+
+```bash
+npx playwright install chromium
+```
+
 ## Comandos
 
 | Comando | O que faz |
