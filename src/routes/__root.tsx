@@ -13,6 +13,10 @@ import { useCartOwnerId } from '@/features/cart/useCartOwnerId'
 import { RealtimeNotice } from '@/features/realtime/RealtimeNotice'
 import { useRealtimeSync } from '@/features/realtime/useRealtimeSync'
 
+// Telas da área logada: o rodapé institucional (destaques, newsletter, links da KURIO) é
+// porta de entrada para quem está navegando no site, não para quem já está dentro da conta.
+const ACCOUNT_AREA_PREFIXES = ['/conta', '/favoritos']
+
 interface RouterContext {
   queryClient: QueryClient
 }
@@ -34,6 +38,7 @@ function RootLayout() {
   const user = session.data?.user ?? (getSessionToken() !== null && session.isPending ? undefined : null)
   const cartItemCount = cart.data?.items.reduce((total, item) => total + item.quantity, 0)
   const isAuthPage = pathname === '/login' || pathname === '/cadastro'
+  const isAccountArea = ACCOUNT_AREA_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 
   function handleSearch(busca: string | undefined) {
     // No Início a busca mantém os filtros aplicados; vinda de outra tela, começa do zero
@@ -70,7 +75,7 @@ function RootLayout() {
       <div id="conteudo" tabIndex={-1} className="outline-none">
         <Outlet />
       </div>
-      <SiteFooter />
+      {!isAccountArea && <SiteFooter />}
       <RealtimeNotice notice={notice} onDismiss={dismissNotice} />
     </>
   )

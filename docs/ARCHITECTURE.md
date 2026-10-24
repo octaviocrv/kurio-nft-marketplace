@@ -150,6 +150,9 @@ O que foi otimizado: o bundle da interface baixa e executa em paralelo à inicia
 - Login, cadastro e resultado do pedido são rotas reais; a partir de 768 px aparecem como modal (fechar volta à página de origem); no celular, tela cheia.
 - Perfil e senha no mesmo formulário (como no Figma), salvos em duas chamadas; se a senha falhar, o perfil já salvo é informado e os campos de senha continuam preenchidos.
 - Ações fora do escopo (social login, esqueceu a senha, newsletter, blog, Criadores/Aprenda, Atividade/Ofertas/Downloads/Suporte, redes sociais, botão central da tab bar) aparecem desabilitadas com "indisponível na demo", nunca simulando sucesso.
+- O hero do Início troca de slide a cada 6 s. Pausa enquanto o ponteiro está em cima ou o foco está dentro, e não roda para quem pediu menos animação no sistema (`prefers-reduced-motion`). Os projetos de regressão visual rodam com `reducedMotion: 'reduce'`, então a captura nunca pega o carrossel no meio da troca.
+- O rodapé institucional (destaques, newsletter, links da KURIO) não aparece em `/conta/*` nem em `/favoritos`: é porta de entrada para quem navega no site, não para quem já está dentro da conta. Em troca, essas telas ganham o "voltar" no mobile, onde a tab bar leva às telas principais mas não desfaz o caminho de onde se chegou.
+- Na barra de compra do detalhe, o total (preço × quantidade) só aparece a partir de 2 unidades no tablet/desktop: com 1 unidade ele repetiria o preço que está logo acima. No celular aparece sempre, porque a barra é fixa no rodapé e o preço do topo já saiu da tela.
 
 ## 13. Desvios do Figma
 
@@ -158,7 +161,8 @@ O que foi otimizado: o bundle da interface baixa e executa em paralelo à inicia
 - **Perfil e Carteiras:** cada formulário fica só com os campos do seu contrato (no Figma os dois repetem campos um do outro); "Código de indicação" ficou de fora (sem regra no enunciado).
 - **Header logado**, perfil/carteiras/confirmação no mobile, estados vazio/erro/skeleton e tablet: criados no padrão visual.
 - **Modais de login/cadastro** abrem sobre o próprio site (header e rodapé), não sobre o Início.
-- **Confirmação do pedido** usa o modal também para pendente e recusado.
+- **Confirmação do pedido** usa o modal também para pendente e recusado. A ilustração "Thank you" exportada do Figma veio com os nomes das camadas no lugar do desenho (`<path d="Vector" />`), ou seja, não renderizava nada: foi trocada por um selo de confirmação, no mesmo padrão dos status pendente e recusado. Os dados da transação ficam em quatro blocos iguais (2 × 2) e o recibo mostra, por item, edição, quantidade × preço unitário e subtotal, além da linha "Subtotal dos itens" — o Figma mostrava só o valor da linha.
+- **"NFT em destaque"** da sidebar: só o título e a arte, sem nome, preço nem moldura em volta (quem clica vai para o detalhe, que já mostra os dois). "Oferta limitada" fica centralizado abaixo do título e só aparece se o NFT está mesmo com desconto.
 - **Sidebar de filtros:** sem as contagens por coleção/rede (a API não devolve facetas). A faixa de preço é o slider de duas pontas do Figma, em centésimos de ETH (0,02 a 12,30, os limites do catálogo): valor inválido deixa de existir, funciona por teclado (setas, PageUp/PageDown, Home/End) e uma ponta no limite não vai para a URL. Título em branco e negrito; opções recuadas em tom suave, com laranja + check quando selecionadas
 - **Detalhe:** as abas mostram só dados do contrato (os textos de contrato inteligente e royalties do Figma não existem na API); avaliações mostram nota média e total, sem comentários individuais; sem a lupa de zoom.
 - **Carrinho desktop:** coluna "Edições" virou "Quantidade" e a linha mostra a edição; "Resumo da carteira" virou "Resumo da compra".

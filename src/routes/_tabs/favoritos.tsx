@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Heart } from 'lucide-react'
 import { favoriteIds as toFavoriteIds } from '@/api/favorite'
 import type { Nft } from '@/api/nft'
+import { BackButton } from '@/components/layout/BackButton'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
 import { useSession } from '@/features/auth/queries'
@@ -30,7 +31,11 @@ function FavoritesPage() {
   return (
     // Altura da tela menos a tab bar: o estado vazio centraliza no espaço que sobra (no desktop, só o conteúdo)
     <main className="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-md flex-col gap-6 px-6 pt-8 md:page-container md:min-h-[50vh]">
-      <h1 className="text-xl font-bold">Favoritos</h1>
+      {/* No mobile a tab bar leva às telas principais, mas não desfaz o caminho de onde se chegou aqui */}
+      <div className="flex items-center gap-3">
+        <BackButton className="md:hidden" />
+        <h1 className="text-xl font-bold">Favoritos</h1>
+      </div>
       <FavoriteFeedback error={toggleFavorite.error} />
       {favorites.isPending ? (
         <NftGridSkeleton count={4} />

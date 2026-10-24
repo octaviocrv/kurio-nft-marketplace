@@ -2,6 +2,7 @@ import { ShoppingCart } from 'lucide-react'
 import { EthAmount } from '@/components/EthAmount'
 import { QuantityStepper } from '@/components/QuantityStepper'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface BuyBarProps {
   nftName: string
@@ -20,12 +21,14 @@ export function BuyBar({ nftName, total, quantity, maxQuantity, onQuantityChange
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-border bg-card pb-[env(safe-area-inset-bottom)] md:static md:rounded-none md:border-0 md:bg-transparent md:pb-0">
       <div className="mx-auto flex max-w-md flex-col gap-4 px-6 pt-5 pb-5 md:mx-0 md:max-w-none md:p-0 lg:flex-row lg:items-center lg:gap-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <span className="text-sm font-bold text-muted-foreground">Qtd.</span>
             <QuantityStepper value={quantity} max={maxQuantity} onChange={onQuantityChange} label={`Quantidade de ${nftName}`} disabled={isPending} />
           </div>
-          <EthAmount value={total} className="text-xl font-bold text-highlight" />
+          {/* Com 1 unidade o total repete o preço que está logo acima; só vale a pena a partir de 2.
+              No mobile aparece sempre: a barra é fixa no rodapé e o preço do topo já saiu da tela. */}
+          <EthAmount value={total} className={cn('text-xl font-bold text-highlight', quantity === 1 && 'md:hidden')} />
         </div>
 
         <div className="flex gap-3">

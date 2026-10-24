@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { LogOut } from 'lucide-react'
+import { BackButton } from '@/components/layout/BackButton'
 import { Button } from '@/components/ui/button'
 import { AccountNav } from '@/features/account/AccountNav'
 import { AccountSidebar } from '@/features/account/AccountSidebar'
@@ -35,7 +36,10 @@ function AccountLayout() {
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-6 px-6 pt-8">
-      <h1 className="text-xl font-bold">Meu perfil</h1>
+      <div className="flex items-center gap-3">
+        <BackButton />
+        <h1 className="text-xl font-bold">Meu perfil</h1>
+      </div>
       <AccountNav />
       <Outlet />
       <Button

@@ -40,12 +40,13 @@ export default defineConfig({
     {
       name: 'visual-mobile',
       testMatch: /visual\.spec\.ts/,
-      use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
+      // reducedMotion: nada se move sozinho na captura (o hero do Início troca de slide a cada 6 s)
+      use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce' },
     },
     {
       name: 'visual-desktop',
       testMatch: /visual\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' },
     },
   ],
   webServer: {

@@ -11,21 +11,31 @@ export function OrderReceipt({ order }: { order: Order }) {
     <section className="flex flex-col gap-4">
       <h2 className="font-bold">Detalhes da transação</h2>
 
-      <ul className="flex flex-col gap-3 border-t border-border pt-3">
+      <ul className="flex flex-col divide-y divide-border border-y border-border">
         {order.items.map((item) => (
-          <li key={item.editionId} className="flex items-center gap-3 text-sm">
+          <li key={item.editionId} className="flex items-center gap-3 py-3">
             <img src={item.image} alt="" width={56} height={56} loading="lazy" className="size-14 shrink-0 rounded-lg object-cover" />
+            {/* Nome, o que foi comprado (edição e token) e a conta que leva ao subtotal */}
             <div className="min-w-0 flex-1">
-              <p className="truncate font-bold">{item.name}</p>
-              <p className="text-xs text-muted-foreground">ID do token: #{item.tokenId}</p>
+              <p className="truncate text-sm font-bold">{item.name}</p>
+              {/* Sem truncate: no celular a linha quebra em duas em vez de esconder o ID do token */}
+              <p className="text-xs text-muted-foreground">
+                Edição {item.editionLabel} · ID do token: #{item.tokenId}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {item.quantity} × <EthAmount value={item.unitPrice} />
+              </p>
             </div>
-            <span className="shrink-0 text-xs text-muted-foreground">(x {item.quantity})</span>
-            <EthAmount value={item.subtotal} className="w-24 shrink-0 text-right font-bold text-highlight" />
+            <div className="flex shrink-0 flex-col items-end">
+              <span className="text-xs text-muted-foreground">Subtotal</span>
+              <EthAmount value={item.subtotal} className="font-bold text-highlight" />
+            </div>
           </li>
         ))}
       </ul>
 
-      <dl className="flex flex-col gap-2 border-t border-border pt-3">
+      <dl className="flex flex-col gap-2">
+        <SummaryRow label="Subtotal dos itens" value={order.subtotal} />
         {hasDiscount && <SummaryRow label="Desconto do cupom" value={order.discount} variant="discount" />}
         <SummaryRow label="Taxa de rede" value={order.networkFee} />
         <SummaryRow label="Total" value={order.total} variant="total" />

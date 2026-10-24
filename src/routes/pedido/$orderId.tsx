@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Clock, SearchX, X, XCircle } from 'lucide-react'
+import { BadgeCheck, Clock, SearchX, X, XCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Order } from '@/api/order'
 import { EmptyState } from '@/components/EmptyState'
@@ -12,7 +12,6 @@ import { requireSession, useSession } from '@/features/auth/queries'
 import { networkLabels } from '@/features/catalog/labels'
 import { walletProviderLabels } from '@/features/checkout/labels'
 import { OrderReceipt } from '@/features/checkout/OrderReceipt'
-import { ThankYouIllustration } from '@/features/checkout/ThankYouIllustration'
 import { useOrder } from '@/features/order/queries'
 import { formatDate } from '@/lib/date'
 import { TABLET_UP, useMediaQuery } from '@/lib/useMediaQuery'
@@ -96,14 +95,18 @@ function ConfirmedOrder({ order }: { order: Extract<Order, { status: 'confirmed'
     <>
       {/* role="status": a confirmação chega sozinha (socket) e precisa ser anunciada ao leitor de tela */}
       <div role="status" className="flex flex-col items-center gap-4 text-center">
-        <ThankYouIllustration className="h-20 text-highlight" />
-        <h1 className="font-bold text-muted-foreground">Seus NFTs agora estão na sua carteira</h1>
+        <span aria-hidden className="flex size-20 items-center justify-center rounded-full bg-primary/15 text-highlight">
+          <BadgeCheck className="size-10" />
+        </span>
+        <h1 className="text-lg font-bold">Seus NFTs agora estão na sua carteira</h1>
       </div>
 
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-y border-primary py-4 text-sm md:grid-cols-4">
+      {/* Quatro dados da transação em blocos iguais. O gap de 1 px deixa o fundo aparecer como
+          linha divisória, então não precisa de borda em cada bloco. */}
+      <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border text-sm">
         <MetaItem label="ID da transação" value={shortenAddress(order.transactionHash)} />
         <MetaItem label="Data" value={formatDate(order.confirmedAt)} />
-        <MetaItem label="Total" value={<EthAmount value={order.total} />} />
+        <MetaItem label="Total" value={<EthAmount value={order.total} className="text-highlight" />} />
         <MetaItem label="Carteira" value={walletProviderLabels[order.walletProvider]} />
       </dl>
 
@@ -164,9 +167,10 @@ function StatusHeader({ icon, title, description }: { icon: ReactNode; title: st
 
 function MetaItem({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd>{value}</dd>
+    <div className="flex flex-col gap-1 bg-secondary px-4 py-3">
+      <dt className="text-xs tracking-wide text-muted-foreground uppercase">{label}</dt>
+      {/* break-words, não truncate: o hash já vem encurtado e a data não pode perder o ano */}
+      <dd className="font-bold break-words">{value}</dd>
     </div>
   )
 }

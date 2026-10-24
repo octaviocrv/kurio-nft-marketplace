@@ -3,12 +3,16 @@ import { ArrowRight } from 'lucide-react'
 import type { Nft } from '@/api/nft'
 import { SnapCarousel } from '@/components/SnapCarousel'
 
+// Tempo de leitura confortável do slide antes de passar para o próximo
+const HERO_AUTO_ADVANCE_MS = 6000
+
 /** Destaques do Início: um slide por NFT em destaque. No tablet/desktop vira o banner grande do Figma. */
 export function HeroCarousel({ nfts }: { nfts: Nft[] }) {
   return (
     <SnapCarousel
       label="NFTs em destaque"
       className="rounded-3xl"
+      autoAdvanceMs={HERO_AUTO_ADVANCE_MS}
       slides={nfts.map((nft, index) => (
         <HeroSlide
           key={nft.id}
