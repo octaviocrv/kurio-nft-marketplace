@@ -109,4 +109,9 @@
   body {
     @apply bg-background font-sans text-foreground antialiased;
   }
+  /* Rede de segurança do foco visível: quem não define o próprio anel (ring) ganha um contorno.
+     Componentes com anel próprio usam outline-none, que vence esta regra por estar na camada de utilitários. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
 }

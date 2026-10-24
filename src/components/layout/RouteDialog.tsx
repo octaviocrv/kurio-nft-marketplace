@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
+import { useReturnFocus } from '@/lib/useReturnFocus'
 import { cn } from '@/lib/utils'
 
 interface RouteDialogProps {
@@ -16,16 +17,18 @@ interface RouteDialogProps {
 
 /**
  * Tela que é uma rota de verdade (refresh e link direto funcionam), mas aparece como modal no
- * tablet/desktop, como no Figma (login, cadastro, confirmação do pedido). O Radix prende o foco,
- * fecha com Esc e devolve o foco ao que estava focado antes; fechar = sair da rota (onClose).
+ * tablet/desktop, como no Figma (login, cadastro, confirmação do pedido). O Radix prende o foco e
+ * fecha com Esc; useReturnFocus devolve o foco a quem abriu (ex.: "Entrar"); fechar = sair da rota (onClose).
  */
 export function RouteDialog({ title, hideTitle, description, header, onClose, children, className }: RouteDialogProps) {
+  const returnFocus = useReturnFocus()
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         // Conteúdo alto (recibo, cadastro) rola dentro do modal em vez de sair da tela
         className={cn('max-h-[calc(100dvh-2rem)] overflow-y-auto border-0 border-b-8 border-b-primary p-8 sm:max-w-[31.25rem]', className)}
         {...(!description && { 'aria-describedby': undefined })}
+        {...returnFocus}
       >
         <DialogTitle className={cn(hideTitle && 'sr-only')}>{title}</DialogTitle>
         {header}

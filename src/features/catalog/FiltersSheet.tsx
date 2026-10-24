@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { useReturnFocus } from '@/lib/useReturnFocus'
 import { cn } from '@/lib/utils'
 import type { CatalogFilters } from './catalogSearch'
 import { categoryLabels, networkLabels, sortLabels } from './labels'
@@ -23,9 +24,11 @@ const emptyFilters: CatalogFilters = { categories: [], networks: [], sort: 'padr
 // em ordem de uso. Nada muda na lista até "Aplicar": combinar vários filtros faz uma consulta só.
 // Mobile e tablet usam a gaveta; o desktop usa a sidebar (FiltersSidebar), com o mesmo formulário.
 export function FiltersSheet({ open, onOpenChange, filters, onApply }: FiltersSheetProps) {
+  // Aberta por estado (sem DialogTrigger): o foco volta ao botão "Abrir filtros" ao fechar
+  const returnFocus = useReturnFocus()
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" showCloseButton={false} className="gap-0">
+      <SheetContent side="bottom" showCloseButton={false} className="gap-0" {...returnFocus}>
         {/* O conteúdo desmonta ao fechar: cada abertura começa do que está aplicado na URL */}
         <FiltersForm
           variant="sheet"

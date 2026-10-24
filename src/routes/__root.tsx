@@ -52,6 +52,13 @@ function RootLayout() {
 
   return (
     <>
+      {/* Primeiro item do Tab: pula header e navegação direto para o conteúdo da página */}
+      <a
+        href="#conteudo"
+        className="sr-only z-50 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        Pular para o conteúdo
+      </a>
       <SiteHeader
         pathname={pathname}
         user={user}
@@ -59,7 +66,10 @@ function RootLayout() {
         loginRedirect={isAuthPage ? undefined : href}
         onSearch={handleSearch}
       />
-      <Outlet />
+      {/* tabIndex -1: o "pular para o conteúdo" consegue mover o foco para cá */}
+      <div id="conteudo" tabIndex={-1} className="outline-none">
+        <Outlet />
+      </div>
       <SiteFooter />
       <RealtimeNotice notice={notice} onDismiss={dismissNotice} />
     </>

@@ -40,7 +40,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "relative inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 pt-1.5 pb-2.5 text-sm font-bold whitespace-nowrap text-foreground transition-colors duration-200 outline-none hover:text-highlight disabled:pointer-events-none disabled:opacity-50",
+        "relative inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 pt-1.5 pb-2.5 text-sm font-bold whitespace-nowrap text-foreground transition-colors duration-200 outline-none hover:text-highlight focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
         // Foco de teclado como fundo suave (não caixa colada no texto); continua visível para acessibilidade
         "focus-visible:bg-accent/70",
         // Peso fixo (bold em todas): se só a ativa engrossasse, a largura mudaria e empurraria as vizinhas

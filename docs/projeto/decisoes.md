@@ -86,6 +86,9 @@
 - **Rotas em modal (`RouteDialog`):** login, cadastro e o resultado do pedido continuam rotas reais (refresh, link direto e `?redirect=` funcionam igual); a partir de 768 px aparecem num `Dialog` do Radix, que prende o foco, fecha com Esc e devolve o foco ao elemento de antes. Fechar o login/cadastro volta no histórico (rotas privadas trocam a própria entrada pelo login com `replace`, então voltar nunca cai de novo no bloqueio); sem histórico, vai ao início. A alternância "Entrar | Criar conta" troca de rota com `replace`, para fechar sempre voltar à página de origem. Fechar o pedido leva ao início.
 - **Conta no tablet/desktop:** o layout de `/conta` troca o seletor segmentado e o "Sair" do fim pela sidebar do Figma (mesmas rotas e o mesmo logout). Campos de informações pessoais em duas colunas a partir de 1024 px.
 
+- **Acessibilidade (fase 3):** "Pular para o conteúdo" é o primeiro Tab e leva o foco ao `#conteudo` (wrapper do `Outlet` com `tabIndex=-1`). Contorno de foco padrão em `:focus-visible` como rede de segurança para quem não tem anel próprio (as abas não tinham e o teste pegou). `useReturnFocus` devolve o foco a quem abriu diálogos sem `DialogTrigger` (gaveta de filtros, login/cadastro, pedido), porque o Radix só devolve ao trigger.
+- **Testes do grupo 11 (`a11y.spec.ts`):** Tab com foco visível medido no estilo calculado (contorno ou anel) em 20 paradas, foco preso e devolvido na busca do header, no modal de login, na gaveta de filtros e no painel de cenários, e nenhuma rolagem horizontal em telas públicas e privadas a 320 (zoom de 400% em 1280), 390, 768 e 1440 px. Os de diálogo só rodam no viewport onde aquele diálogo existe.
+
 ## Rotas
 
 | Rota | Tela |
