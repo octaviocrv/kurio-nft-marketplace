@@ -1,11 +1,12 @@
 import { Check } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
-import { isValidPriceRange, nftCategorySchema, nftSortSchema, PRICE_RANGE_MESSAGE, type NftSort } from '@/api/nft'
-import { ethAmountSchema, networkSchema } from '@/api/shared'
+import { nftCategorySchema, nftSortSchema, type NftSort } from '@/api/nft'
+import { networkSchema } from '@/api/shared'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Slider } from '@/components/ui/slider'
+import { toEthString } from '@/lib/eth'
 import { useReturnFocus } from '@/lib/useReturnFocus'
 import { cn } from '@/lib/utils'
 import type { CatalogFilters } from './catalogSearch'
@@ -28,7 +29,7 @@ export function FiltersSheet({ open, onOpenChange, filters, onApply }: FiltersSh
   const returnFocus = useReturnFocus()
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" showCloseButton={false} className="gap-0" {...returnFocus}>
+      <SheetContent side="bottom" showCloseButton={false} className="gap-0 rounded-t-3xl" {...returnFocus}>
         {/* O conteúdo desmonta ao fechar: cada abertura começa do que está aplicado na URL */}
         <FiltersForm
           variant="sheet"
@@ -51,7 +52,7 @@ interface FiltersSidebarProps {
 /** Filtros fixos na lateral do catálogo (desktop do Figma). A ordenação fica no select acima do grid. */
 export function FiltersSidebar({ filters, onApply }: FiltersSidebarProps) {
   return (
-    <section aria-labelledby="sidebar-filters-title" className="rounded-lg bg-card px-5 py-2">
+    <section aria-labelledby="sidebar-filters-title" className="rounded-xl border border-border bg-card px-5 py-3">
       <h2 id="sidebar-filters-title" className="sr-only">
         Filtros
       </h2>
@@ -61,9 +62,28 @@ export function FiltersSidebar({ filters, onApply }: FiltersSidebarProps) {
   )
 }
 
-/** Valor digitado → ETH do contrato ("0,5" vira "0.5"; o teclado decimal do celular usa vírgula). */
-function normalizePrice(value: string): string {
-  return value.trim().replace(',', '.')
+// O slider trabalha em centésimos de ETH (inteiros): sem erro de ponto flutuante e sem valor inválido possível.
+// Limites = menor e maior preço do catálogo (a API não devolve faixa); passo de 0,01 ETH.
+const PRICE_MIN_CENTS = 2
+const PRICE_MAX_CENTS = 1230
+const WEI_PER_CENT = 10n ** 16n
+
+type PriceRange = [min: number, max: number]
+
+/** ETH da URL ("1.2") → posição do slider, presa aos limites. Sem valor, a ponta fica no limite. */
+function ethToCents(eth: string | undefined, fallback: number): number {
+  if (!eth) return fallback
+  return Math.min(PRICE_MAX_CENTS, Math.max(PRICE_MIN_CENTS, Math.round(Number(eth) * 100)))
+}
+
+/** Posição do slider → ETH do contrato ("120" vira "1.2"). */
+function centsToEth(cents: number): string {
+  return toEthString(BigInt(cents) * WEI_PER_CENT)
+}
+
+/** Para a tela, com vírgula e duas casas, como no Figma ("0,02"). */
+function formatCents(cents: number): string {
+  return (cents / 100).toFixed(2).replace('.', ',')
 }
 
 interface FiltersFormProps {
@@ -74,10 +94,10 @@ interface FiltersFormProps {
 
 function FiltersForm({ variant, initialFilters, onApply }: FiltersFormProps) {
   const [draft, setDraft] = useState(initialFilters)
-  const [minPrice, setMinPrice] = useState(initialFilters.minPrice ?? '')
-  const [maxPrice, setMaxPrice] = useState(initialFilters.maxPrice ?? '')
-  const [priceError, setPriceError] = useState<string | null>(null)
-  const priceErrorId = useId()
+  const [priceRange, setPriceRange] = useState<PriceRange>([
+    ethToCents(initialFilters.minPrice, PRICE_MIN_CENTS),
+    ethToCents(initialFilters.maxPrice, PRICE_MAX_CENTS),
+  ])
 
   function toggle<Value extends string>(list: Value[], value: Value): Value[] {
     return list.includes(value) ? list.filter((item) => item !== value) : [...list, value]
@@ -86,24 +106,17 @@ function FiltersForm({ variant, initialFilters, onApply }: FiltersFormProps) {
   function clearAll() {
     // Na sidebar a ordenação não faz parte do formulário: limpar não mexe nela
     setDraft(variant === 'sheet' ? emptyFilters : { ...emptyFilters, sort: initialFilters.sort })
-    setMinPrice('')
-    setMaxPrice('')
-    setPriceError(null)
+    setPriceRange([PRICE_MIN_CENTS, PRICE_MAX_CENTS])
   }
 
   function apply() {
-    const min = normalizePrice(minPrice) || undefined
-    const max = normalizePrice(maxPrice) || undefined
-    // Mesmas regras do contrato (ethAmountSchema e faixa) que o handler da API valida
-    if ((min && !ethAmountSchema.safeParse(min).success) || (max && !ethAmountSchema.safeParse(max).success)) {
-      setPriceError('Use um valor em ETH, por exemplo 0.5')
-      return
-    }
-    if (!isValidPriceRange({ minPrice: min, maxPrice: max })) {
-      setPriceError(PRICE_RANGE_MESSAGE)
-      return
-    }
-    onApply({ ...draft, minPrice: min, maxPrice: max })
+    const [minCents, maxCents] = priceRange
+    // Ponta no limite = sem filtro naquele lado (a URL só guarda o que o usuário restringiu)
+    onApply({
+      ...draft,
+      minPrice: minCents > PRICE_MIN_CENTS ? centsToEth(minCents) : undefined,
+      maxPrice: maxCents < PRICE_MAX_CENTS ? centsToEth(maxCents) : undefined,
+    })
   }
 
   const sortSection = (
@@ -154,27 +167,29 @@ function FiltersForm({ variant, initialFilters, onApply }: FiltersFormProps) {
 
   const priceSection = (
     <FilterSection key="price" title="Faixa de preço">
-      <div className="flex items-center gap-3">
-        <PriceInput label="Preço mínimo" placeholder="Mín." value={minPrice} onChange={setMinPrice} errorId={priceError ? priceErrorId : undefined} />
-        <span className="text-sm text-muted-foreground">até</span>
-        <PriceInput label="Preço máximo" placeholder="Máx." value={maxPrice} onChange={setMaxPrice} errorId={priceError ? priceErrorId : undefined} />
-      </div>
-      {priceError && (
-        <p id={priceErrorId} role="alert" className="text-sm text-destructive">
-          {priceError}
-        </p>
-      )}
+      <Slider
+        min={PRICE_MIN_CENTS}
+        max={PRICE_MAX_CENTS}
+        step={1}
+        value={priceRange}
+        onValueChange={(value) => setPriceRange(value as PriceRange)}
+        thumbLabels={['Preço mínimo', 'Preço máximo']}
+        getValueText={(cents) => `${formatCents(cents)} ETH`}
+      />
+      <p className="text-sm text-muted-foreground">
+        Preço: {formatCents(priceRange[0])} - {formatCents(priceRange[1])} ETH
+      </p>
     </FilterSection>
   )
 
   if (variant === 'sidebar') {
     // Ordem do Figma desktop: coleções, preço, rede
     return (
-      <div className="flex flex-col divide-y divide-border">
+      <div className="flex flex-col">
         {categorySection}
         {priceSection}
         {networkSection}
-        <div className="flex items-center justify-between gap-3 py-5">
+        <div className="flex items-center justify-between gap-3 pt-3 pb-4">
           <Button onClick={apply}>Aplicar filtros</Button>
           <Button variant="link" className="h-auto p-0" onClick={clearAll}>
             Limpar
@@ -197,7 +212,7 @@ function FiltersForm({ variant, initialFilters, onApply }: FiltersFormProps) {
         </Button>
       </SheetHeader>
 
-      <div className="flex flex-col divide-y divide-border overflow-y-auto px-6">
+      <div className="flex flex-col overflow-y-auto px-6">
         {sortSection}
         {networkSection}
         {categorySection}
@@ -217,8 +232,9 @@ function FilterSection({ title, children }: { title: string; children: ReactNode
   const titleId = useId()
   return (
     // Grupo com título (em vez de fieldset/legend, que tem posicionamento especial e briga com flex)
-    <section role="group" aria-labelledby={titleId} className="flex flex-col gap-3 py-5">
-      <h3 id={titleId} className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+    <section role="group" aria-labelledby={titleId} className="flex flex-col gap-2 py-4">
+      {/* Título branco e em negrito; as opções ficam em tom mais suave e recuadas: a hierarquia do Figma */}
+      <h3 id={titleId} className="text-base font-bold text-foreground">
         {title}
       </h3>
       {children}
@@ -226,7 +242,10 @@ function FilterSection({ title, children }: { title: string; children: ReactNode
   )
 }
 
-/** Opção liga/desliga (aria-pressed): filtros são combináveis, então cada uma é independente. */
+/**
+ * Opção liga/desliga (aria-pressed): filtros são combináveis, então cada uma é independente.
+ * Selecionada = laranja + check (a cor sozinha não basta para quem não distingue cores).
+ */
 function FilterOption({ label, pressed, onToggle }: { label: string; pressed: boolean; onToggle: () => void }) {
   return (
     <button
@@ -234,41 +253,13 @@ function FilterOption({ label, pressed, onToggle }: { label: string; pressed: bo
       aria-pressed={pressed}
       onClick={onToggle}
       className={cn(
-        'flex h-10 cursor-pointer items-center justify-between gap-2 rounded-lg border border-border px-3 text-sm text-muted-foreground transition-colors outline-none',
-        'hover:border-border-soft hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50',
-        'aria-pressed:border-primary aria-pressed:bg-primary/10 aria-pressed:text-highlight',
+        'flex h-9 cursor-pointer items-center justify-between gap-2 rounded-md px-2 text-left text-sm text-muted-foreground transition-colors outline-none',
+        'hover:bg-secondary/60 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50',
+        'aria-pressed:font-medium aria-pressed:text-highlight',
       )}
     >
       <span className="truncate">{label}</span>
       {pressed && <Check aria-hidden className="size-4 shrink-0" />}
     </button>
-  )
-}
-
-interface PriceInputProps {
-  label: string
-  placeholder: string
-  value: string
-  onChange: (value: string) => void
-  errorId?: string
-}
-
-function PriceInput({ label, placeholder, value, onChange, errorId }: PriceInputProps) {
-  return (
-    <div className="relative flex-1">
-      <Input
-        aria-label={label}
-        inputMode="decimal"
-        placeholder={placeholder}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        aria-invalid={errorId ? true : undefined}
-        aria-describedby={errorId}
-        className="pr-12"
-      />
-      <span aria-hidden className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-xs text-muted-foreground">
-        ETH
-      </span>
-    </div>
   )
 }

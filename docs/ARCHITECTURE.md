@@ -159,7 +159,7 @@ O que foi otimizado: o bundle da interface baixa e executa em paralelo à inicia
 - **Header logado**, perfil/carteiras/confirmação no mobile, estados vazio/erro/skeleton e tablet: criados no padrão visual.
 - **Modais de login/cadastro** abrem sobre o próprio site (header e rodapé), não sobre o Início.
 - **Confirmação do pedido** usa o modal também para pendente e recusado.
-- **Sidebar de filtros:** sem as contagens por coleção/rede (a API não devolve facetas) e com campos mínimo/máximo no lugar do slider de preço (aceita qualquer valor e funciona por teclado).
+- **Sidebar de filtros:** sem as contagens por coleção/rede (a API não devolve facetas). A faixa de preço é o slider de duas pontas do Figma, em centésimos de ETH (0,02 a 12,30, os limites do catálogo): valor inválido deixa de existir, funciona por teclado (setas, PageUp/PageDown, Home/End) e uma ponta no limite não vai para a URL. Título em branco e negrito; opções recuadas em tom suave, com laranja + check quando selecionadas
 - **Detalhe:** as abas mostram só dados do contrato (os textos de contrato inteligente e royalties do Figma não existem na API); avaliações mostram nota média e total, sem comentários individuais; sem a lupa de zoom.
 - **Carrinho desktop:** coluna "Edições" virou "Quantidade" e a linha mostra a edição; "Resumo da carteira" virou "Resumo da compra".
 - **Grid do catálogo** alinhado (o Figma mobile desloca a coluna da direita, que ficava torta com selos e nomes reais).

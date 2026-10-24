@@ -95,20 +95,29 @@ test('busca, filtros combinados, ordenação e paginação compõem a URL e o hi
   await expectSearchTerm(page, '')
 })
 
-test('faixa de preço filtra pela API e valor invertido é recusado no formulário', async ({ page }) => {
+test('faixa de preço (slider por teclado) filtra pela API e voltar aos limites tira o filtro da URL', async ({ page }) => {
   await page.goto('/')
+  const minThumb = page.getByRole('slider', { name: 'Preço mínimo' })
 
+  // PageUp = +10 passos de 0,01 ETH: 40 vezes sobem o mínimo de 0,02 para 4,02
   await applyFilters(page, async () => {
-    await page.getByRole('textbox', { name: 'Preço mínimo' }).fill('2')
-    await page.getByRole('textbox', { name: 'Preço máximo' }).fill('1')
-    await page.getByRole('button', { name: 'Aplicar filtros' }).click()
-    await expect(page.getByRole('alert')).toHaveText('O preço máximo precisa ser maior ou igual ao mínimo')
-    await page.getByRole('textbox', { name: 'Preço mínimo' }).fill('1')
-    await page.getByRole('textbox', { name: 'Preço máximo' }).fill('1,2') // vírgula do teclado brasileiro
+    await expect(page.getByText('Preço: 0,02 - 12,30 ETH').filter({ visible: true })).toBeVisible()
+    for (let press = 0; press < 40; press += 1) await minThumb.press('PageUp')
+    await expect(page.getByText('Preço: 4,02 - 12,30 ETH').filter({ visible: true })).toBeVisible()
   })
+  await expect(page).toHaveURL(/min=4\.02(&|$)/)
+  await expect(page).not.toHaveURL(/max=/) // ponta máxima no limite = sem filtro
+  await expect(resultNames(page)).toHaveCount(3)
+  expect((await resultNames(page).allTextContents()).sort()).toEqual(['Obsidian Vessel #682', 'Onyx Ape #518', 'Opal Ape #956'])
 
-  await expect(page).toHaveURL(/min=1&max=1\.2/)
-  await expect(resultNames(page)).toHaveText(['Emerald Ape #042', 'Velvet Baron #469', 'Sunset Groove #417'])
+  // Reaberto, o filtro vem da URL; Home devolve a ponta mínima ao limite e o filtro some da URL
+  await applyFilters(page, async () => {
+    await expect(minThumb).toHaveAttribute('aria-valuetext', '4,02 ETH')
+    await minThumb.press('Home')
+    await expect(page.getByText('Preço: 0,02 - 12,30 ETH').filter({ visible: true })).toBeVisible()
+  })
+  await expect(page).not.toHaveURL(/min=|max=/)
+  await expect(resultNames(page)).toHaveCount(12) // catálogo inteiro, primeira página
 })
 
 test('troca rápida de página: a consulta obsoleta é cancelada e só a última aparece (cenário flaky)', async ({ page }) => {
