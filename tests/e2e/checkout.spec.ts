@@ -204,7 +204,8 @@ test('recibo confirmado reproduz o snapshot do pedido, mesmo se o catálogo muda
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
   await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 10_000 })
 
-  const receipt = page.getByRole('main')
+  // Mobile: tela cheia (main). Tablet/desktop: o recibo abre em modal (dialog)
+  const receipt = page.getByRole('dialog').or(page.getByRole('main'))
   await expect(receipt).toContainText('ID da transação')
   await expect(receipt).toContainText('Amber Ape #117')
   const before = await receipt.innerText()

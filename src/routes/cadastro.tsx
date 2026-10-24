@@ -47,11 +47,13 @@ function SignUpPage() {
 
   return (
     <AuthLayout
+      mode="signup"
+      redirect={redirect}
       title="Criar perfil de colecionador"
       footer={
         <>
           Já tem uma conta?{' '}
-          <Link to="/login" search={{ redirect }} className="rounded-sm text-foreground underline-offset-4 hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none">
+          <Link to="/login" search={{ redirect }} replace className="rounded-sm text-foreground underline-offset-4 hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none">
             Entre
           </Link>
         </>

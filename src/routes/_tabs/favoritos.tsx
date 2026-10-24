@@ -28,8 +28,8 @@ function FavoritesPage() {
   }
 
   return (
-    // Altura da tela menos a tab bar: o estado vazio centraliza no espaço que sobra
-    <main className="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-md flex-col gap-6 px-6 pt-8">
+    // Altura da tela menos a tab bar: o estado vazio centraliza no espaço que sobra (no desktop, só o conteúdo)
+    <main className="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-md flex-col gap-6 px-6 pt-8 md:page-container md:min-h-[50vh]">
       <h1 className="text-xl font-bold">Favoritos</h1>
       <FavoriteFeedback error={toggleFavorite.error} />
       {favorites.isPending ? (

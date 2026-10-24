@@ -6,10 +6,12 @@ interface AccountCardProps {
   action?: ReactNode // ação à direita do título (ex.: "Editar")
   children: ReactNode
   className?: string
+  /** Campos em duas colunas no desktop (como no Figma). */
+  columns?: boolean
 }
 
 /** Bloco das telas de conta: card com título pequeno em maiúsculas (mesmo estilo das seções dos filtros). */
-export function AccountCard({ title, action, children, className }: AccountCardProps) {
+export function AccountCard({ title, action, children, className, columns = false }: AccountCardProps) {
   const titleId = useId()
   return (
     <section aria-labelledby={titleId} className={cn('flex flex-col gap-4 rounded-2xl bg-card p-5', className)}>
@@ -19,7 +21,7 @@ export function AccountCard({ title, action, children, className }: AccountCardP
         </h2>
         {action}
       </div>
-      {children}
+      {columns ? <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-x-6">{children}</div> : children}
     </section>
   )
 }

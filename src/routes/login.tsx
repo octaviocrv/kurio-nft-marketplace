@@ -44,12 +44,14 @@ function LoginPage() {
 
   return (
     <AuthLayout
+      mode="login"
+      redirect={redirect}
       title="Entrar"
       footer={
         <>
           Novo na Kurio?{' '}
           {/* Leva o redirect junto: quem cria conta no meio da compra volta para a compra */}
-          <Link to="/cadastro" search={{ redirect }} className="rounded-sm text-foreground underline-offset-4 hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none">
+          <Link to="/cadastro" search={{ redirect }} replace className="rounded-sm text-foreground underline-offset-4 hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none">
             Crie uma conta
           </Link>
         </>

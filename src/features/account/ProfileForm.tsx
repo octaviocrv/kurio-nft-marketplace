@@ -116,7 +116,7 @@ export function ProfileForm({ user, onSaveProfile, onChangePassword }: ProfileFo
         }}
       />
 
-      <AccountCard title="Informações pessoais">
+      <AccountCard title="Informações pessoais" columns>
         <FormField id="profile-display-name" label="Nome de exibição" required error={errors.displayName?.message}>
           <Input id="profile-display-name" autoComplete="name" {...fieldA11y('profile-display-name', errors.displayName?.message)} {...register('displayName')} />
         </FormField>
@@ -172,7 +172,7 @@ export function ProfileForm({ user, onSaveProfile, onChangePassword }: ProfileFo
       {errors.root?.message && <p role="alert" className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{errors.root.message}</p>}
       {notice && <p role="status" className="rounded-lg bg-primary/10 p-3 text-sm text-primary">{notice}</p>}
 
-      <Button type="submit" size="lg" className="rounded-xl" disabled={isSubmitting}>
+      <Button type="submit" size="lg" className="rounded-xl md:w-fit" disabled={isSubmitting}>
         {isSubmitting ? 'Salvando...' : 'Salvar alterações'}
       </Button>
     </form>

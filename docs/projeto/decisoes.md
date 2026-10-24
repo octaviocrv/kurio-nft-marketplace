@@ -83,6 +83,9 @@
 - **`useMediaQuery` (a partir de 768 px):** quando mobile e desktop precisam de marcação diferente (carrinho em cards × tabela, resumo do pagamento só com total × itens e valores), a rota renderiza só um layout. Esconder um deles por CSS deixaria controles e textos duplicados no DOM (dois steppers para o mesmo item, mesmo valor duas vezes). Quando só muda o arranjo, continua sendo classe `md:`/`lg:`.
 - **Carrinho e pagamento no tablet/desktop:** mesmos hooks, mesma cotação e mesmas ações. O resumo do carrinho e as ações do checkout são os mesmos componentes do mobile, fixos no rodapé no celular e no fluxo da página a partir de 768 px. No tablet o resumo do carrinho fica abaixo da tabela (lado a lado só a partir de 1024 px, senão a tabela espreme). "Colecionadores também viram" reaproveita a consulta do catálogo (mais favoritados, sem o que já está no carrinho); `useFavoriteActions` concentra o favoritar com retorno ao login para essa vitrine.
 
+- **Rotas em modal (`RouteDialog`):** login, cadastro e o resultado do pedido continuam rotas reais (refresh, link direto e `?redirect=` funcionam igual); a partir de 768 px aparecem num `Dialog` do Radix, que prende o foco, fecha com Esc e devolve o foco ao elemento de antes. Fechar o login/cadastro volta no histórico (rotas privadas trocam a própria entrada pelo login com `replace`, então voltar nunca cai de novo no bloqueio); sem histórico, vai ao início. A alternância "Entrar | Criar conta" troca de rota com `replace`, para fechar sempre voltar à página de origem. Fechar o pedido leva ao início.
+- **Conta no tablet/desktop:** o layout de `/conta` troca o seletor segmentado e o "Sair" do fim pela sidebar do Figma (mesmas rotas e o mesmo logout). Campos de informações pessoais em duas colunas a partir de 1024 px.
+
 ## Rotas
 
 | Rota | Tela |
@@ -116,4 +119,7 @@
 - **Abas do detalhe:** "Detalhes do NFT" mostra só o que o contrato tem (rede, coleção, token, data de listagem, edições e atributos); os textos de contrato inteligente e royalties do Figma não existem na API e não foram inventados. "Avaliações" mostra a nota média e o total reais; os comentários individuais não fazem parte do contrato e a aba diz isso. A lupa de zoom da imagem do Figma ficou de fora (sem comportamento definido no enunciado).
 - **Carrinho desktop:** a coluna "Edições" do Figma é a quantidade e virou "Quantidade"; a linha mostra a edição escolhida no lugar do ID do token (o item do carrinho é NFT + edição). O título "Resumo da carteira" virou "Resumo da compra".
 - **Pagamento desktop:** formulário do frame mobile (carteiras, provedor, rede, dados do colecionador) à esquerda e "Seus NFTs" (itens, valores e "Revisar pedido") à direita, como na coluna do Figma. A revisão é uma coluna central com o mesmo conteúdo do mobile.
+- **Fundo dos modais de login/cadastro:** o modal abre sobre o próprio site (header e rodapé), não sobre o Início como no Figma. Desenhar o catálogo atrás de um overlay inerte faria consultas à toa e exigiria renderizar uma rota dentro de outra.
+- **Sidebar da conta:** Atividade, Ofertas, Arquivos baixados e Suporte aparecem desabilitados ("indisponível na demo"); Lista de interesse leva aos favoritos. Os formulários continuam sem os campos repetidos do Figma (decisão da fase 2).
+- **Confirmação do pedido:** o modal vale para os três estados (pendente, confirmado e recusado), não só para o confirmado do Figma, para o pedido não mudar de lugar quando o status chega.
 - Inconsistências de dado do Figma (token IDs diferentes, edição duplicada) são corrigidas nas fixtures.

@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Clock, SearchX, X, XCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Order } from '@/api/order'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
 import { EthAmount } from '@/components/EthAmount'
+import { RouteDialog } from '@/components/layout/RouteDialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { requireSession, useSession } from '@/features/auth/queries'
@@ -14,6 +15,7 @@ import { OrderReceipt } from '@/features/checkout/OrderReceipt'
 import { ThankYouIllustration } from '@/features/checkout/ThankYouIllustration'
 import { useOrder } from '@/features/order/queries'
 import { formatDate } from '@/lib/date'
+import { TABLET_UP, useMediaQuery } from '@/lib/useMediaQuery'
 import { getExplorer, shortenAddress } from '@/lib/wallet'
 
 export const Route = createFileRoute('/pedido/$orderId')({
@@ -25,6 +27,8 @@ function OrderPage() {
   const { orderId } = Route.useParams()
   const session = useSession()
   const order = useOrder(orderId, session.data?.user.id)
+  const isWide = useMediaQuery(TABLET_UP)
+  const navigate = useNavigate()
 
   if (session.isPending || order.isPending) return <OrderSkeleton />
   if (order.error?.code === 'not_found') return <OrderNotFound />
@@ -45,6 +49,30 @@ function OrderPage() {
   }
   if (!order.data) return null
 
+  const content = (
+    <>
+      {order.isRefetchError && (
+        <p role="status" className="rounded-lg bg-primary/10 px-4 py-3 text-center text-sm text-primary">
+          Sem conexão com o servidor. Vamos atualizar o pedido assim que a conexão voltar.
+        </p>
+      )}
+      {order.data.status === 'confirmed' && <ConfirmedOrder order={order.data} />}
+      {order.data.status === 'pending' && <PendingOrder order={order.data} />}
+      {order.data.status === 'rejected' && <RejectedOrder order={order.data} />}
+    </>
+  )
+
+  // Tablet/desktop: o resultado aparece em modal (Figma "Order Confirmation Modal"); fechar leva ao início
+  if (isWide) {
+    return (
+      <main className="min-h-[60vh]">
+        <RouteDialog title="Seu pedido" hideTitle onClose={() => void navigate({ to: '/' })} className="gap-6 sm:max-w-[36rem]">
+          {content}
+        </RouteDialog>
+      </main>
+    )
+  }
+
   return (
     <>
       <header className="flex justify-end px-6 pt-6">
@@ -56,16 +84,7 @@ function OrderPage() {
         </Button>
       </header>
 
-      <main className="mx-auto flex max-w-md flex-col gap-6 px-6 pb-10">
-        {order.isRefetchError && (
-          <p role="status" className="rounded-lg bg-primary/10 px-4 py-3 text-center text-sm text-primary">
-            Sem conexão com o servidor. Vamos atualizar o pedido assim que a conexão voltar.
-          </p>
-        )}
-        {order.data.status === 'confirmed' && <ConfirmedOrder order={order.data} />}
-        {order.data.status === 'pending' && <PendingOrder order={order.data} />}
-        {order.data.status === 'rejected' && <RejectedOrder order={order.data} />}
-      </main>
+      <main className="mx-auto flex max-w-md flex-col gap-6 px-6 pb-10">{content}</main>
     </>
   )
 }
@@ -81,7 +100,7 @@ function ConfirmedOrder({ order }: { order: Extract<Order, { status: 'confirmed'
         <h1 className="font-bold text-muted-foreground">Seus NFTs agora estão na sua carteira</h1>
       </div>
 
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-y border-primary py-4 text-sm">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-y border-primary py-4 text-sm md:grid-cols-4">
         <MetaItem label="ID da transação" value={shortenAddress(order.transactionHash)} />
         <MetaItem label="Data" value={formatDate(order.confirmedAt)} />
         <MetaItem label="Total" value={<EthAmount value={order.total} />} />
@@ -99,7 +118,7 @@ function ConfirmedOrder({ order }: { order: Extract<Order, { status: 'confirmed'
           <span className="sr-only"> (abre em nova aba)</span>
         </a>
       </Button>
-      <div aria-hidden className="h-2 rounded-full bg-primary" />
+      <div aria-hidden className="h-2 rounded-full bg-primary md:hidden" />
     </>
   )
 }
