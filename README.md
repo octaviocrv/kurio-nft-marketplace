@@ -4,6 +4,8 @@ Desafio técnico de frontend da Jungle Gaming: marketplace de NFTs em React + Ty
 
 Stack: Vite · React · TypeScript · TanStack Router · TanStack Query · Axios · Tailwind CSS · shadcn/ui · MSW (`@mswjs/socket.io-binding`) · socket.io-client · Playwright · Lighthouse. Complementares: zod, react-hook-form, lucide-react, `@fontsource/roboto-mono`.
 
+**Demo publicada:** https://kurio-nft-marketplace-indol.vercel.app
+
 Arquitetura, contratos, política de sessão, cache, tempo real, limitações e desvios do Figma: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Setup
